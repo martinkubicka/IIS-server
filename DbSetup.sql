@@ -1,0 +1,88 @@
+DROP TABLE Rating;
+DROP TABLE Post;
+DROP TABLE Thread;
+DROP TABLE Moderator;
+DROP TABLE Member;
+DROP TABLE GroupPrivacySettings;
+DROP TABLE UserPrivacySettings;
+DROP TABLE Groups;
+DROP TABLE Users;
+
+CREATE TABLE Users (
+    Email VARCHAR(255) NOT NULL PRIMARY KEY CHECK (Email REGEXP '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\\.[A-Za-z]+$'),
+    Password VARCHAR(255) NOT NULL,
+    Handle VARCHAR(255) NOT NULL UNIQUE,
+    Name VARCHAR(255) NOT NULL,
+    Role ENUM('admin', 'user') NOT NULL,
+    Icon VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE Groups (
+    Handle VARCHAR(255) NOT NULL PRIMARY KEY,
+    Description VARCHAR(255),
+    Name VARCHAR(255) NOT NULL,
+    Admin VARCHAR(255) NOT NULL,
+    FOREIGN KEY (Admin) REFERENCES Users(Email)
+);
+
+CREATE TABLE GroupPrivacySettings (
+    Id VARCHAR(255) NOT NULL PRIMARY KEY,
+    Handle VARCHAR(255) NOT NULL,
+    VisibilityMember BOOLEAN DEFAULT TRUE,
+    VisibilityGuest BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (Handle) REFERENCES Groups(Handle)
+);
+
+CREATE TABLE UserPrivacySettings (
+    Id VARCHAR(255) NOT NULL PRIMARY KEY,
+    Email VARCHAR(255) NOT NULL,
+    VisibilityRegistered BOOLEAN DEFAULT TRUE,
+    VisibilityGuest BOOLEAN DEFAULT TRUE,
+    VisibilityGroup BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (Email) REFERENCES Users(Email)
+);
+
+CREATE TABLE Member (
+    Id VARCHAR(255) NOT NULL PRIMARY KEY,
+    Handle VARCHAR(255) NOT NULL,
+    Email VARCHAR(255) NOT NULL,
+    FOREIGN KEY (Email) REFERENCES Users(Email),
+    FOREIGN KEY (Handle) REFERENCES Groups(Handle)
+);
+
+CREATE TABLE Moderator (
+    Id VARCHAR(255) NOT NULL PRIMARY KEY,
+    Handle VARCHAR(255) NOT NULL,
+    Email VARCHAR(255) NOT NULL,
+    FOREIGN KEY (Email) REFERENCES Users(Email),
+    FOREIGN KEY (Handle) REFERENCES Groups(Handle)
+);
+
+CREATE TABLE Thread (
+    Id VARCHAR(255) NOT NULL PRIMARY KEY,
+    Handle VARCHAR(255) NOT NULL,
+    Email VARCHAR(255) NOT NULL,
+    Name VARCHAR(255) NOT NULL,
+    Date DATETIME NOT NULL,
+    FOREIGN KEY (Email) REFERENCES Users(Email),
+    FOREIGN KEY (Handle) REFERENCES Groups(Handle)
+);
+
+CREATE TABLE Post (
+    Id VARCHAR(255) NOT NULL PRIMARY KEY,
+    ThreadId VARCHAR(255) NOT NULL,
+    Email VARCHAR(255) NOT NULL,
+    Text VARCHAR(255) NOT NULL,
+    Date DATETIME NOT NULL,
+    FOREIGN KEY (Email) REFERENCES Users(Email),
+    FOREIGN KEY (ThreadId) REFERENCES Thread(Id)
+);
+
+CREATE TABLE Rating (
+    Id VARCHAR(255) NOT NULL PRIMARY KEY,
+    Rating BOOLEAN,  
+    PostId VARCHAR(255) NOT NULL,
+    Email VARCHAR(255) NOT NULL,
+    FOREIGN KEY (Email) REFERENCES Users(Email),
+    FOREIGN KEY (PostId) REFERENCES Post(Id)
+);
