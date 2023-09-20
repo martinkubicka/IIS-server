@@ -9,12 +9,12 @@ DROP TABLE Groups;
 DROP TABLE Users;
 
 CREATE TABLE Users (
-    Email VARCHAR(255) NOT NULL PRIMARY KEY CHECK (Email REGEXP '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\\.[A-Za-z]+$'),
+    Email VARCHAR(255) NOT NULL PRIMARY KEY,
     Password VARCHAR(255) NOT NULL,
     Handle VARCHAR(255) NOT NULL UNIQUE,
     Name VARCHAR(255) NOT NULL,
-    Role ENUM('admin', 'user') NOT NULL,
-    Icon VARCHAR(255) NOT NULL
+    Role INT NOT NULL,
+    Icon VARCHAR(255)
 );
 
 CREATE TABLE Groups (
