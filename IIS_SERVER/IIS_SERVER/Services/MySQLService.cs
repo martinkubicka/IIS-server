@@ -5,11 +5,12 @@ namespace IIS_SERVER.Services;
 
 public class MySQLService : IMySQLService
 {
-    private readonly string ConnectionString = "Server=sql11.freesqldatabase.com;Database=sql11647515;Uid=sql11647515;Pwd=I812NztQS8;";
+    private readonly string ConnectionString;
     private readonly MySqlConnection Connection;
     
-    public MySQLService()
+    public MySQLService(IConfiguration configuration)
     {
+        ConnectionString = configuration["DB:ConnectionString"];
         Connection = new MySqlConnection(ConnectionString);
         Connection.Open();
     }
