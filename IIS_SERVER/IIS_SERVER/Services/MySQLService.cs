@@ -81,7 +81,7 @@ public class MySQLService : IMySQLService, IDisposable
         }
     }
 
-    public async Task<UserProfileModel?> GetUserProfile(string handle)
+    public async Task<UserListModel?> GetUserProfile(string handle)
     {
         try
         {
@@ -94,7 +94,7 @@ public class MySQLService : IMySQLService, IDisposable
                 {
                     if (await reader.ReadAsync())
                     {
-                        return new UserProfileModel
+                        return new UserListModel
                         {
                             Handle = reader.GetString(reader.GetOrdinal("Handle")),
                             Name = reader.GetString(reader.GetOrdinal("Name")),

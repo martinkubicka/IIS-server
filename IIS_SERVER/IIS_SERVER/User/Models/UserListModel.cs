@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using IIS_SERVER.Utils;
+using IIS_SERVER.Enums;
 
 namespace IIS_SERVER.User.Models;
 
@@ -14,4 +15,7 @@ public class UserListModel
     public string Name { get; set; }
 
     public string? Icon { get; set; }
+    
+    [Required(ErrorMessage = "Role is required")]
+    public Role Role { get; set; }
 }

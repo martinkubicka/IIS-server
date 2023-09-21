@@ -7,7 +7,7 @@ public interface IMySQLService
 {
     Task<bool> AddUser(UserDetailModel user);
     Task<List<UserListModel>?> GetUsersList();
-    Task<UserProfileModel?> GetUserProfile(string handle);
+    Task<UserListModel?> GetUserProfile(string handle);
     Task<Role?> GetUserRole(string handle);
     Task<bool> UpdateUser(UserDetailModel updatedUser, UserPrivacySettingsModel userPrivacy);
     Task<bool> DeleteUser(string email);

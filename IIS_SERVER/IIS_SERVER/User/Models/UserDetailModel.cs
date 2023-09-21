@@ -4,7 +4,7 @@ using IIS_SERVER.Utils;
 
 namespace IIS_SERVER.User.Models;
 
-public class UserDetailModel : UserProfileModel
+public class UserDetailModel : UserListModel
 {
     [Required(ErrorMessage = "Email is required")]
     [EmailAddress(ErrorMessage = "Invalid email address")]

@@ -88,7 +88,7 @@ public class UserController : ControllerBase, IUserController
     [HttpGet("profile")]
     public async Task<IActionResult> GetUserProfile(string handle)
     {
-        UserProfileModel? profile = await MySqlService.GetUserProfile(handle);
+        UserListModel? profile = await MySqlService.GetUserProfile(handle);
 
         if (profile != null)
         {
