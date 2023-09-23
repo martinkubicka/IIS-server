@@ -1,6 +1,7 @@
 using IIS_SERVER.User.Models;
 using MySql.Data.MySqlClient;
 using IIS_SERVER.Enums;
+using IIS_SERVER.Member.Models;
 using IIS_SERVER.Thread.Models;
 
 namespace IIS_SERVER.Services;
@@ -23,7 +24,7 @@ public class MySQLService : IMySQLService, IDisposable
         Connection.Dispose();
     }
     
-    public async Task<bool> AddUser(UserDetailModel user)
+    public async Task<Tuple<bool, string>> AddUser(UserDetailModel user)
     {
         try
         {
@@ -42,11 +43,11 @@ public class MySQLService : IMySQLService, IDisposable
                 await cmd.ExecuteNonQueryAsync();
             }
             
-            return true;
+            return Tuple.Create(true, "");
         }
-        catch
+        catch (Exception ex)
         {
-            return false;
+            return Tuple.Create(false, ex.Message);
         }
     }
 
@@ -66,7 +67,8 @@ public class MySQLService : IMySQLService, IDisposable
                         {
                             Handle = reader.GetString(reader.GetOrdinal("Handle")),
                             Name = reader.GetString(reader.GetOrdinal("Name")),
-                            Icon = reader.IsDBNull(reader.GetOrdinal("Icon")) ? null : reader.GetString(reader.GetOrdinal("Icon"))
+                            Icon = reader.IsDBNull(reader.GetOrdinal("Icon")) ? null : reader.GetString(reader.GetOrdinal("Icon")),
+                            Role = (Role)reader.GetInt32(reader.GetOrdinal("Role"))
                         };
                         
                         usersList.Add(user);
@@ -167,7 +169,7 @@ public class MySQLService : IMySQLService, IDisposable
         }
     }
 
-    public async Task<bool> DeleteUser(string email)
+    public async Task<Tuple<bool, string?>> DeleteUser(string email)
     {
         try
         {
@@ -178,11 +180,11 @@ public class MySQLService : IMySQLService, IDisposable
                 await cmd.ExecuteNonQueryAsync();
             }
 
-            return true;
+            return Tuple.Create(true, "");
         }
-        catch
+        catch (Exception ex)
         { 
-            return false;
+            return Tuple.Create(false, ex.Message);
         }
 
     }
@@ -215,6 +217,72 @@ public class MySQLService : IMySQLService, IDisposable
         catch
         {
             return null;
+        }
+    }
+
+    public async Task<Tuple<bool, string?>> AddMember(MemberModel member)
+    {
+        try
+        {
+            string insertQuery = "INSERT INTO Member (Id, Handle, Email, GroupRole) " +
+                                 "VALUES (@Id, @Handle, @Email, @GroupRole)";
+
+            using (MySqlCommand cmd = new MySqlCommand(insertQuery, Connection))
+            {
+                cmd.Parameters.AddWithValue("@Id", Guid.NewGuid());
+                cmd.Parameters.AddWithValue("@Handle", member.Handle);
+                cmd.Parameters.AddWithValue("@Email", member.Email);
+                cmd.Parameters.AddWithValue("@GroupRole", member.Role);
+                
+                await cmd.ExecuteNonQueryAsync();
+            }
+            
+            return Tuple.Create(true, "");
+        }
+        catch (Exception ex)
+        {
+            return Tuple.Create(false, ex.Message);
+        }
+    }
+
+    public async Task<Tuple<bool, string?>> DeleteMember(string email, string handle)
+    {
+        try
+        {
+            using (MySqlCommand command = new MySqlCommand("CALL DeleteMember(@Email, @Handle)", Connection))
+            {
+                command.Parameters.AddWithValue("@Email", email);
+                command.Parameters.AddWithValue("@Handle", handle);
+                await command.ExecuteNonQueryAsync();
+                
+                return Tuple.Create(true, "");
+            }
+        }
+        catch (Exception ex)
+        {
+            return Tuple.Create(false, ex.Message);
+        }
+    }
+
+    public async Task<Tuple<bool, string?>> UpdateMemberRole(string email, GroupRole role, string handle)
+    {
+        string query = "UPDATE Member SET GroupRole = @GroupRole WHERE Email = @Email AND Handle = @Handle";
+
+        try
+        {
+            using (MySqlCommand command = new MySqlCommand(query, Connection))
+            {
+                command.Parameters.AddWithValue("@GroupRole", role);
+                command.Parameters.AddWithValue("@Email", email);
+                command.Parameters.AddWithValue("@Handle", handle);
+                int rowsAffected = await command.ExecuteNonQueryAsync();
+
+                return Tuple.Create(rowsAffected > 0, "");
+            }
+        }
+        catch (Exception ex)
+        {
+            return Tuple.Create(false, ex.Message);
         }
     }
 
