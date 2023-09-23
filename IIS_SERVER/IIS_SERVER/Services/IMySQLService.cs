@@ -14,7 +14,7 @@ public interface IMySQLService
     Task<Tuple<bool, string?>> DeleteUser(string email);
     Task<UserPrivacySettingsModel?> GetUserPrivacySettings(string handle);
     Task<Tuple<bool, string?>> AddMember(MemberModel member);
-    Task<bool> DeleteMember(string email);
-    Task<bool> UpdateMemberRole(string email, GroupRole role);
+    Task<Tuple<bool, string?>> DeleteMember(string email, string handle);
+    Task<Tuple<bool, string?>> UpdateMemberRole(string email, GroupRole role, string handle);
 
 }

@@ -94,12 +94,11 @@ public class MemberControllerTests
         public async Task DeleteMember_MemberDeleted_ReturnsNoContentResult()
         {
             // Arrange
-            mySqlServiceMock.Setup(service => service.DeleteMember(It.IsAny<string>()))
-                            .ReturnsAsync(true);
+            mySqlServiceMock.Setup(service => service.DeleteMember(It.IsAny<string>(), It.IsAny<string>()))
+                            .ReturnsAsync(Tuple.Create(true, (string?)null));
 
             // Act
-            var result = await controller.DeleteMember("testMember") as ObjectResult;
-
+            var result = await controller.DeleteMember("testMember", "testHandle") as ObjectResult;
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(204, result.StatusCode);
@@ -109,27 +108,59 @@ public class MemberControllerTests
         public async Task DeleteMember_MemberNotFound_ReturnsNotFoundResult()
         {
             // Arrange
-            mySqlServiceMock.Setup(service => service.DeleteMember(It.IsAny<string>()))
-                            .ReturnsAsync(false);
+            mySqlServiceMock.Setup(service => service.DeleteMember(It.IsAny<string>(), It.IsAny<string>()))
+                            .ReturnsAsync(Tuple.Create(false, "Member"));
 
             // Act
-            var result = await controller.DeleteMember("nonExistentMember") as ObjectResult;
+            var result = await controller.DeleteMember("nonExistentMember", "handle") as ObjectResult;
 
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(404, result.StatusCode);
             Assert.AreEqual("Error: Member not found.", result.Value);
         }
+        
+        [Test]
+        public async Task DeleteMember_GroupNotFound_ReturnsNotFoundResult()
+        {
+            // Arrange
+            mySqlServiceMock.Setup(service => service.DeleteMember(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(Tuple.Create(false, "Groups"));
+
+            // Act
+            var result = await controller.DeleteMember("member", "nonExistentHandle") as ObjectResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(404, result.StatusCode);
+            Assert.AreEqual("Error: Group not found.", result.Value);
+        }
+        
+        [Test]
+        public async Task DeleteMember_MemberIsAdmin_ReturnsConflict()
+        {
+            // Arrange
+            mySqlServiceMock.Setup(service => service.DeleteMember(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(Tuple.Create(false, "admin"));
+
+            // Act
+            var result = await controller.DeleteMember("member", "handle") as ObjectResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(403, result.StatusCode);
+            Assert.AreEqual("Error: Member is admin of the group.", result.Value);
+        }
 
         [Test]
         public async Task UpdateMemberRole_MemberRoleUpdated_ReturnsNoContentResult()
         {
             // Arrange
-            mySqlServiceMock.Setup(service => service.UpdateMemberRole(It.IsAny<string>(), It.IsAny<GroupRole>()))
-                            .ReturnsAsync(true);
+            mySqlServiceMock.Setup(service => service.UpdateMemberRole(It.IsAny<string>(), It.IsAny<GroupRole>(), It.IsAny<string>()))
+                            .ReturnsAsync(Tuple.Create(true, (string?)null));
 
             // Act
-            var result = await controller.UpdateMemberRole("testMember", GroupRole.moderator) as ObjectResult;
+            var result = await controller.UpdateMemberRole("testMember", GroupRole.moderator, "handle") as ObjectResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -140,16 +171,32 @@ public class MemberControllerTests
         public async Task UpdateMemberRole_MemberNotFound_ReturnsNotFoundResult()
         {
             // Arrange
-            mySqlServiceMock.Setup(service => service.UpdateMemberRole(It.IsAny<string>(), It.IsAny<GroupRole>()))
-                            .ReturnsAsync(false);
+            mySqlServiceMock.Setup(service => service.UpdateMemberRole(It.IsAny<string>(), It.IsAny<GroupRole>(), It.IsAny<string>()))
+                            .ReturnsAsync(Tuple.Create(false, "Member"));
 
             // Act
-            var result = await controller.UpdateMemberRole("nonExistentMember", GroupRole.moderator) as ObjectResult;
+            var result = await controller.UpdateMemberRole("nonExistentMember", GroupRole.moderator, "handle") as ObjectResult;
 
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(404, result.StatusCode);
             Assert.AreEqual("Error: Member not found.", result.Value);
+        }
+        
+        [Test]
+        public async Task UpdateMemberRole_GroupNotFound_ReturnsNotFoundResult()
+        {
+            // Arrange
+            mySqlServiceMock.Setup(service => service.UpdateMemberRole(It.IsAny<string>(), It.IsAny<GroupRole>(), It.IsAny<string>()))
+                .ReturnsAsync(Tuple.Create(false, "Groups"));
+
+            // Act
+            var result = await controller.UpdateMemberRole("member", GroupRole.moderator, "nonExistentGroup") as ObjectResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(404, result.StatusCode);
+            Assert.AreEqual("Error: Group not found.", result.Value);
         }
     }
 }

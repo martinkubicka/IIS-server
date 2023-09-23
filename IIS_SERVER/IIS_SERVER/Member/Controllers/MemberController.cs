@@ -43,22 +43,22 @@ public class MemberController : ControllerBase, IMemberController
     }
 
     [HttpDelete("delete")]
-    public async Task<IActionResult> DeleteMember(string email)
+    public async Task<IActionResult> DeleteMember(string email, string handle)
     {
-        bool result = await MySqlService.DeleteMember(email);
+        Tuple<bool, string?> result = await MySqlService.DeleteMember(email, handle);
 
-        return result
+        return result.Item1
             ? StatusCode(204, "Member successfully deleted.")
-            : StatusCode(404, "Error: Member not found.");
+            : result.Item2.Contains("admin") ? StatusCode(403, "Error: Member is admin of the group.") : result.Item2.Contains("Groups") ? StatusCode(404, "Error: Group not found.") : StatusCode(404, "Error: Member not found.");
     }
 
     [HttpPut("updateRole")]
-    public async Task<IActionResult> UpdateMemberRole(string email, GroupRole role)
+    public async Task<IActionResult> UpdateMemberRole(string email, GroupRole role, string handle)
     {
-        bool result = await MySqlService.UpdateMemberRole(email, role);
+        Tuple<bool, string?> result = await MySqlService.UpdateMemberRole(email, role, handle);
 
-        return result
+        return result.Item1
             ? StatusCode(204, "Member successfully updated.")
-            : StatusCode(404, "Error: Member not found.");
+            : result.Item2.Contains("Groups") ? StatusCode(404, "Error: Group not found.") : StatusCode(404, "Error: Member not found.");
     }
 }

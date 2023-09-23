@@ -193,11 +193,11 @@ namespace UserControllerTests
         }
 
         [Test]
-        public async Task DeleteUser_UserIsAdmin_ReturnsForbiddenResult()
+        public async Task DeleteUser_UserIsAdminInGroup_ReturnsForbiddenResult()
         {
             // Arrange
             mySqlServiceMock.Setup(service => service.DeleteUser(It.IsAny<string>()))
-                            .ReturnsAsync(Tuple.Create(false, "Error: User is an admin."));
+                            .ReturnsAsync(Tuple.Create(false, "group admin"));
 
             // Act
             var result = await controller.DeleteUser("adminUser") as ObjectResult;
@@ -206,6 +206,22 @@ namespace UserControllerTests
             Assert.IsNotNull(result);
             Assert.AreEqual(403, result.StatusCode);
             Assert.AreEqual("Error: User cannot be deleted because is an admin in one or more groups.", result.Value);
+        }
+        
+        [Test]
+        public async Task DeleteUser_UserIsSystemAdmin_ReturnsForbiddenResult()
+        {
+            // Arrange
+            mySqlServiceMock.Setup(service => service.DeleteUser(It.IsAny<string>()))
+                .ReturnsAsync(Tuple.Create(false, "system admin"));
+
+            // Act
+            var result = await controller.DeleteUser("adminUser") as ObjectResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(403, result.StatusCode);
+            Assert.AreEqual("Error: User cannot be deleted because is an system admin.", result.Value);
         }
 
         [Test]

@@ -76,7 +76,7 @@ public class UserController : ControllerBase, IUserController
     {
         Tuple<bool, string?> result = await MySqlService.DeleteUser(email);
 
-        return result.Item1 ? StatusCode(204, "User successfully deleted.") : result.Item2.Contains("admin") ? StatusCode(403, "Error: User cannot be deleted because is an admin in one or more groups.") : StatusCode(404, "Error: User not found.");
+        return result.Item1 ? StatusCode(204, "User successfully deleted.") : result.Item2.Contains("admin") ? result.Item2.Contains("group") ? StatusCode(403, "Error: User cannot be deleted because is an admin in one or more groups.") : StatusCode(403, "Error: User cannot be deleted because is an system admin.") : StatusCode(404, "Error: User not found.");
     }
 
     [HttpGet("privacy")]

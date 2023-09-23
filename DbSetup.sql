@@ -2,17 +2,17 @@ DROP TABLE Rating;
 DROP TABLE Post;
 DROP TABLE Thread;
 DROP TABLE Member;
-DROP TABLE Groups;
+DROP TABLE `Groups`;
 DROP TABLE Users;
 DROP PROCEDURE DeleteUser;
-DROP TRIGGER CheckDuplicateMembers;
+DROP PROCEDURE DeleteMember;
 
 -- TABLES
 
 CREATE TABLE Users (
     Email VARCHAR(255) NOT NULL PRIMARY KEY,
     Password VARCHAR(255) NOT NULL,
-    Handle VARCHAR(255) NOT NULL,
+    Handle VARCHAR(255) NOT NULL UNIQUE,
     Name VARCHAR(255) NOT NULL,
     Role INT NOT NULL,
     VisibilityRegistered BOOLEAN DEFAULT TRUE,
@@ -25,11 +25,9 @@ CREATE TABLE `Groups` (
     Handle VARCHAR(255) NOT NULL PRIMARY KEY,
     Description VARCHAR(255),
     Name VARCHAR(255) NOT NULL,
-    Admin VARCHAR(255) NOT NULL,
     VisibilityMember BOOLEAN DEFAULT TRUE,
     VisibilityGuest BOOLEAN DEFAULT TRUE,
-    Icon VARCHAR(255),
-    FOREIGN KEY (Admin) REFERENCES Users(Email)
+    Icon VARCHAR(255)
 );
 
 CREATE TABLE Member (
@@ -76,17 +74,40 @@ DELIMITER //
 
 CREATE PROCEDURE DeleteUser(IN userEmail VARCHAR(255))
 BEGIN
-    DECLARE isAdmin INT DEFAULT 0;
+    DECLARE isGroupAdmin INT DEFAULT 0;
+    DECLARE isSystemAdmin INT DEFAULT 0;
     
-    SELECT COUNT(*) INTO isAdmin FROM `Groups` WHERE Admin = userEmail;
+    SELECT COUNT(*) INTO isGroupAdmin FROM Member WHERE Email = userEmail AND GroupRole = 0;
+    SELECT COUNT(*) INTO isSystemAdmin FROM Users WHERE Role = 0 AND Email = userEmail;
 
-    IF isAdmin > 0 THEN
+    IF isGroupAdmin > 0 THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'User is an admin and cannot be deleted';
+        SET MESSAGE_TEXT = 'User is an group admin and cannot be deleted';
+    ELSEIF isSystemAdmin > 0 THEN
+        SIGNAL SQLSTATE '45001'
+        SET MESSAGE_TEXT = 'User is an system admin and cannot be deleted';
     ELSE
         DELETE FROM Member WHERE Email = userEmail;
 
         DELETE FROM Users WHERE Email = userEmail;
+    END IF;
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE DeleteMember(IN userEmail VARCHAR(255), IN groupHandle VARCHAR(255))
+BEGIN
+    DECLARE isGroupAdmin INT DEFAULT 0;
+    
+    SELECT COUNT(*) INTO isGroupAdmin FROM Member WHERE Email = userEmail AND Handle = groupHandle AND GroupRole = 0;
+
+    IF isGroupAdmin > 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'User is an group admin and cannot be deleted';
+    ELSE
+        DELETE FROM Member WHERE Email = userEmail AND Handle = groupHandle;
     END IF;
 END //
 
@@ -104,7 +125,7 @@ BEGIN
     SET handle_count = (SELECT COUNT(*) FROM Member WHERE Handle = NEW.Handle AND Email = NEW.Email);
     
     IF handle_count > 0 THEN
-        SIGNAL SQLSTATE '45001'
+        SIGNAL SQLSTATE '45002'
         SET MESSAGE_TEXT = 'User already exists in this group.';
     END IF;
 END; //
