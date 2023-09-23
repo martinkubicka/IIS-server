@@ -1,6 +1,7 @@
 using IIS_SERVER.User.Models;
 using MySql.Data.MySqlClient;
 using IIS_SERVER.Enums;
+using IIS_SERVER.Member.Models;
 
 namespace IIS_SERVER.Services;
 
@@ -22,7 +23,7 @@ public class MySQLService : IMySQLService, IDisposable
         Connection.Dispose();
     }
     
-    public async Task<bool> AddUser(UserDetailModel user)
+    public async Task<Tuple<bool, string>> AddUser(UserDetailModel user)
     {
         try
         {
@@ -41,11 +42,11 @@ public class MySQLService : IMySQLService, IDisposable
                 await cmd.ExecuteNonQueryAsync();
             }
             
-            return true;
+            return Tuple.Create(true, "");
         }
-        catch
+        catch (Exception ex)
         {
-            return false;
+            return Tuple.Create(false, ex.Message);
         }
     }
 
@@ -166,7 +167,7 @@ public class MySQLService : IMySQLService, IDisposable
         }
     }
 
-    public async Task<bool> DeleteUser(string email)
+    public async Task<Tuple<bool, string?>> DeleteUser(string email)
     {
         try
         {
@@ -177,11 +178,11 @@ public class MySQLService : IMySQLService, IDisposable
                 await cmd.ExecuteNonQueryAsync();
             }
 
-            return true;
+            return Tuple.Create(true, "");
         }
-        catch
+        catch (Exception ex)
         { 
-            return false;
+            return Tuple.Create(false, ex.Message);
         }
 
     }
@@ -214,6 +215,71 @@ public class MySQLService : IMySQLService, IDisposable
         catch
         {
             return null;
+        }
+    }
+
+    public async Task<Tuple<bool, string?>> AddMember(MemberModel member)
+    {
+        try
+        {
+            string insertQuery = "INSERT INTO Member (Id, Handle, Email, GroupRole) " +
+                                 "VALUES (@Id, @Handle, @Email, @GroupRole)";
+
+            using (MySqlCommand cmd = new MySqlCommand(insertQuery, Connection))
+            {
+                cmd.Parameters.AddWithValue("@Id", Guid.NewGuid());
+                cmd.Parameters.AddWithValue("@Handle", member.Handle);
+                cmd.Parameters.AddWithValue("@Email", member.Email);
+                cmd.Parameters.AddWithValue("@GroupRole", member.Role);
+                
+                await cmd.ExecuteNonQueryAsync();
+            }
+            
+            return Tuple.Create(true, "");
+        }
+        catch (Exception ex)
+        {
+            return Tuple.Create(false, ex.Message);
+        }
+    }
+
+    public async Task<bool> DeleteMember(string email)
+    {
+        try
+        {
+            string query = "DELETE FROM Member WHERE Email = @Email";
+            using (MySqlCommand command = new MySqlCommand(query, Connection))
+            {
+                command.Parameters.AddWithValue("@Email", email);
+                int rowsAffected = await command.ExecuteNonQueryAsync();
+                
+                return rowsAffected > 0;
+            }
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> UpdateMemberRole(string email, GroupRole role)
+    {
+        string query = "UPDATE Member SET GroupRole = @GroupRole WHERE Email = @Email";
+
+        try
+        {
+            using (MySqlCommand command = new MySqlCommand(query, Connection))
+            {
+                command.Parameters.AddWithValue("@GroupRole", role);
+                command.Parameters.AddWithValue("@Email", email);
+                int rowsAffected = await command.ExecuteNonQueryAsync();
+
+                return rowsAffected > 0;
+            }
+        }
+        catch
+        {
+            return false;
         }
     }
 }

@@ -19,14 +19,21 @@ public class UserController : ControllerBase, IUserController
     [HttpPost("add")]
     public async Task<IActionResult> AddUser(UserDetailModel user)
     {
-        bool result = await MySqlService.AddUser(user);
-        if (result)
+        Tuple<bool, string?> result = await MySqlService.AddUser(user);
+        if (result.Item1)
         {
             return StatusCode(201, "User successfully added to DB.");
         }
         else
         {
-            return StatusCode(500, "Error: Failed to add the user to the database.");
+            if (result.Item2.Contains("PRIMARY"))
+            {
+                return StatusCode(409, "Error: The user with email already exists.");
+            }
+            else
+            {
+                return StatusCode(500, "Error: " + result.Item2);   
+            }
         }
     }
     
@@ -61,15 +68,15 @@ public class UserController : ControllerBase, IUserController
     {
         bool result = await MySqlService.UpdateUser(updatedUser.updatedUser, updatedUser.userPrivacy);
 
-        return result ? StatusCode(204, "User successfully updated.") : StatusCode(404, "Error: User not found or DB error occured.");
+        return result ? StatusCode(204, "User successfully updated.") : StatusCode(404, "Error: User not found.");
     }
 
     [HttpDelete("delete")]
     public async Task<IActionResult> DeleteUser(string email)
     {
-        bool result = await MySqlService.DeleteUser(email);
+        Tuple<bool, string?> result = await MySqlService.DeleteUser(email);
 
-        return result ? StatusCode(204, "User successfully deleted.") : StatusCode(404, "Error: User not found or DB error occured.");
+        return result.Item1 ? StatusCode(204, "User successfully deleted.") : result.Item2.Contains("admin") ? StatusCode(403, "Error: User cannot be deleted because is an admin in one or more groups.") : StatusCode(404, "Error: User not found.");
     }
 
     [HttpGet("privacy")]

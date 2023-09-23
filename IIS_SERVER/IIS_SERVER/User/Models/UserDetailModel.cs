@@ -1,4 +1,3 @@
-using IIS_SERVER.Enums;
 using System.ComponentModel.DataAnnotations;
 using IIS_SERVER.Utils;
 
