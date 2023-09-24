@@ -278,7 +278,7 @@ public class MySQLService : IMySQLService, IDisposable
                 command.Parameters.AddWithValue("@Handle", handle);
                 int rowsAffected = await command.ExecuteNonQueryAsync();
 
-                return Tuple.Create(rowsAffected > 0, "Users");
+                return Tuple.Create(rowsAffected > 0, "Member");
             }
         }
         catch (Exception ex)

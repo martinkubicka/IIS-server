@@ -63,6 +63,6 @@ public class MemberController : ControllerBase, IMemberController
 
         return result.Item1
             ? StatusCode(204, "Member successfully updated.")
-            : result.Item2.Contains("Groups") ? StatusCode(404, "Error: Group not found.") : result.Item2.Contains("Member") ? StatusCode(404, "Error: Member not found.") : StatusCode(500, "Error: " + result.Item2);;
+            : result.Item2.Contains("Groups") ? StatusCode(404, "Error: Group or member not found.") : StatusCode(500, "Error: " + result.Item2);;
     }
 }
