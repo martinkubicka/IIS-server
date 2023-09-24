@@ -20,14 +20,14 @@ namespace IIS_SERVER.Thread.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateThread(ThreadModel thread)
         {
-            bool result = await MySqlService.CreateThread(thread);
-            if (result)
+            Tuple<bool, string?> result = await MySqlService.CreateThread(thread);
+            if (result.Item1)
             {
-                return StatusCode(201, "Thread successfully created.");
+                return StatusCode(201, "Thread successfully added to DB.");
             }
             else
             {
-                return StatusCode(500, "Error: Failed to create the thread.");
+                return StatusCode(500, result.Item2);       
             }
         }
 
@@ -76,14 +76,36 @@ namespace IIS_SERVER.Thread.Controllers
         [HttpDelete("delete/{threadId}")]
         public async Task<IActionResult> DeleteThread(string threadId)
         {
-            bool result = await MySqlService.DeleteThread(threadId);
-            if (result)
+            try
             {
-                return StatusCode(200, "Thread successfully deleted.");
+                Tuple<bool, string?> result = await MySqlService.DeleteThread(threadId);
+
+                if (result.Item1)
+                {
+                    return NoContent();
+                }
+                else
+                {
+                    if (result.Item2.Contains("admin"))
+                    {
+                        if (result.Item2.Contains("group"))
+                        {
+                            return StatusCode(403, "Error: Thread cannot be deleted because it is an admin in one or more groups.");
+                        }
+                        else
+                        {
+                            return StatusCode(403, "Error: Thread cannot be deleted because it is a system admin.");
+                        }
+                    }
+                    else
+                    {
+                        return StatusCode(500, "Error: An internal server error occurred.");
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return StatusCode(404, "Error: Thread not found or DB error occurred.");
+                return StatusCode(500, "Error: An internal server error occurred.");
             }
         }
     }
