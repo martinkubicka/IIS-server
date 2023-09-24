@@ -17,93 +17,137 @@ public class GroupController : ControllerBase, IGroupController
     }
 
     [HttpPost("add")]
-    public async Task<IActionResult> AddGroup(GroupDetailModel Group)
+    public async Task<IActionResult> AddGroup(AddGroupRequest group)
     {
-        bool result = await MySqlService.AddGroup(Group);
-        if (result)
+        try
         {
-            return StatusCode(201, "Group successfully added to DB.");
+            bool result = await MySqlService.AddGroup(group.Group);
+            if (result)
+            {
+                return StatusCode(201, "Group successfully added to DB.");
+            }
+            else
+            {
+                return StatusCode(500, "Error: Failed to add the Group to the database.");
+            }
         }
-        else
+        catch (Exception ex)
         {
-            return StatusCode(500, "Error: Failed to add the Group to the database.");
+            return StatusCode(500, $"Error: {ex.Message}");
         }
     }
 
-    [HttpGet("getGroups")]
-    public async Task<IActionResult> GetGroupsList()
+    [HttpGet("{handle}")]
+    public async Task<IActionResult> GetGroup(string handle)
     {
-        List<GroupListModel>? usrs = await MySqlService.GetGroupsList();
-
-        if (usrs != null)
+        try
         {
-            return StatusCode(200, usrs);
+            var group = await MySqlService.GetGroup(handle);
+            if (group != null)
+            {
+                return Ok(group);
+            }
+            else
+            {
+                return NotFound("Group not found.");
+            }
         }
-
-        return StatusCode(404, "Error: Group not found.");
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error: {ex.Message}");
+        }
     }
 
-    [HttpGet("role")]
-    public async Task<IActionResult> GetGroupRole(string handle)
+    [HttpGet]
+    public async Task<IActionResult> GetGroups()
     {
-        Role? role = await MySqlService.GetGroupRole(handle);
-
-        if (role != null)
+        try
         {
-            return StatusCode(200, role);
+            var groups = await MySqlService.GetGroups();
+            return Ok(groups);
         }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error: {ex.Message}");
+        }
+    }
 
-        return StatusCode(404, "Error: Group not found.");
+    [HttpGet("user/{userEmail}/{joined}")]
+    public async Task<IActionResult> GetGroups(string userEmail, bool joined)
+    {
+        try
+        {
+            var groups = await MySqlService.GetGroups(userEmail, joined);
+            return Ok(groups);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error: {ex.Message}");
+        }
+    }
+
+    [HttpDelete("remove/{handle}")]
+    public async Task<IActionResult> DeleteGroup(string handle)
+    {
+        try
+        {
+            bool result = await MySqlService.DeleteGroup(handle);
+            if (result)
+            {
+                return Ok("Group successfully removed.");
+            }
+            else
+            {
+                return NotFound("Group not found or failed to remove.");
+            }
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error: {ex.Message}");
+        }
     }
 
     [HttpPut("update")]
-    public async Task<IActionResult> UpdateGroup(UpdateGroupRequest updatedGroup)
+    public async Task<IActionResult> UpdateGroup(GroupListModel listModel)
     {
-        bool result = await MySqlService.UpdateGroup(
-            updatedGroup.updatedGroup,
-            updatedGroup.GroupPrivacy
-        );
-
-        return result
-            ? StatusCode(204, "Group successfully updated.")
-            : StatusCode(404, "Error: Group not found or DB error occured.");
-    }
-
-    [HttpDelete("delete")]
-    public async Task<IActionResult> DeleteGroup(string email)
-    {
-        bool result = await MySqlService.DeleteGroup(email);
-
-        return result
-            ? StatusCode(204, "Group successfully deleted.")
-            : StatusCode(404, "Error: Group not found or DB error occured.");
-    }
-
-    [HttpGet("privacy")]
-    public async Task<IActionResult> GetGroupPrivacySettings(string handle)
-    {
-        GroupPrivacySettingsModel? privacySettings = await MySqlService.GetGroupPrivacySettings(
-            handle
-        );
-
-        if (privacySettings != null)
+        try
         {
-            return StatusCode(200, privacySettings);
+            bool result = await MySqlService.UpdateGroup(listModel);
+            if (result)
+            {
+                return Ok("Group successfully updated.");
+            }
+            else
+            {
+                return NotFound("Group not found or failed to update.");
+            }
         }
-
-        return StatusCode(404, "Error: Group not found.");
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error: {ex.Message}");
+        }
     }
 
-    [HttpGet("profile")]
-    public async Task<IActionResult> GetGroupProfile(string handle)
+    [HttpPut("updatePolicy")]
+    public async Task<IActionResult> UpdateGroupPolicy(
+        GroupPrivacySettingsModel privacySettingsModel
+    )
     {
-        GroupListModel? profile = await MySqlService.GetGroupProfile(handle);
-
-        if (profile != null)
+        try
         {
-            return StatusCode(200, profile);
+            bool result = await MySqlService.UpdateGroupPolicy(privacySettingsModel);
+            if (result)
+            {
+                return Ok("Group policy successfully updated.");
+            }
+            else
+            {
+                return NotFound("Group policy update failed.");
+            }
         }
-
-        return StatusCode(404, "Error: Group not found.");
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error: {ex.Message}");
+        }
     }
 }
