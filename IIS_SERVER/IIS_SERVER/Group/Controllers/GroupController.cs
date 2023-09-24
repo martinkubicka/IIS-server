@@ -1,7 +1,6 @@
 using IIS_SERVER.Services;
 using IIS_SERVER.Group.Models;
 using Microsoft.AspNetCore.Mvc;
-using IIS_SERVER.Enums;
 
 namespace IIS_SERVER.Group.Controllers;
 

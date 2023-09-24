@@ -9,12 +9,6 @@ public interface AddGroupRequest
     public string OwnerEmail { get; set; }
 }
 
-public interface AddMemberRequest
-{
-    public string MemberEmail { get; set; }
-    public string GroupHandle { get; set; }
-}
-
 public interface IGroupController
 {
     Task<IActionResult> AddGroup(AddGroupRequest group);

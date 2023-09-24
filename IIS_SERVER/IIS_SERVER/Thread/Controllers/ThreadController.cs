@@ -1,8 +1,6 @@
 ﻿using IIS_SERVER.Services;
 using IIS_SERVER.Thread.Models;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
 
 namespace IIS_SERVER.Thread.Controllers
 {
@@ -27,7 +25,7 @@ namespace IIS_SERVER.Thread.Controllers
             }
             else
             {
-                return StatusCode(500, result.Item2);       
+                return StatusCode(500, result.Item2);
             }
         }
 
@@ -90,11 +88,17 @@ namespace IIS_SERVER.Thread.Controllers
                     {
                         if (result.Item2.Contains("group"))
                         {
-                            return StatusCode(403, "Error: Thread cannot be deleted because it is an admin in one or more groups.");
+                            return StatusCode(
+                                403,
+                                "Error: Thread cannot be deleted because it is an admin in one or more groups."
+                            );
                         }
                         else
                         {
-                            return StatusCode(403, "Error: Thread cannot be deleted because it is a system admin.");
+                            return StatusCode(
+                                403,
+                                "Error: Thread cannot be deleted because it is a system admin."
+                            );
                         }
                     }
                     else

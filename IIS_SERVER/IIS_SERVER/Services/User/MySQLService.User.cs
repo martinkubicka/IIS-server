@@ -6,7 +6,7 @@ namespace IIS_SERVER.Services;
 
 public partial class MySQLService : IMySQLService
 {
-    public async Task<bool> AddUser(UserDetailModel user)
+    public async Task<Tuple<bool, string>> AddUser(UserDetailModel user)
     {
         try
         {
@@ -26,11 +26,11 @@ public partial class MySQLService : IMySQLService
                 await cmd.ExecuteNonQueryAsync();
             }
 
-            return true;
+            return Tuple.Create(true, "");
         }
-        catch
+        catch (Exception ex)
         {
-            return false;
+            return Tuple.Create(false, ex.Message);
         }
     }
 
@@ -52,7 +52,8 @@ public partial class MySQLService : IMySQLService
                             Name = reader.GetString(reader.GetOrdinal("Name")),
                             Icon = reader.IsDBNull(reader.GetOrdinal("Icon"))
                                 ? null
-                                : reader.GetString(reader.GetOrdinal("Icon"))
+                                : reader.GetString(reader.GetOrdinal("Icon")),
+                            Role = (Role)reader.GetInt32(reader.GetOrdinal("Role"))
                         };
 
                         usersList.Add(user);
@@ -159,7 +160,7 @@ public partial class MySQLService : IMySQLService
         }
     }
 
-    public async Task<bool> DeleteUser(string email)
+    public async Task<Tuple<bool, string?>> DeleteUser(string email)
     {
         try
         {
@@ -170,11 +171,11 @@ public partial class MySQLService : IMySQLService
                 await cmd.ExecuteNonQueryAsync();
             }
 
-            return true;
+            return Tuple.Create(true, "");
         }
-        catch
+        catch (Exception ex)
         {
-            return false;
+            return Tuple.Create(false, ex.Message);
         }
     }
 
