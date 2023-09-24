@@ -17,7 +17,7 @@ public class MemberController : ControllerBase, IMemberController
     }
 
     [HttpPost("add")]
-    public async Task<IActionResult> AddMember(MemberModel member) // not found email, not found group, member already in group
+    public async Task<IActionResult> AddMember(MemberModel member)
     {
         Tuple<bool, string?> result = await MySqlService.AddMember(member);
         if (result.Item1)
@@ -34,9 +34,13 @@ public class MemberController : ControllerBase, IMemberController
             {
                 return StatusCode(404, "Error: Group not found.");
             }
-            else
+            else if (result.Item2.Contains("Users"))
             {
                 return StatusCode(404, "Error: User not found.");
+            }
+            else
+            {
+                return StatusCode(500, "Error: " + result.Item2);
             }
             
         }
@@ -49,7 +53,7 @@ public class MemberController : ControllerBase, IMemberController
 
         return result.Item1
             ? StatusCode(204, "Member successfully deleted.")
-            : result.Item2.Contains("admin") ? StatusCode(403, "Error: Member is admin of the group.") : result.Item2.Contains("Groups") ? StatusCode(404, "Error: Group not found.") : StatusCode(404, "Error: Member not found.");
+            : result.Item2.Contains("admin") ? StatusCode(403, "Error: Member is admin of the group.") : result.Item2.Contains("Member") ? StatusCode(404, "Error: Group or member not found.") : StatusCode(500, "Error: " + result.Item2);
     }
 
     [HttpPut("updateRole")]
@@ -59,6 +63,6 @@ public class MemberController : ControllerBase, IMemberController
 
         return result.Item1
             ? StatusCode(204, "Member successfully updated.")
-            : result.Item2.Contains("Groups") ? StatusCode(404, "Error: Group not found.") : StatusCode(404, "Error: Member not found.");
+            : result.Item2.Contains("Groups") ? StatusCode(404, "Error: Group not found.") : result.Item2.Contains("Member") ? StatusCode(404, "Error: Member not found.") : StatusCode(500, "Error: " + result.Item2);;
     }
 }
