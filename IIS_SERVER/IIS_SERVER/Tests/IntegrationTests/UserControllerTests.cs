@@ -94,8 +94,8 @@ namespace UserControllerTests
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(404, result.StatusCode);
-            Assert.AreEqual("Error: User not found.", result.Value);
+            Assert.AreEqual(500, result.StatusCode);
+            Assert.AreEqual("Error: DB error occured.", result.Value);
         }
 
         [Test]
@@ -103,7 +103,7 @@ namespace UserControllerTests
         {
             // Arrange
             mySqlServiceMock.Setup(service => service.GetUserRole(It.IsAny<string>()))
-                .ReturnsAsync(Role.admin);
+                .ReturnsAsync(Tuple.Create((Role?)Role.admin, ""));
 
             // Act
             var result = await controller.GetUserRole("testUser") as ObjectResult;
@@ -119,7 +119,7 @@ namespace UserControllerTests
         {
             // Arrange
             mySqlServiceMock.Setup(service => service.GetUserRole(It.IsAny<string>()))
-                .ReturnsAsync((Role?)null);
+                .ReturnsAsync(Tuple.Create((Role?)null, "Users"));
             // Act
             var result = await controller.GetUserRole("nonExistentUser") as ObjectResult;
 
@@ -134,7 +134,7 @@ namespace UserControllerTests
         {
             // Arrange
             mySqlServiceMock.Setup(service => service.UpdateUser(It.IsAny<UserDetailModel>(), It.IsAny<UserPrivacySettingsModel>()))
-                            .ReturnsAsync(true);
+                            .ReturnsAsync(Tuple.Create(true, ""));
             // Act
             var updatedUser = new UpdateUserRequest();
             var result = await controller.UpdateUser(updatedUser) as ObjectResult;
@@ -149,7 +149,7 @@ namespace UserControllerTests
         {
             // Arrange
             mySqlServiceMock.Setup(service => service.UpdateUser(It.IsAny<UserDetailModel>(), It.IsAny<UserPrivacySettingsModel>()))
-                            .ReturnsAsync(false);
+                            .ReturnsAsync(Tuple.Create(false, "Users"));
             
             // Act
             var updatedUser = new UpdateUserRequest();
@@ -166,7 +166,7 @@ namespace UserControllerTests
         {
             // Arrange
             mySqlServiceMock.Setup(service => service.DeleteUser(It.IsAny<string>()))
-                            .ReturnsAsync(Tuple.Create(true, (string?)null)); // Simulate successful deletion
+                            .ReturnsAsync(Tuple.Create(true, (string?)null));
 
             // Act
             var result = await controller.DeleteUser("userToDelete") as ObjectResult;
@@ -181,7 +181,7 @@ namespace UserControllerTests
         {
             // Arrange
             mySqlServiceMock.Setup(service => service.DeleteUser(It.IsAny<string>()))
-                            .ReturnsAsync(Tuple.Create(false, "Error: User not found."));
+                            .ReturnsAsync(Tuple.Create(false, "Users"));
 
             // Act
             var result = await controller.DeleteUser("nonExistentUser") as ObjectResult;
@@ -229,7 +229,7 @@ namespace UserControllerTests
         {
             // Arrange
             mySqlServiceMock.Setup(service => service.GetUserPrivacySettings(It.IsAny<string>()))
-                            .ReturnsAsync(new UserPrivacySettingsModel());
+                            .ReturnsAsync(Tuple.Create(new UserPrivacySettingsModel(), ""));
 
             // Act
             var result = await controller.GetUserPrivacySettings("testUser") as ObjectResult;
@@ -244,7 +244,7 @@ namespace UserControllerTests
         {
             // Arrange
             mySqlServiceMock.Setup(service => service.GetUserPrivacySettings(It.IsAny<string>()))
-                            .ReturnsAsync((UserPrivacySettingsModel?)null);
+                            .ReturnsAsync(Tuple.Create((UserPrivacySettingsModel?)null, "Users"));
 
             // Act
             var result = await controller.GetUserPrivacySettings("nonExistentUser") as ObjectResult;
@@ -260,7 +260,7 @@ namespace UserControllerTests
         {
             // Arrange
             mySqlServiceMock.Setup(service => service.GetUserProfile(It.IsAny<string>()))
-                            .ReturnsAsync(new UserListModel());
+                            .ReturnsAsync(Tuple.Create(new UserListModel(), ""));
 
             // Act
             var result = await controller.GetUserProfile("testUser") as ObjectResult;
@@ -275,7 +275,7 @@ namespace UserControllerTests
         {
             // Arrange
             mySqlServiceMock.Setup(service => service.GetUserProfile(It.IsAny<string>()))
-                            .ReturnsAsync((UserListModel)null);
+                            .ReturnsAsync(Tuple.Create((UserListModel)null, "Users"));
 
             // Act
             var result = await controller.GetUserProfile("nonExistentUser") as ObjectResult;

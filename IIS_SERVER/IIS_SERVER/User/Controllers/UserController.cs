@@ -47,28 +47,28 @@ public class UserController : ControllerBase, IUserController
             return StatusCode(200, usrs);
         }
 
-        return StatusCode(404, "Error: User not found.");
+        return StatusCode(500, "Error: DB error occured.");
     }
-
+    
     [HttpGet("role")]
     public async Task<IActionResult> GetUserRole(string handle)
     {
-        Role? role = await MySqlService.GetUserRole(handle);
+        Tuple<Role?, string?> result = await MySqlService.GetUserRole(handle);
 
-        if (role != null)
+        if (result.Item1 != null)
         {
-            return StatusCode(200, role);
+            return StatusCode(200, result.Item1);
         }
         
-        return StatusCode(404, "Error: User not found.");
+        return result.Item2.Contains("Users") ? StatusCode(404, "Error: User not found.") : StatusCode(500, "Error: " + result.Item2);
     }
 
     [HttpPut("update")]
     public async Task<IActionResult> UpdateUser(UpdateUserRequest updatedUser)
     {
-        bool result = await MySqlService.UpdateUser(updatedUser.updatedUser, updatedUser.userPrivacy);
+        Tuple<bool, string?> result = await MySqlService.UpdateUser(updatedUser.updatedUser, updatedUser.userPrivacy);
 
-        return result ? StatusCode(204, "User successfully updated.") : StatusCode(404, "Error: User not found.");
+        return result.Item1 ? StatusCode(204, "User successfully updated.") : result.Item2.Contains("Users") ? StatusCode(404, "Error: User not found.") : StatusCode(500, "Error: " + result.Item2);
     }
 
     [HttpDelete("delete")]
@@ -76,32 +76,32 @@ public class UserController : ControllerBase, IUserController
     {
         Tuple<bool, string?> result = await MySqlService.DeleteUser(email);
 
-        return result.Item1 ? StatusCode(204, "User successfully deleted.") : result.Item2.Contains("admin") ? result.Item2.Contains("group") ? StatusCode(403, "Error: User cannot be deleted because is an admin in one or more groups.") : StatusCode(403, "Error: User cannot be deleted because is an system admin.") : StatusCode(404, "Error: User not found.");
+        return result.Item1 ? StatusCode(204, "User successfully deleted.") : (result.Item2.Contains("admin") ? (result.Item2.Contains("group") ? StatusCode(403, "Error: User cannot be deleted because is an admin in one or more groups.") : StatusCode(403, "Error: User cannot be deleted because is an system admin.")) : result.Item2.Contains("Users") ? StatusCode(404, "Error: User not found.") : StatusCode(500, "Error: " + result.Item2));
     }
 
     [HttpGet("privacy")]
     public async Task<IActionResult> GetUserPrivacySettings(string handle)
     {
-        UserPrivacySettingsModel? privacySettings = await MySqlService.GetUserPrivacySettings(handle);
+        Tuple<UserPrivacySettingsModel?, string?> result = await MySqlService.GetUserPrivacySettings(handle);
 
-        if (privacySettings != null)
+        if (result.Item1 != null)
         {
-            return StatusCode(200, privacySettings);
+            return StatusCode(200, result.Item1);
         }
         
-        return StatusCode(404, "Error: User not found.");
+        return result.Item2.Contains("Users") ? StatusCode(404, "Error: User not found.") : StatusCode(500, "Error: " + result.Item2);
     }
 
     [HttpGet("profile")]
     public async Task<IActionResult> GetUserProfile(string handle)
     {
-        UserListModel? profile = await MySqlService.GetUserProfile(handle);
+        Tuple<UserListModel?, string?> result = await MySqlService.GetUserProfile(handle);
 
-        if (profile != null)
+        if (result.Item1 != null)
         {
-            return StatusCode(200, profile);
+            return StatusCode(200, result.Item1);
         }
-        
-        return StatusCode(404, "Error: User not found.");
+
+        return result.Item2.Contains("Users") ? StatusCode(404, "Error: User not found.") : StatusCode(500, "Error: " + result.Item2);
     }
 }
