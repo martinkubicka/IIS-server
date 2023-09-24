@@ -286,7 +286,7 @@ public class MySQLService : IMySQLService, IDisposable
         }
     }
 
-    public async Task<bool> CreateThread(ThreadModel thread)
+    public async Task<Tuple<bool, string>> CreateThread(ThreadModel thread)
     {
         try
         {
@@ -304,11 +304,11 @@ public class MySQLService : IMySQLService, IDisposable
                 await cmd.ExecuteNonQueryAsync();
             }
 
-            return true;
+            return Tuple.Create(true, "");
         }
-        catch
+        catch (Exception ex)
         {
-            return false;
+            return Tuple.Create(false, ex.Message);
         }
     }
 
@@ -402,7 +402,7 @@ public class MySQLService : IMySQLService, IDisposable
         }   
     }
 
-    public async Task<bool> DeleteThread(string threadId)
+    public async Task<Tuple<bool, string?>> DeleteThread(string threadId)
     {
         try
         {
@@ -412,12 +412,11 @@ public class MySQLService : IMySQLService, IDisposable
 
                 await cmd.ExecuteNonQueryAsync();
             }
-
-            return true;
+            return Tuple.Create(true, "");
         }
-        catch
+        catch (Exception ex)
         {
-            return false;
+            return Tuple.Create(false, ex.Message);
         }
     }
 }
