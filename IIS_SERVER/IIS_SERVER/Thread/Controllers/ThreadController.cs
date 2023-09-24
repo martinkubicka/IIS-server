@@ -1,8 +1,6 @@
 ﻿using IIS_SERVER.Services;
 using IIS_SERVER.Thread.Models;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
 
 namespace IIS_SERVER.Thread.Controllers
 {
