@@ -2,6 +2,7 @@ using IIS_SERVER.Enums;
 using Microsoft.AspNetCore.Mvc;
 using IIS_SERVER.Services;
 using IIS_SERVER.Member.Models;
+using IIS_SERVER.User.Models;
 
 namespace IIS_SERVER.Member.Controllers;
 
@@ -64,5 +65,18 @@ public class MemberController : ControllerBase, IMemberController
         return result.Item1
             ? StatusCode(204, "Member successfully updated.")
             : result.Item2.Contains("Groups") ? StatusCode(404, "Error: Group or member not found.") : StatusCode(500, "Error: " + result.Item2);;
+    }
+
+    [HttpGet("getMembers")]
+    public async Task<IActionResult> GetMembers(string handle, GroupRole? role)
+    {
+        Tuple<List<UserListModel>?, string?> result = await MySqlService.GetMembers(handle, role);
+
+        if (result.Item1 != null)
+        {
+            return StatusCode(200, result.Item1);
+        }
+        
+        return result.Item2.Contains("Groups") ? StatusCode(404, "Error: Group not found.") : StatusCode(500, "Error: " + result.Item2);
     }
 }
