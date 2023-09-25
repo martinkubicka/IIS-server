@@ -84,6 +84,7 @@ namespace IIS_SERVER.Thread.Controllers
                 }
                 else
                 {
+
                     return StatusCode(404, "Error: Thread not found.");
                 }
             }
