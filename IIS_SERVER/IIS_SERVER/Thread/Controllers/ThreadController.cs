@@ -74,43 +74,25 @@ namespace IIS_SERVER.Thread.Controllers
         [HttpDelete("delete/{threadId}")]
         public async Task<IActionResult> DeleteThread(string threadId)
         {
-            try
+            try 
             {
                 Tuple<bool, string?> result = await MySqlService.DeleteThread(threadId);
 
                 if (result.Item1)
                 {
-                    return NoContent();
+                    return StatusCode(204, "Thread successfully deleted.");
                 }
                 else
                 {
-                    if (result.Item2.Contains("admin"))
-                    {
-                        if (result.Item2.Contains("group"))
-                        {
-                            return StatusCode(
-                                403,
-                                "Error: Thread cannot be deleted because it is an admin in one or more groups."
-                            );
-                        }
-                        else
-                        {
-                            return StatusCode(
-                                403,
-                                "Error: Thread cannot be deleted because it is a system admin."
-                            );
-                        }
-                    }
-                    else
-                    {
-                        return StatusCode(500, "Error: An internal server error occurred.");
-                    }
+
+                    return StatusCode(404, "Error: Thread not found.");
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                return StatusCode(500, "Error: An internal server error occurred.");
+                return StatusCode(500, "Error: DB error occurred.");
             }
+
         }
     }
 }

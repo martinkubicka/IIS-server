@@ -117,23 +117,7 @@ public class MemberControllerTests
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(404, result.StatusCode);
-            Assert.AreEqual("Error: Member not found.", result.Value);
-        }
-        
-        [Test]
-        public async Task DeleteMember_GroupNotFound_ReturnsNotFoundResult()
-        {
-            // Arrange
-            mySqlServiceMock.Setup(service => service.DeleteMember(It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(Tuple.Create(false, "Groups"));
-
-            // Act
-            var result = await controller.DeleteMember("member", "nonExistentHandle") as ObjectResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(404, result.StatusCode);
-            Assert.AreEqual("Error: Group not found.", result.Value);
+            Assert.AreEqual("Error: Group or member not found.", result.Value);
         }
         
         [Test]
@@ -172,7 +156,7 @@ public class MemberControllerTests
         {
             // Arrange
             mySqlServiceMock.Setup(service => service.UpdateMemberRole(It.IsAny<string>(), It.IsAny<GroupRole>(), It.IsAny<string>()))
-                            .ReturnsAsync(Tuple.Create(false, "Member"));
+                            .ReturnsAsync(Tuple.Create(false, "Groups"));
 
             // Act
             var result = await controller.UpdateMemberRole("nonExistentMember", GroupRole.moderator, "handle") as ObjectResult;
@@ -180,23 +164,7 @@ public class MemberControllerTests
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(404, result.StatusCode);
-            Assert.AreEqual("Error: Member not found.", result.Value);
-        }
-        
-        [Test]
-        public async Task UpdateMemberRole_GroupNotFound_ReturnsNotFoundResult()
-        {
-            // Arrange
-            mySqlServiceMock.Setup(service => service.UpdateMemberRole(It.IsAny<string>(), It.IsAny<GroupRole>(), It.IsAny<string>()))
-                .ReturnsAsync(Tuple.Create(false, "Groups"));
-
-            // Act
-            var result = await controller.UpdateMemberRole("member", GroupRole.moderator, "nonExistentGroup") as ObjectResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(404, result.StatusCode);
-            Assert.AreEqual("Error: Group not found.", result.Value);
+            Assert.AreEqual("Error: Group or member not found.", result.Value);
         }
     }
 }

@@ -154,36 +154,50 @@ namespace IIS_SERVER.Thread.Tests
         }
 
         [Test]
-        public async Task DeleteThread_ExistingThread_Returns204StatusCode()
+        public async Task DeleteThread_ValidThreadId_Success()
         {
             // Arrange
-            var threadId = "existing_thread_id"; 
-            _mySqlServiceMock.Setup(service => service.DeleteThread(threadId))
-                .ReturnsAsync(Tuple.Create(true, (string?)null));
+            string validThreadId = "validThreadId";
+            _mySqlServiceMock.Setup(service => service.DeleteThread(validThreadId))
+                .ReturnsAsync(Tuple.Create(true, ""));
 
             // Act
-            var result = await _controller.DeleteThread(threadId) as NoContentResult;
+            var result = await _controller.DeleteThread(validThreadId);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.AreEqual(204, result.StatusCode);
+            Console.WriteLine(result);
+            Assert.AreEqual(204, (result as ObjectResult)?.StatusCode);
         }
 
         [Test]
-        public async Task DeleteThread_NonExistingThread_Returns404StatusCode()
+        public async Task DeleteThread_InvalidThreadId_NotFound()
         {
             // Arrange
-            var threadId = "non_existing_thread_id";
-            _mySqlServiceMock.Setup(service => service.DeleteThread(threadId))
-                .ReturnsAsync(Tuple.Create(false, "Error: Thread not found or DB error occurred."));
+            string invalidThreadId = "invalidThreadId";
+            _mySqlServiceMock.Setup(service => service.DeleteThread(invalidThreadId))
+                .ReturnsAsync(Tuple.Create(false, "Error: Thread not found."));
 
             // Act
-            var result = await _controller.DeleteThread(threadId) as ObjectResult;
+            var result = await _controller.DeleteThread(invalidThreadId);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.AreEqual(404, result.StatusCode);
-            Assert.AreEqual("Error: Thread not found.", result.Value);
+            Assert.AreEqual(404, (result as ObjectResult)?.StatusCode);
+        }
+
+        [Test]
+        public async Task DeleteThread_Exception_Error()
+        {
+            // Arrange
+            string exceptionMessage = "An error occurred.";
+            string threadId = "someId";
+            _mySqlServiceMock.Setup(service => service.DeleteThread(threadId))
+                .ThrowsAsync(new Exception(exceptionMessage));
+
+            // Act
+            var result = await _controller.DeleteThread(threadId);
+
+            // Assert
+            Assert.AreEqual(500, (result as ObjectResult)?.StatusCode);
         }
     }
 }
