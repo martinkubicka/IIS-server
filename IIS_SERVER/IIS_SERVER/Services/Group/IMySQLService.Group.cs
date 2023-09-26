@@ -8,7 +8,7 @@ public partial interface IMySQLService
 
     Task<GroupListModel?> GetGroup(string handle);
 
-    Task<List<GroupListModel>> GetGroups();
+    Task<List<GroupListModel?>> GetGroups();
 
     //returns only groups that the user either joined or not joined depending on joined param
     Task<List<GroupListModel>> GetGroups(string userEmail, bool joined);

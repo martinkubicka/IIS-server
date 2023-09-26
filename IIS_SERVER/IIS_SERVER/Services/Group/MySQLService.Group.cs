@@ -73,7 +73,7 @@ public partial class MySQLService : IMySQLService
         }
     }
 
-    public async Task<List<GroupListModel>> GetGroups()
+    public async Task<List<GroupListModel?>> GetGroups()
     {
         try
         {
@@ -106,10 +106,9 @@ public partial class MySQLService : IMySQLService
                 return Groups;
             }
         }
-        catch (Exception ex)
+        catch
         {
-            Console.WriteLine($"Error: {ex.Message}");
-            return new List<GroupListModel>();
+            return new List<GroupListModel?>();
         }
     }
 
