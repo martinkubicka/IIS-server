@@ -1,5 +1,6 @@
 using IIS_SERVER.Member.Models;
 using IIS_SERVER.Enums;
+using IIS_SERVER.User.Models;
 using MySql.Data.MySqlClient;
 
 namespace IIS_SERVER.Services;
@@ -80,6 +81,62 @@ public partial class MySQLService : IMySQLService
         catch (Exception ex)
         {
             return Tuple.Create(false, ex.Message);
+        }
+    }
+    
+    public async Task<Tuple<List<UserListModel>?, string?>> GetMembers(string handle, GroupRole? role)
+    {
+        string query = "SELECT U.* FROM Member AS M INNER JOIN Users AS U ON M.Email = U.Email WHERE  ";
+        
+        if (role.HasValue)
+        {
+            query += "M.Handle = @Handle AND M.GroupRole = @GroupRole";
+        }
+        else
+        {
+            query += "M.Handle = @Handle";
+        }
+
+        try
+        {
+            using (MySqlCommand command = new MySqlCommand(query, Connection))
+            {
+                command.Parameters.AddWithValue("@Handle", handle);
+                if (role.HasValue)
+                {
+                    command.Parameters.AddWithValue("@GroupRole", (int)role);
+                }
+
+                List<UserListModel> users = new List<UserListModel>();
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        var user = new UserListModel
+                        {
+                            Handle = reader.GetString(reader.GetOrdinal("Handle")),
+                            Name = reader.GetString(reader.GetOrdinal("Name")),
+                            Icon = reader.IsDBNull(reader.GetOrdinal("Icon")) ? null : reader.GetString(reader.GetOrdinal("Icon")),
+                            Role = (Role)reader.GetInt32(reader.GetOrdinal("Role"))
+                        };
+                        
+                        users.Add(user);
+                    }
+
+                    if (users.Count == 0)
+                    {
+                        return Tuple.Create<List<UserListModel>?, string?>(null, "Groups");
+                    }
+                    
+                    return Tuple.Create(users, "");
+                }
+                
+            }
+        }
+        catch (Exception ex)
+        {
+            return Tuple.Create<List<UserListModel>?, string?>(null, ex.Message);
         }
     }
 }

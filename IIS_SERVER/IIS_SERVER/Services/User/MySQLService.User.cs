@@ -69,7 +69,7 @@ public partial class MySQLService : IMySQLService
         }
     }
 
-    public async Task<UserListModel?> GetUserProfile(string handle)
+    public async Task<Tuple<UserListModel?, string?>> GetUserProfile(string handle)
     {
         try
         {
@@ -82,28 +82,26 @@ public partial class MySQLService : IMySQLService
                 {
                     if (await reader.ReadAsync())
                     {
-                        return new UserListModel
+                        return Tuple.Create(new UserListModel
                         {
                             Handle = reader.GetString(reader.GetOrdinal("Handle")),
                             Name = reader.GetString(reader.GetOrdinal("Name")),
-                            Icon = reader.IsDBNull(reader.GetOrdinal("Icon"))
-                                ? null
-                                : reader.GetString(reader.GetOrdinal("Icon")),
+                            Icon = reader.IsDBNull(reader.GetOrdinal("Icon")) ? null : reader.GetString(reader.GetOrdinal("Icon")),
                             Role = (Role)reader.GetInt32(reader.GetOrdinal("Role"))
-                        };
+                        }, "");
                     }
 
-                    return null;
+                    return Tuple.Create((UserListModel)null, "Users");
                 }
             }
         }
-        catch
+        catch (Exception ex)
         {
-            return null;
+            return Tuple.Create((UserListModel)null, ex.Message);
         }
     }
-
-    public async Task<Role?> GetUserRole(string handle)
+    
+    public async Task<Tuple<Role?, string>> GetUserRole(string handle)
     {
         try
         {
@@ -116,31 +114,27 @@ public partial class MySQLService : IMySQLService
                 {
                     if (await reader.ReadAsync())
                     {
-                        return (Role)reader.GetInt32(reader.GetOrdinal("Role"));
+                        return Tuple.Create((Role?)reader.GetInt32(reader.GetOrdinal("Role")), "");
                     }
 
-                    return null;
+                    return Tuple.Create((Role?)null, "Users");
                 }
             }
         }
-        catch
+        catch (Exception ex)
         {
-            return null;
+            return Tuple.Create((Role?)null, ex.Message);
         }
     }
 
-    public async Task<bool> UpdateUser(
-        UserDetailModel updatedUser,
-        UserPrivacySettingsModel userPrivacy
-    )
+    public async Task<Tuple<bool, string?>> UpdateUser(UserDetailModel updatedUser, UserPrivacySettingsModel userPrivacy)
     {
         try
         {
-            string updateQuery =
-                @"UPDATE Users SET Name = @Name,Role = @Role,VisibilityRegistered = @VisibilityRegistered,VisibilityGuest = @VisibilityGuest,VisibilityGroup = @VisibilityGroup,Icon = @Icon, Password = @Password WHERE Email = @Email";
+            string updateQuery = @"UPDATE Users SET Name = @Name,Role = @Role,VisibilityRegistered = @VisibilityRegistered,VisibilityGuest = @VisibilityGuest,VisibilityGroup = @VisibilityGroup,Icon = @Icon, Password = @Password WHERE Email = @Email";
 
             MySqlCommand cmd = new MySqlCommand(updateQuery, Connection);
-
+            
             cmd.Parameters.AddWithValue("@Name", updatedUser.Name);
             cmd.Parameters.AddWithValue("@Role", updatedUser.Role);
             cmd.Parameters.AddWithValue("@VisibilityRegistered", userPrivacy.VisibilityRegistered);
@@ -149,14 +143,14 @@ public partial class MySQLService : IMySQLService
             cmd.Parameters.AddWithValue("@Icon", updatedUser.Icon);
             cmd.Parameters.AddWithValue("@Email", updatedUser.Email);
             cmd.Parameters.AddWithValue("@Password", updatedUser.Password);
-
+            
             await cmd.ExecuteNonQueryAsync();
 
-            return true;
+            return Tuple.Create(true, "");
         }
-        catch
+        catch (Exception ex)
         {
-            return false;
+            return Tuple.Create(false, ex.Message);
         }
     }
 
@@ -179,7 +173,7 @@ public partial class MySQLService : IMySQLService
         }
     }
 
-    public async Task<UserPrivacySettingsModel?> GetUserPrivacySettings(string handle)
+    public async Task<Tuple<UserPrivacySettingsModel?, string?>> GetUserPrivacySettings(string handle)
     {
         try
         {
@@ -192,27 +186,21 @@ public partial class MySQLService : IMySQLService
                 {
                     if (await reader.ReadAsync())
                     {
-                        return new UserPrivacySettingsModel
+                        return Tuple.Create(new UserPrivacySettingsModel
                         {
-                            VisibilityGroup = reader.GetBoolean(
-                                reader.GetOrdinal("VisibilityGroup")
-                            ),
-                            VisibilityGuest = reader.GetBoolean(
-                                reader.GetOrdinal("VisibilityGuest")
-                            ),
-                            VisibilityRegistered = reader.GetBoolean(
-                                reader.GetOrdinal("VisibilityRegistered")
-                            )
-                        };
+                            VisibilityGroup = reader.GetBoolean(reader.GetOrdinal("VisibilityGroup")),
+                            VisibilityGuest = reader.GetBoolean(reader.GetOrdinal("VisibilityGuest")),
+                            VisibilityRegistered = reader.GetBoolean(reader.GetOrdinal("VisibilityRegistered"))
+                        }, "");
                     }
 
-                    return null;
+                    return Tuple.Create((UserPrivacySettingsModel?)null, "Users");
                 }
             }
         }
-        catch
+        catch (Exception ex)
         {
-            return null;
+            return Tuple.Create((UserPrivacySettingsModel?)null, ex.Message);;
         }
     }
 }
