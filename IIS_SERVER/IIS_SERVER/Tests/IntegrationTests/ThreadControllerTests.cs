@@ -199,5 +199,56 @@ namespace IIS_SERVER.Thread.Tests
             // Assert
             Assert.AreEqual(500, (result as ObjectResult)?.StatusCode);
         }
+
+        [Test]
+        public async Task GetThreadsFromSpecificGroup_ValidGroupName_Returns200StatusCode()
+        {
+            // Arrange
+            var groupName = "group1";
+            var threads = new List<ThreadModel> { }; 
+            _mySqlServiceMock.Setup(service => service.GetThreadsFromSpecificGroup(groupName))
+                .ReturnsAsync(threads);
+
+            // Act
+            var result = await _controller.GetThreadsFromSpecificGroup(groupName) as ObjectResult;
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.AreEqual(200, result.StatusCode);
+            Assert.AreEqual(threads, result.Value);
+        }
+
+        [Test]
+        public async Task GetThreadsFromSpecificGroup_InvalidGroupName_Returns404StatusCode()
+        {
+            // Arrange
+            var invalidGroupName = "nonexistentgroup";
+            _mySqlServiceMock.Setup(service => service.GetThreadsFromSpecificGroup(invalidGroupName))
+                .ReturnsAsync((List<ThreadModel>)null);
+
+            // Act
+            var result = await _controller.GetThreadsFromSpecificGroup(invalidGroupName) as ObjectResult;
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.AreEqual(404, result.StatusCode);
+            Assert.AreEqual("Error: Thread not found.", result.Value);
+        }
+
+        [Test]
+        public async Task GetThreadsFromSpecificGroup_Exception_Error()
+        {
+            // Arrange
+            var exceptionMessage = "An error occurred.";
+            var groupName = "group1";
+            _mySqlServiceMock.Setup(service => service.GetThreadsFromSpecificGroup(groupName))
+                .ThrowsAsync(new Exception(exceptionMessage));
+
+            // Act
+            var result = await _controller.GetThreadsFromSpecificGroup(groupName);
+
+            // Assert
+            Assert.AreEqual(500, (result as ObjectResult)?.StatusCode);
+        }
     }
 }
