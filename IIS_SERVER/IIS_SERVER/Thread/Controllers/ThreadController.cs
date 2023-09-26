@@ -29,7 +29,7 @@ namespace IIS_SERVER.Thread.Controllers
             }
         }
 
-        [HttpGet("getThreads")]
+        [HttpGet("GetAllThreads")]
         public async Task<IActionResult> GetAllThreads()
         {
             List<ThreadModel>? thread = await MySqlService.GetAllThreads();
@@ -40,6 +40,27 @@ namespace IIS_SERVER.Thread.Controllers
             else
             {
                 return StatusCode(404, "Error: Thread not found.");
+            }
+        }
+
+        [HttpGet("GetThreads/{Handle}")]
+        public async Task<IActionResult> GetThreadsFromSpecificGroup(string Handle)
+        {
+            try
+            {
+                List<ThreadModel>? thread = await MySqlService.GetThreadsFromSpecificGroup(Handle);
+                if (thread != null)
+                {
+                    return StatusCode(200, thread);
+                }
+                else
+                {
+                    return StatusCode(404, "Error: Thread not found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred: " + ex.Message);
             }
         }
 

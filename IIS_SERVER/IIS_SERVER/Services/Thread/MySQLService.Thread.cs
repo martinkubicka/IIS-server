@@ -49,7 +49,42 @@ public partial class MySQLService : IMySQLService
                         {
                             Id = reader.GetGuid(reader.GetOrdinal("Id")),
                             Handle = reader.GetString(reader.GetOrdinal("Handle")),
-                            Email = reader.GetString(reader.GetOrdinal("Email")),
+                            Name = reader.GetString(reader.GetOrdinal("Name")),
+                            Date = reader.GetDateTime(reader.GetOrdinal("Date"))
+                        };
+
+                        threads.Add(thread);
+                    }
+                }
+            }
+
+            return threads;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    public async Task<List<ThreadModel>?> GetThreadsFromSpecificGroup(string Handle)
+    {
+        try
+        {
+            var threads = new List<ThreadModel>();
+            var query = "SELECT * FROM Thread WHERE Handle = @Handle"; 
+
+            using (var command = new MySqlCommand(query, Connection))
+            {
+                command.Parameters.AddWithValue("@Handle", Handle); // Add the parameter
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        var thread = new ThreadModel
+                        {
+                            Id = reader.GetGuid(reader.GetOrdinal("Id")),
+                            Handle = reader.GetString(reader.GetOrdinal("Handle")),
                             Name = reader.GetString(reader.GetOrdinal("Name")),
                             Date = reader.GetDateTime(reader.GetOrdinal("Date"))
                         };
