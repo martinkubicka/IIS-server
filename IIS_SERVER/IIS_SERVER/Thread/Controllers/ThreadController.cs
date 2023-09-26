@@ -44,7 +44,7 @@ namespace IIS_SERVER.Thread.Controllers
         }
 
         [HttpGet("get/{threadId}")]
-        public async Task<IActionResult> GetThread(string threadId)
+        public async Task<IActionResult> GetThread(Guid threadId)
         {
             ThreadModel? thread = await MySqlService.GetThread(threadId);
             if (thread != null)
@@ -58,7 +58,7 @@ namespace IIS_SERVER.Thread.Controllers
         }
 
         [HttpPut("update/{threadId}")]
-        public async Task<IActionResult> UpdateThread(string threadId, ThreadModel updatedThread)
+        public async Task<IActionResult> UpdateThread(Guid threadId, ThreadModel updatedThread)
         {
             bool result = await MySqlService.UpdateThread(threadId, updatedThread);
             if (result)
@@ -72,7 +72,7 @@ namespace IIS_SERVER.Thread.Controllers
         }
 
         [HttpDelete("delete/{threadId}")]
-        public async Task<IActionResult> DeleteThread(string threadId)
+        public async Task<IActionResult> DeleteThread(Guid threadId)
         {
             try 
             {

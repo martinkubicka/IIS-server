@@ -27,7 +27,7 @@ namespace IIS_SERVER.Thread.Tests
         public async Task CreateThread_ValidThread_Returns201StatusCode()
         {
             // Arrange
-            var thread = new ThreadModel {};
+            var thread = new ThreadModel { };
             _mySqlServiceMock.Setup(service => service.CreateThread(thread))
                 .ReturnsAsync(Tuple.Create(true, (string?)null));
 
@@ -44,7 +44,7 @@ namespace IIS_SERVER.Thread.Tests
         public async Task CreateThread_DuplicateThread_Returns500StatusCode()
         {
             // Arrange
-            var thread = new ThreadModel {};
+            var thread = new ThreadModel { };
             _mySqlServiceMock.Setup(service => service.CreateThread(thread))
                 .ReturnsAsync(Tuple.Create(false, "Error: The thread with id already exists."));
 
@@ -61,7 +61,7 @@ namespace IIS_SERVER.Thread.Tests
         public async Task GetAllThreads_ValidThreads_Returns200StatusCode()
         {
             // Arrange
-            var threads = new List<ThreadModel> {};
+            var threads = new List<ThreadModel> { };
             _mySqlServiceMock.Setup(service => service.GetAllThreads())
                 .ReturnsAsync(threads);
 
@@ -78,8 +78,8 @@ namespace IIS_SERVER.Thread.Tests
         public async Task GetThread_ExistingThreadId_ReturnsThread()
         {
             // Arrange
-            var threadId = "existing_thread_id";
-            var thread = new ThreadModel {};
+            var threadId = Guid.NewGuid(); 
+            var thread = new ThreadModel { };
             _mySqlServiceMock.Setup(service => service.GetThread(threadId))
                 .ReturnsAsync(thread);
 
@@ -96,7 +96,7 @@ namespace IIS_SERVER.Thread.Tests
         public async Task GetThread_NonExistingThreadId_Returns404StatusCode()
         {
             // Arrange
-            var threadId = "non_existing_thread_id";
+            var threadId = Guid.NewGuid(); 
             _mySqlServiceMock.Setup(service => service.GetThread(threadId))
                 .ReturnsAsync((ThreadModel)null);
 
@@ -113,7 +113,7 @@ namespace IIS_SERVER.Thread.Tests
         public async Task UpdateThread_ExistingThread_Returns200StatusCode()
         {
             // Arrange
-            var threadId = "existing_thread_id";
+            var threadId = Guid.NewGuid(); 
             var updatedThread = new ThreadModel
             {
                 Name = "Updated Thread Name"
@@ -135,7 +135,7 @@ namespace IIS_SERVER.Thread.Tests
         public async Task UpdateThread_NonExistingThread_Returns404StatusCode()
         {
             // Arrange
-            var threadId = "non_existing_thread_id";
+            var threadId = Guid.NewGuid(); 
             var updatedThread = new ThreadModel
             {
                 Name = "Updated Thread Name",
@@ -157,7 +157,7 @@ namespace IIS_SERVER.Thread.Tests
         public async Task DeleteThread_ValidThreadId_Success()
         {
             // Arrange
-            string validThreadId = "validThreadId";
+            var validThreadId = Guid.NewGuid(); 
             _mySqlServiceMock.Setup(service => service.DeleteThread(validThreadId))
                 .ReturnsAsync(Tuple.Create(true, ""));
 
@@ -173,7 +173,7 @@ namespace IIS_SERVER.Thread.Tests
         public async Task DeleteThread_InvalidThreadId_NotFound()
         {
             // Arrange
-            string invalidThreadId = "invalidThreadId";
+            var invalidThreadId = Guid.NewGuid(); 
             _mySqlServiceMock.Setup(service => service.DeleteThread(invalidThreadId))
                 .ReturnsAsync(Tuple.Create(false, "Error: Thread not found."));
 
@@ -188,8 +188,8 @@ namespace IIS_SERVER.Thread.Tests
         public async Task DeleteThread_Exception_Error()
         {
             // Arrange
-            string exceptionMessage = "An error occurred.";
-            string threadId = "someId";
+            var exceptionMessage = "An error occurred.";
+            var threadId = Guid.NewGuid(); 
             _mySqlServiceMock.Setup(service => service.DeleteThread(threadId))
                 .ThrowsAsync(new Exception(exceptionMessage));
 

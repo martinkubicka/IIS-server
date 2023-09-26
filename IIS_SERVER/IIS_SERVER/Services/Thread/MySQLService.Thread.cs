@@ -15,7 +15,7 @@ public partial class MySQLService : IMySQLService
 
             using (MySqlCommand cmd = new MySqlCommand(insertQuery, Connection))
             {
-                cmd.Parameters.AddWithValue("@Id", thread.Id);
+                cmd.Parameters.AddWithValue("@Id", Guid.NewGuid());
                 cmd.Parameters.AddWithValue("@Handle", thread.Handle);
                 cmd.Parameters.AddWithValue("@Email", thread.Email);
                 cmd.Parameters.AddWithValue("@Name", thread.Name);
@@ -37,7 +37,7 @@ public partial class MySQLService : IMySQLService
         try
         {
             var threads = new List<ThreadModel>();
-            var query = "SELECT * FROM Thread"; // Assuming your table name is 'Thread'
+            var query = "SELECT * FROM Thread";
 
             using (var command = new MySqlCommand(query, Connection))
             {
@@ -47,12 +47,11 @@ public partial class MySQLService : IMySQLService
                     {
                         var thread = new ThreadModel
                         {
-                            Id = reader.GetString(reader.GetOrdinal("Id")),
+                            Id = reader.GetGuid(reader.GetOrdinal("Id")),
                             Handle = reader.GetString(reader.GetOrdinal("Handle")),
                             Email = reader.GetString(reader.GetOrdinal("Email")),
                             Name = reader.GetString(reader.GetOrdinal("Name")),
                             Date = reader.GetDateTime(reader.GetOrdinal("Date"))
-                            // Add other properties as needed
                         };
 
                         threads.Add(thread);
@@ -68,7 +67,7 @@ public partial class MySQLService : IMySQLService
         }
     }
 
-    public async Task<ThreadModel?> GetThread(string threadId)
+    public async Task<ThreadModel?> GetThread(Guid threadId)
     {
         try
         {
@@ -83,7 +82,7 @@ public partial class MySQLService : IMySQLService
                     {
                         return new ThreadModel
                         {
-                            Id = reader.GetString(reader.GetOrdinal("Id")),
+                            Id = reader.GetGuid(reader.GetOrdinal("Id")),
                             Handle = reader.GetString(reader.GetOrdinal("Handle")),
                             Email = reader.GetString(reader.GetOrdinal("Email")),
                             Name = reader.GetString(reader.GetOrdinal("Name")),
@@ -101,7 +100,7 @@ public partial class MySQLService : IMySQLService
         }
     }
 
-    public async Task<bool> UpdateThread(string threadId, ThreadModel updatedThread)
+    public async Task<bool> UpdateThread(Guid threadId, ThreadModel updatedThread)
     {
         try
         {
@@ -122,7 +121,7 @@ public partial class MySQLService : IMySQLService
         }
     }
 
-    public async Task<Tuple<bool, string?>> DeleteThread(string threadId)
+    public async Task<Tuple<bool, string?>> DeleteThread(Guid threadId)
     {
         try
         {
