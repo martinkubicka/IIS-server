@@ -11,9 +11,8 @@ public partial class MySQLService : IMySQLService
     {
         try
         {
-            string insertQuery =
-                "INSERT INTO Member (Id, Handle, Email, GroupRole) "
-                + "VALUES (@Id, @Handle, @Email, @GroupRole)";
+            string insertQuery = "INSERT INTO Member (Id, Handle, Email, GroupRole) " +
+                                 "VALUES (@Id, @Handle, @Email, @GroupRole)";
 
             using (MySqlCommand cmd = new MySqlCommand(insertQuery, Connection))
             {
@@ -21,10 +20,10 @@ public partial class MySQLService : IMySQLService
                 cmd.Parameters.AddWithValue("@Handle", member.Handle);
                 cmd.Parameters.AddWithValue("@Email", member.Email);
                 cmd.Parameters.AddWithValue("@GroupRole", member.Role);
-
+                
                 await cmd.ExecuteNonQueryAsync();
             }
-
+            
             return Tuple.Create(true, "");
         }
         catch (Exception ex)
@@ -37,18 +36,13 @@ public partial class MySQLService : IMySQLService
     {
         try
         {
-            using (
-                MySqlCommand command = new MySqlCommand(
-                    "CALL DeleteMember(@Email, @Handle)",
-                    Connection
-                )
-            )
+            using (MySqlCommand command = new MySqlCommand("CALL DeleteMember(@Email, @Handle)", Connection))
             {
                 command.Parameters.AddWithValue("@Email", email);
                 command.Parameters.AddWithValue("@Handle", handle);
-                await command.ExecuteNonQueryAsync();
-
-                return Tuple.Create(true, "");
+                int rowsAffected = await command.ExecuteNonQueryAsync();
+                
+                return Tuple.Create(rowsAffected > 0, "Member");
             }
         }
         catch (Exception ex)
@@ -57,14 +51,9 @@ public partial class MySQLService : IMySQLService
         }
     }
 
-    public async Task<Tuple<bool, string?>> UpdateMemberRole(
-        string email,
-        GroupRole role,
-        string handle
-    )
+    public async Task<Tuple<bool, string?>> UpdateMemberRole(string email, GroupRole role, string handle)
     {
-        string query =
-            "UPDATE Member SET GroupRole = @GroupRole WHERE Email = @Email AND Handle = @Handle";
+        string query = "UPDATE Member SET GroupRole = @GroupRole WHERE Email = @Email AND Handle = @Handle";
 
         try
         {
@@ -75,7 +64,7 @@ public partial class MySQLService : IMySQLService
                 command.Parameters.AddWithValue("@Handle", handle);
                 int rowsAffected = await command.ExecuteNonQueryAsync();
 
-                return Tuple.Create(rowsAffected > 0, "");
+                return Tuple.Create(rowsAffected > 0, "Member");
             }
         }
         catch (Exception ex)

@@ -10,9 +10,8 @@ public partial class MySQLService : IMySQLService
     {
         try
         {
-            string insertQuery =
-                "INSERT INTO Users (Email, Password, Handle, Name, Role, Icon) "
-                + "VALUES (@Email, @Password, @Handle, @Name, @Role, @Icon)";
+            string insertQuery = "INSERT INTO Users (Email, Password, Handle, Name, Role, Icon) " +
+                                 "VALUES (@Email, @Password, @Handle, @Name, @Role, @Icon)";
 
             using (MySqlCommand cmd = new MySqlCommand(insertQuery, Connection))
             {
@@ -22,10 +21,10 @@ public partial class MySQLService : IMySQLService
                 cmd.Parameters.AddWithValue("@Name", user.Name);
                 cmd.Parameters.AddWithValue("@Role", user.Role);
                 cmd.Parameters.AddWithValue("@Icon", user.Icon);
-
+                
                 await cmd.ExecuteNonQueryAsync();
             }
-
+            
             return Tuple.Create(true, "");
         }
         catch (Exception ex)
@@ -50,12 +49,10 @@ public partial class MySQLService : IMySQLService
                         {
                             Handle = reader.GetString(reader.GetOrdinal("Handle")),
                             Name = reader.GetString(reader.GetOrdinal("Name")),
-                            Icon = reader.IsDBNull(reader.GetOrdinal("Icon"))
-                                ? null
-                                : reader.GetString(reader.GetOrdinal("Icon")),
+                            Icon = reader.IsDBNull(reader.GetOrdinal("Icon")) ? null : reader.GetString(reader.GetOrdinal("Icon")),
                             Role = (Role)reader.GetInt32(reader.GetOrdinal("Role"))
                         };
-
+                        
                         usersList.Add(user);
                     }
 
@@ -100,7 +97,7 @@ public partial class MySQLService : IMySQLService
             return Tuple.Create((UserListModel)null, ex.Message);
         }
     }
-    
+
     public async Task<Tuple<Role?, string>> GetUserRole(string handle)
     {
         try
@@ -158,19 +155,21 @@ public partial class MySQLService : IMySQLService
     {
         try
         {
+            int rowsAffected = 0;
             using (MySqlCommand cmd = new MySqlCommand("CALL DeleteUser(@userEmail)", Connection))
             {
                 cmd.Parameters.AddWithValue("@userEmail", email);
 
-                await cmd.ExecuteNonQueryAsync();
+                rowsAffected = await cmd.ExecuteNonQueryAsync();
             }
 
-            return Tuple.Create(true, "");
+            return Tuple.Create(rowsAffected > 0, "Users");
         }
         catch (Exception ex)
-        {
+        { 
             return Tuple.Create(false, ex.Message);
         }
+
     }
 
     public async Task<Tuple<UserPrivacySettingsModel?, string?>> GetUserPrivacySettings(string handle)
