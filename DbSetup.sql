@@ -35,7 +35,7 @@ CREATE TABLE Member (
     Handle VARCHAR(255) NOT NULL,
     Email VARCHAR(255) NOT NULL,
     GroupRole INT NOT NULL,
-    FOREIGN KEY (Email) REFERENCES Users(Email) ON DELETE CASCADE,
+    FOREIGN KEY (Email) REFERENCES Users(Email),
     FOREIGN KEY (Handle) REFERENCES `Groups`(Handle) ON DELETE CASCADE
 );
 
@@ -45,7 +45,7 @@ CREATE TABLE Thread (
     Email VARCHAR(255) NOT NULL,
     Name VARCHAR(255) NOT NULL,
     Date DATETIME NOT NULL,
-    FOREIGN KEY (Email) REFERENCES Users(Email) ON DELETE CASCADE,
+    FOREIGN KEY (Email) REFERENCES Users(Email),
     FOREIGN KEY (Handle) REFERENCES `Groups`(Handle) ON DELETE CASCADE
 );
 
@@ -55,7 +55,7 @@ CREATE TABLE Post (
     Email VARCHAR(255) NOT NULL,
     Text VARCHAR(255) NOT NULL,
     Date DATETIME NOT NULL,
-    FOREIGN KEY (Email) REFERENCES Users(Email) ON DELETE CASCADE,
+    FOREIGN KEY (Email) REFERENCES Users(Email),
     FOREIGN KEY (ThreadId) REFERENCES Thread(Id) ON DELETE CASCADE
 );
 
@@ -64,7 +64,7 @@ CREATE TABLE Rating (
     Rating BOOLEAN,  
     PostId VARCHAR(255) NOT NULL,
     Email VARCHAR(255) NOT NULL,
-    FOREIGN KEY (Email) REFERENCES Users(Email) ON DELETE CASCADE,
+    FOREIGN KEY (Email) REFERENCES Users(Email),
     FOREIGN KEY (PostId) REFERENCES Post(Id) ON DELETE CASCADE
 );
 
@@ -92,46 +92,6 @@ BEGIN
         DELETE FROM Users WHERE Email = userEmail;
     END IF;
 END //
-
-DELIMITER ;
-
--- TRIGGERS
--- DELIMITER //
-
--- CREATE TRIGGER DeleteGroup
--- AFTER DELETE ON `Groups`
--- FOR EACH ROW
--- BEGIN
---     -- Delete all threads associated with the deleted group
---     DELETE FROM Thread WHERE Thread.Handle = OLD.Handle;
-
---     -- Delete all members of the deleted group
---     DELETE FROM Member WHERE Member.Handle = OLD.Handle;
--- END;
--- //
--- DELIMITER ;
-
--- DELIMITER //
--- CREATE TRIGGER DeleteThread
--- AFTER DELETE ON Thread
--- FOR EACH ROW
--- BEGIN
---     DELETE FROM Post
---     WHERE Post.ThreadId = OLD.Id;
--- END;
--- //
--- DELIMITER ;
-
--- DELIMITER //
--- CREATE TRIGGER DeletePost
--- AFTER DELETE ON Post
--- FOR EACH ROW
--- BEGIN
---     DELETE FROM Rating
---     WHERE Rating.PostId = OLD.Id;
--- END;
--- //
-DELIMITER //
 
 CREATE PROCEDURE DeleteMember(IN userEmail VARCHAR(255), IN groupHandle VARCHAR(255))
 BEGIN
@@ -168,6 +128,7 @@ END; //
 
 DELIMITER ;
 
+-- INSERTS
 -- Insert data into Users table
 INSERT INTO Users (Email, Password, Handle, Name, Role, VisibilityRegistered, VisibilityGuest, VisibilityGroup, Icon)
 VALUES
