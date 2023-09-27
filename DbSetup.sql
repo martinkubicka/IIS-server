@@ -42,20 +42,20 @@ CREATE TABLE Member (
 CREATE TABLE Thread (
     Id VARCHAR(255) NOT NULL PRIMARY KEY,
     Handle VARCHAR(255) NOT NULL,
-    Email VARCHAR(255) NOT NULL,
+    Email VARCHAR(255),
     Name VARCHAR(255) NOT NULL,
     Date DATETIME NOT NULL,
-    FOREIGN KEY (Email) REFERENCES Users(Email),
+    FOREIGN KEY (Email) REFERENCES Users(Email) ON DELETE SET NULL,
     FOREIGN KEY (Handle) REFERENCES `Groups`(Handle) ON DELETE CASCADE
 );
 
 CREATE TABLE Post (
     Id VARCHAR(255) NOT NULL PRIMARY KEY,
     ThreadId VARCHAR(255) NOT NULL,
-    Email VARCHAR(255) NOT NULL,
+    Email VARCHAR(255),
     Text VARCHAR(255) NOT NULL,
     Date DATETIME NOT NULL,
-    FOREIGN KEY (Email) REFERENCES Users(Email),
+    FOREIGN KEY (Email) REFERENCES Users(Email) ON DELETE SET NULL,
     FOREIGN KEY (ThreadId) REFERENCES Thread(Id) ON DELETE CASCADE
 );
 
@@ -63,8 +63,8 @@ CREATE TABLE Rating (
     Id VARCHAR(255) NOT NULL PRIMARY KEY,
     Rating BOOLEAN,  
     PostId VARCHAR(255) NOT NULL,
-    Email VARCHAR(255) NOT NULL,
-    FOREIGN KEY (Email) REFERENCES Users(Email),
+    Email VARCHAR(255),
+    FOREIGN KEY (Email) REFERENCES Users(Email) ON DELETE SET NULL,
     FOREIGN KEY (PostId) REFERENCES Post(Id) ON DELETE CASCADE
 );
 
@@ -166,7 +166,6 @@ VALUES
     ('9d9a319a-0c5c-4c60-875b-6f2e80d7ef94', 'group3', 'user3@example.com', 'Thread 3', NOW()),
     ('1e8e5a7b-77e0-47d7-b22a-1f29a3c6e066', 'group4', 'user4@example.com', 'Thread 4', NOW());
     
-
 -- Insert data into Post table
 INSERT INTO Post (Id, ThreadId, Email, Text, Date)
 VALUES
@@ -182,3 +181,4 @@ VALUES
     ('09acfa4b-7c1d-4e67-8a46-b33df2eac846', FALSE, '6b9f0de1-69ab-4c8f-953c-872607d56204', 'user1@example.com'),
     ('86c776a6-0d3b-40db-bb94-19f6f6ee961f', TRUE, '9eefc84c-165f-4a0d-9abf-78b5c4421d2e', 'user4@example.com'),
     ('29acfa4b-7c1d-4e67-8a46-b33df2eac847', FALSE, '8b9f0de1-69ab-4c8f-953c-872607d56205', 'user3@example.com');
+
