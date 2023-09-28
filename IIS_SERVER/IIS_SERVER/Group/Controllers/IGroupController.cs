@@ -24,5 +24,7 @@ public interface IGroupController
 
     Task<IActionResult> UpdateGroup(GroupListModel listModel);
 
-    Task<IActionResult> UpdateGroupPolicy(GroupPrivacySettingsModel privacySettingsModel);
+    Task<IActionResult> UpdateGroupPolicy(GroupPrivacySettingsModel privacySettingsModel, string handle);
+
+    Task<IActionResult> GetGroupPolicy(string handle);
 }
