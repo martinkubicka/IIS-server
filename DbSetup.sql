@@ -41,6 +41,7 @@ CREATE TABLE Member (
 
 CREATE TABLE Thread (
     Id VARCHAR(255) NOT NULL PRIMARY KEY,
+    Description VARCHAR(255),
     Handle VARCHAR(255) NOT NULL,
     Email VARCHAR(255),
     Name VARCHAR(255) NOT NULL,
@@ -157,14 +158,14 @@ VALUES
     ('6c8c84a6-33d5-4f28-b8f4-90f124a28fc0', 'group3', 'admin@example.com', 0);
 
 -- Insert data into Thread table
-INSERT INTO Thread (Id, Handle, Email, Name, Date)
+INSERT INTO Thread (Id, Description, Handle, Email, Name, Date)
 VALUES
-    ('7d9a319a-0c5c-4c60-875b-6f2e80d7ef93', 'group1', 'user1@example.com', 'Thread 1', NOW()),
-    ('8f8e5a7b-77e0-47d7-b22a-1f29a3c6e065', 'group2', 'user2@example.com', 'Thread 2', NOW()),
-    ('8f8e5a7b-77e0-47d7-b22a-1f29a3c6e066', 'group2', 'user2@example.com', 'Thread 2', NOW()),
-    ('8f8e5a7b-77e0-47d7-b22a-1f29a3c6e067', 'group2', 'user2@example.com', 'Thread 2', NOW()),
-    ('9d9a319a-0c5c-4c60-875b-6f2e80d7ef94', 'group3', 'user3@example.com', 'Thread 3', NOW()),
-    ('1e8e5a7b-77e0-47d7-b22a-1f29a3c6e066', 'group4', 'user4@example.com', 'Thread 4', NOW());
+    ('7d9a319a-0c5c-4c60-875b-6f2e80d7ef93', 'thread 1 description', 'group1', 'user1@example.com', 'Thread 1', NOW()),
+    ('8f8e5a7b-77e0-47d7-b22a-1f29a3c6e065', 'thread 2 description', 'group2', 'user2@example.com', 'Thread 2', NOW()),
+    ('8f8e5a7b-77e0-47d7-b22a-1f29a3c6e066', 'thread 3 description', 'group2', 'user2@example.com', 'Thread 2', NOW()),
+    ('8f8e5a7b-77e0-47d7-b22a-1f29a3c6e067', 'thread 4 description', 'group2', 'user2@example.com', 'Thread 2', NOW()),
+    ('9d9a319a-0c5c-4c60-875b-6f2e80d7ef94', 'thread 5 description', 'group3', 'user3@example.com', 'Thread 3', NOW()),
+    ('1e8e5a7b-77e0-47d7-b22a-1f29a3c6e066', 'thread 6 description', 'group4', 'user4@example.com', 'Thread 4', NOW());
     
 -- Insert data into Post table
 INSERT INTO Post (Id, ThreadId, Email, Text, Date)
