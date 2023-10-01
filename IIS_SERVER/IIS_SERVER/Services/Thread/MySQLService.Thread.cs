@@ -10,8 +10,8 @@ public partial class MySQLService : IMySQLService
         try
         {
             string insertQuery =
-                "INSERT INTO Thread (Id, Handle, Email, Name, Date) "
-                + "VALUES (@Id, @Handle, @Email, @Name, @Date)";
+                "INSERT INTO Thread (Id, Handle, Email, Name, Date, Description) "
+                + "VALUES (@Id, @Handle, @Email, @Name, @Date, @Description)";
 
             using (MySqlCommand cmd = new MySqlCommand(insertQuery, Connection))
             {
@@ -20,6 +20,7 @@ public partial class MySQLService : IMySQLService
                 cmd.Parameters.AddWithValue("@Email", thread.Email);
                 cmd.Parameters.AddWithValue("@Name", thread.Name);
                 cmd.Parameters.AddWithValue("@Date", thread.Date);
+                cmd.Parameters.AddWithValue("@Description", thread.Description);
 
                 await cmd.ExecuteNonQueryAsync();
             }
@@ -50,7 +51,8 @@ public partial class MySQLService : IMySQLService
                             Id = reader.GetGuid(reader.GetOrdinal("Id")),
                             Handle = reader.GetString(reader.GetOrdinal("Handle")),
                             Name = reader.GetString(reader.GetOrdinal("Name")),
-                            Date = reader.GetDateTime(reader.GetOrdinal("Date"))
+                            Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                            Description = reader.GetString(reader.GetOrdinal("Description")),
                         };
 
                         threads.Add(thread);
@@ -86,7 +88,8 @@ public partial class MySQLService : IMySQLService
                             Id = reader.GetGuid(reader.GetOrdinal("Id")),
                             Handle = reader.GetString(reader.GetOrdinal("Handle")),
                             Name = reader.GetString(reader.GetOrdinal("Name")),
-                            Date = reader.GetDateTime(reader.GetOrdinal("Date"))
+                            Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                            Description = reader.GetString(reader.GetOrdinal("Description")),
                         };
 
                         threads.Add(thread);
@@ -121,7 +124,8 @@ public partial class MySQLService : IMySQLService
                             Handle = reader.GetString(reader.GetOrdinal("Handle")),
                             Email = reader.GetString(reader.GetOrdinal("Email")),
                             Name = reader.GetString(reader.GetOrdinal("Name")),
-                            Date = reader.GetDateTime(reader.GetOrdinal("Date"))
+                            Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                            Description = reader.GetString(reader.GetOrdinal("Description")),
                         };
                     }
 
@@ -139,11 +143,12 @@ public partial class MySQLService : IMySQLService
     {
         try
         {
-            string updateQuery = @"UPDATE Thread SET Name = @Name WHERE Id = @ThreadId";
+            string updateQuery = @"UPDATE Thread SET Name = @Name AND Description = @Description WHERE Id = @ThreadId";
 
             MySqlCommand cmd = new MySqlCommand(updateQuery, Connection);
 
             cmd.Parameters.AddWithValue("@Name", updatedThread.Name);
+            cmd.Parameters.AddWithValue("@Description", updatedThread.Description);
             cmd.Parameters.AddWithValue("@ThreadId", threadId);
 
             await cmd.ExecuteNonQueryAsync();

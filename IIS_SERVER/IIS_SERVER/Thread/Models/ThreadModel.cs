@@ -19,5 +19,7 @@ namespace IIS_SERVER.Thread.Models
 
         [Required]
         public DateTime Date { get; set; }
+        
+        public string Description { get; set; }
     }
 }
