@@ -143,7 +143,7 @@ public partial class MySQLService : IMySQLService
     {
         try
         {
-            string updateQuery = @"UPDATE Thread SET Name = @Name AND Description = @Description WHERE Id = @ThreadId";
+            string updateQuery = "UPDATE Thread SET Name = @Name, Description = @Description WHERE Id = @ThreadId";
 
             MySqlCommand cmd = new MySqlCommand(updateQuery, Connection);
 
@@ -152,10 +152,10 @@ public partial class MySQLService : IMySQLService
             cmd.Parameters.AddWithValue("@ThreadId", threadId);
 
             await cmd.ExecuteNonQueryAsync();
-
+            
             return true;
         }
-        catch
+        catch (Exception ex)
         {
             return false;
         }
