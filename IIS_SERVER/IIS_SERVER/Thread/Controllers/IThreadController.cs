@@ -8,8 +8,9 @@ namespace IIS_SERVER.Thread.Controllers
         Task<IActionResult> CreateThread(ThreadModel thread);
         Task<IActionResult> GetThread(Guid threadId);
         Task<IActionResult> GetAllThreads();
-        Task<IActionResult> GetThreadsFromSpecificGroup(string Handle);
+        Task<IActionResult> GetThreadsFromSpecificGroup(string Handle,  int currentPage, int itemsPerPage);
         Task<IActionResult> UpdateThread(Guid threadId, ThreadModel updatedThread);
         Task<IActionResult> DeleteThread(Guid threadId);
+        Task<IActionResult> GetThreadsCount(string Handle);
     }
 }

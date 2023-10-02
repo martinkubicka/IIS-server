@@ -206,11 +206,11 @@ namespace IIS_SERVER.Thread.Tests
             // Arrange
             var groupName = "group1";
             var threads = new List<ThreadModel> { }; 
-            _mySqlServiceMock.Setup(service => service.GetThreadsFromSpecificGroup(groupName))
+            _mySqlServiceMock.Setup(service => service.GetThreadsFromSpecificGroup(groupName, 10, 10))
                 .ReturnsAsync(threads);
 
             // Act
-            var result = await _controller.GetThreadsFromSpecificGroup(groupName) as ObjectResult;
+            var result = await _controller.GetThreadsFromSpecificGroup(groupName, 10, 10) as ObjectResult;
 
             // Assert
             Assert.NotNull(result);
@@ -223,11 +223,11 @@ namespace IIS_SERVER.Thread.Tests
         {
             // Arrange
             var invalidGroupName = "nonexistentgroup";
-            _mySqlServiceMock.Setup(service => service.GetThreadsFromSpecificGroup(invalidGroupName))
+            _mySqlServiceMock.Setup(service => service.GetThreadsFromSpecificGroup(invalidGroupName, 10, 10))
                 .ReturnsAsync((List<ThreadModel>)null);
 
             // Act
-            var result = await _controller.GetThreadsFromSpecificGroup(invalidGroupName) as ObjectResult;
+            var result = await _controller.GetThreadsFromSpecificGroup(invalidGroupName, 10, 10) as ObjectResult;
 
             // Assert
             Assert.NotNull(result);
@@ -241,11 +241,11 @@ namespace IIS_SERVER.Thread.Tests
             // Arrange
             var exceptionMessage = "An error occurred.";
             var groupName = "group1";
-            _mySqlServiceMock.Setup(service => service.GetThreadsFromSpecificGroup(groupName))
+            _mySqlServiceMock.Setup(service => service.GetThreadsFromSpecificGroup(groupName, 10, 10))
                 .ThrowsAsync(new Exception(exceptionMessage));
 
             // Act
-            var result = await _controller.GetThreadsFromSpecificGroup(groupName);
+            var result = await _controller.GetThreadsFromSpecificGroup(groupName, 10, 10);
 
             // Assert
             Assert.AreEqual(500, (result as ObjectResult)?.StatusCode);

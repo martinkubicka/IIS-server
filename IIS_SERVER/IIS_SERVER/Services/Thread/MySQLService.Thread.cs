@@ -68,16 +68,19 @@ public partial class MySQLService : IMySQLService
         }
     }
 
-    public async Task<List<ThreadModel>?> GetThreadsFromSpecificGroup(string Handle)
+    public async Task<List<ThreadModel>?> GetThreadsFromSpecificGroup(string Handle, int currentPage, int itemsPerPage)
     {
         try
         {
             var threads = new List<ThreadModel>();
-            var query = "SELECT * FROM Thread WHERE Handle = @Handle"; 
+
+            var query = "SELECT * FROM Thread WHERE Handle = @Handle LIMIT @ItemsPerPage OFFSET @Offset";
 
             using (var command = new MySqlCommand(query, Connection))
             {
-                command.Parameters.AddWithValue("@Handle", Handle); // Add the parameter
+                command.Parameters.AddWithValue("@Handle", Handle);
+                command.Parameters.AddWithValue("@ItemsPerPage", itemsPerPage);
+                command.Parameters.AddWithValue("@Offset", (currentPage - 1) * itemsPerPage);
 
                 using (var reader = await command.ExecuteReaderAsync())
                 {
@@ -104,6 +107,29 @@ public partial class MySQLService : IMySQLService
             return null;
         }
     }
+    
+    public async Task<int?> GetThreadsCount(string Handle)
+    {
+        try
+        {
+            var totalThreads = 0;
+            
+            var countQuery = "SELECT COUNT(*) FROM Thread WHERE Handle = @Handle";
+
+            using (var countCommand = new MySqlCommand(countQuery, Connection))
+            {
+                countCommand.Parameters.AddWithValue("@Handle", Handle);
+                totalThreads = Convert.ToInt32(await countCommand.ExecuteScalarAsync());
+            }
+
+            return totalThreads;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
 
     public async Task<ThreadModel?> GetThread(Guid threadId)
     {

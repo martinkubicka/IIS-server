@@ -43,12 +43,12 @@ namespace IIS_SERVER.Thread.Controllers
             }
         }
 
-        [HttpGet("GetThreads/{Handle}")]
-        public async Task<IActionResult> GetThreadsFromSpecificGroup(string Handle)
+        [HttpGet("GetThreads")]
+        public async Task<IActionResult> GetThreadsFromSpecificGroup(string Handle,  int currentPage, int itemsPerPage)
         {
             try
             {
-                List<ThreadModel>? thread = await MySqlService.GetThreadsFromSpecificGroup(Handle);
+                List<ThreadModel>? thread = await MySqlService.GetThreadsFromSpecificGroup(Handle, currentPage, itemsPerPage);
                 if (thread != null)
                 {
                     return StatusCode(200, thread);
@@ -64,6 +64,27 @@ namespace IIS_SERVER.Thread.Controllers
             }
         }
 
+        [HttpGet("GetThreadsCount")]
+        public async Task<IActionResult> GetThreadsCount(string Handle)
+        {
+            try
+            {
+                int? count = await MySqlService.GetThreadsCount(Handle);
+                if (count != null)
+                {
+                    return StatusCode(200, count);
+                }
+                else
+                {
+                    return StatusCode(404, "Error: Group not found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred: " + ex.Message);
+            }
+        }
+        
         [HttpGet("get/{threadId}")]
         public async Task<IActionResult> GetThread(Guid threadId)
         {
