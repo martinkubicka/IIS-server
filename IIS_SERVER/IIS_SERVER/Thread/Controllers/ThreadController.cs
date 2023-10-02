@@ -44,11 +44,11 @@ namespace IIS_SERVER.Thread.Controllers
         }
 
         [HttpGet("GetThreads")]
-        public async Task<IActionResult> GetThreadsFromSpecificGroup(string Handle,  int currentPage, int itemsPerPage)
+        public async Task<IActionResult> GetThreadsFromSpecificGroup(string Handle,  int currentPage, int itemsPerPage, string? filterName, string? filterFromDate, string? filterToDate)
         {
             try
             {
-                List<ThreadModel>? thread = await MySqlService.GetThreadsFromSpecificGroup(Handle, currentPage, itemsPerPage);
+                List<ThreadModel>? thread = await MySqlService.GetThreadsFromSpecificGroup(Handle, currentPage, itemsPerPage, filterName, filterFromDate, filterToDate);
                 if (thread != null)
                 {
                     return StatusCode(200, thread);
@@ -65,11 +65,11 @@ namespace IIS_SERVER.Thread.Controllers
         }
 
         [HttpGet("GetThreadsCount")]
-        public async Task<IActionResult> GetThreadsCount(string Handle)
+        public async Task<IActionResult> GetThreadsCount(string Handle, string? filterName, string? filterFromDate, string? filterToDate)
         {
             try
             {
-                int? count = await MySqlService.GetThreadsCount(Handle);
+                int? count = await MySqlService.GetThreadsCount(Handle, filterName, filterFromDate, filterToDate);
                 if (count != null)
                 {
                     return StatusCode(200, count);

@@ -206,11 +206,11 @@ namespace IIS_SERVER.Thread.Tests
             // Arrange
             var groupName = "group1";
             var threads = new List<ThreadModel> { }; 
-            _mySqlServiceMock.Setup(service => service.GetThreadsFromSpecificGroup(groupName, 10, 10))
+            _mySqlServiceMock.Setup(service => service.GetThreadsFromSpecificGroup(groupName, 10, 10, null, null, null))
                 .ReturnsAsync(threads);
 
             // Act
-            var result = await _controller.GetThreadsFromSpecificGroup(groupName, 10, 10) as ObjectResult;
+            var result = await _controller.GetThreadsFromSpecificGroup(groupName, 10, 10, null, null, null) as ObjectResult;
 
             // Assert
             Assert.NotNull(result);
@@ -223,11 +223,11 @@ namespace IIS_SERVER.Thread.Tests
         {
             // Arrange
             var invalidGroupName = "nonexistentgroup";
-            _mySqlServiceMock.Setup(service => service.GetThreadsFromSpecificGroup(invalidGroupName, 10, 10))
+            _mySqlServiceMock.Setup(service => service.GetThreadsFromSpecificGroup(invalidGroupName, 10, 10, null, null, null))
                 .ReturnsAsync((List<ThreadModel>)null);
 
             // Act
-            var result = await _controller.GetThreadsFromSpecificGroup(invalidGroupName, 10, 10) as ObjectResult;
+            var result = await _controller.GetThreadsFromSpecificGroup(invalidGroupName, 10, 10, null, null, null) as ObjectResult;
 
             // Assert
             Assert.NotNull(result);
@@ -241,11 +241,11 @@ namespace IIS_SERVER.Thread.Tests
             // Arrange
             var exceptionMessage = "An error occurred.";
             var groupName = "group1";
-            _mySqlServiceMock.Setup(service => service.GetThreadsFromSpecificGroup(groupName, 10, 10))
+            _mySqlServiceMock.Setup(service => service.GetThreadsFromSpecificGroup(groupName, 10, 10, null, null, null))
                 .ThrowsAsync(new Exception(exceptionMessage));
 
             // Act
-            var result = await _controller.GetThreadsFromSpecificGroup(groupName, 10, 10);
+            var result = await _controller.GetThreadsFromSpecificGroup(groupName, 10, 10, null, null, null);
 
             // Assert
             Assert.AreEqual(500, (result as ObjectResult)?.StatusCode);
