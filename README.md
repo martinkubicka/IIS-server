@@ -14,13 +14,13 @@
    ```
 
    ```
-   dotnet user-secrets set "DB:jwt-issuer" "any string"
+   dotnet user-secrets set "jwt-issuer" "any string"
    ```
 
    ```
-   dotnet user-secrets set "DB:jwt-audience" "any string"
+   dotnet user-secrets set "jwt-audience" "any string"
    ```
 
    ```
-   dotnet user-secrets set "DB:jwt-secret" "any string"
+   dotnet user-secrets set "jwt-secret" "any string"
    ```
