@@ -12,3 +12,15 @@
    ```
    dotnet user-secrets set "DB:ConnectionString" "your mysql connection string"
    ```
+
+   ```
+   dotnet user-secrets set "DB:jwt-issuer" "any string"
+   ```
+
+   ```
+   dotnet user-secrets set "DB:jwt-audience" "any string"
+   ```
+
+   ```
+   dotnet user-secrets set "DB:jwt-secret" "any string"
+   ```
