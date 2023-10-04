@@ -150,8 +150,7 @@ public partial class MySQLService : IMySQLService
             var totalThreads = 0;
 
             var countQuery = "SELECT COUNT(*) FROM Thread WHERE Handle = @Handle";
-
-            // Add filter conditions based on the provided parameters
+            
             var filterClauses = new List<string>();
             if (!string.IsNullOrEmpty(filterName))
             {
@@ -165,8 +164,7 @@ public partial class MySQLService : IMySQLService
             {
                 filterClauses.Add("Date <= @FilterToDate");
             }
-
-            // Combine filter clauses into a WHERE condition
+            
             if (filterClauses.Count > 0)
             {
                 countQuery += " AND " + string.Join(" AND ", filterClauses);
@@ -175,8 +173,7 @@ public partial class MySQLService : IMySQLService
             using (var countCommand = new MySqlCommand(countQuery, Connection))
             {
                 countCommand.Parameters.AddWithValue("@Handle", Handle);
-
-                // Set filter parameters
+                
                 if (!string.IsNullOrEmpty(filterName))
                 {
                     countCommand.Parameters.AddWithValue("@FilterName", "%" + filterName + "%");

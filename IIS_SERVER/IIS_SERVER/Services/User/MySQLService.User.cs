@@ -1,6 +1,7 @@
 using IIS_SERVER.User.Models;
 using MySql.Data.MySqlClient;
 using IIS_SERVER.Enums;
+using BCrypt.Net;
 
 namespace IIS_SERVER.Services;
 
@@ -10,13 +11,15 @@ public partial class MySQLService : IMySQLService
     {
         try
         {
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(user.Password);
+            
             string insertQuery = "INSERT INTO Users (Email, Password, Handle, Name, Role, Icon) " +
                                  "VALUES (@Email, @Password, @Handle, @Name, @Role, @Icon)";
 
             using (MySqlCommand cmd = new MySqlCommand(insertQuery, Connection))
             {
                 cmd.Parameters.AddWithValue("@Email", user.Email);
-                cmd.Parameters.AddWithValue("@Password", user.Password);
+                cmd.Parameters.AddWithValue("@Password", hashedPassword);
                 cmd.Parameters.AddWithValue("@Handle", user.Handle);
                 cmd.Parameters.AddWithValue("@Name", user.Name);
                 cmd.Parameters.AddWithValue("@Role", user.Role);
@@ -128,6 +131,7 @@ public partial class MySQLService : IMySQLService
     {
         try
         {
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(updatedUser.Password);
             string updateQuery = @"UPDATE Users SET Name = @Name,Role = @Role,VisibilityRegistered = @VisibilityRegistered,VisibilityGuest = @VisibilityGuest,VisibilityGroup = @VisibilityGroup,Icon = @Icon, Password = @Password WHERE Email = @Email";
 
             MySqlCommand cmd = new MySqlCommand(updateQuery, Connection);
@@ -139,7 +143,7 @@ public partial class MySQLService : IMySQLService
             cmd.Parameters.AddWithValue("@VisibilityGroup", userPrivacy.VisibilityGroup);
             cmd.Parameters.AddWithValue("@Icon", updatedUser.Icon);
             cmd.Parameters.AddWithValue("@Email", updatedUser.Email);
-            cmd.Parameters.AddWithValue("@Password", updatedUser.Password);
+            cmd.Parameters.AddWithValue("@Password", hashedPassword);
             
             await cmd.ExecuteNonQueryAsync();
 
