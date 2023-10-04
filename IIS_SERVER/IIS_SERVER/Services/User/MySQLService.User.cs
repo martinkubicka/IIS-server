@@ -101,14 +101,14 @@ public partial class MySQLService : IMySQLService
         }
     }
 
-    public async Task<Tuple<Role?, string>> GetUserRole(string handle)
+    public async Task<Tuple<Role?, string>> GetUserRole(string email)
     {
         try
         {
-            var query = "SELECT * FROM Users WHERE Handle = @Handle";
+            var query = "SELECT * FROM Users WHERE Email = @Email";
             using (var command = new MySqlCommand(query, Connection))
             {
-                command.Parameters.AddWithValue("@Handle", handle);
+                command.Parameters.AddWithValue("@Email", email);
 
                 using (var reader = await command.ExecuteReaderAsync())
                 {

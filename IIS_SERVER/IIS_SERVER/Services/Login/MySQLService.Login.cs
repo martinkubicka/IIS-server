@@ -67,6 +67,7 @@ public partial class MySQLService : IMySQLService
             string query = "SELECT Email FROM Tokens WHERE Token = @Token";
             using MySqlCommand command = new MySqlCommand(query, Connection);
             command.Parameters.AddWithValue("@Token", data.Token);
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(data.Password);
 
             object result = command.ExecuteScalar();
             var email = result.ToString();
@@ -78,7 +79,7 @@ public partial class MySQLService : IMySQLService
             
             string updateQuery = "UPDATE Users SET Password = @NewPassword WHERE Email = @Email";
             using MySqlCommand updateCommand = new MySqlCommand(updateQuery, Connection);
-            updateCommand.Parameters.AddWithValue("@NewPassword", data.Password);
+            updateCommand.Parameters.AddWithValue("@NewPassword", hashedPassword);
             updateCommand.Parameters.AddWithValue("@Email", email);
 
             int rowsAffected = await updateCommand.ExecuteNonQueryAsync();

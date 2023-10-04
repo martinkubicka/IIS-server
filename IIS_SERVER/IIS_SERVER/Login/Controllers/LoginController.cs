@@ -35,19 +35,22 @@ public class LoginController : ControllerBase, ILoginContoller
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["jwt-secret"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var role = await MySqlService.GetUserRole(data.Email);
 
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Aud, Configuration["jwt-audience"]),
-                new Claim(JwtRegisteredClaimNames.Iss, Configuration["jwt-issuer"])
+                new Claim(JwtRegisteredClaimNames.Iss, Configuration["jwt-issuer"]),
+                new Claim(ClaimTypes.Role, role.Item1.ToString()),
+                new Claim(ClaimTypes.Email, data.Email),
             };
 
             var token = new JwtSecurityToken(
                 issuer: Configuration["jwt-issuer"],
                 audience: Configuration["jwt-audience"],
                 claims: claims,
-                expires: DateTime.Now.AddHours(1),
+                expires: DateTime.Now.AddMinutes(30),
                 signingCredentials: credentials
             );
 
@@ -57,11 +60,11 @@ public class LoginController : ControllerBase, ILoginContoller
             {
                 HttpOnly = true,
                 Expires = DateTime.Now.AddHours(1),
-                SameSite = SameSiteMode.Strict,
-                Secure = false
+                SameSite = SameSiteMode.None,
+                Secure = false,
             });
 
-            return StatusCode(200, "Login successful.");
+            return StatusCode(200, tokenString);
         }
         else
         {

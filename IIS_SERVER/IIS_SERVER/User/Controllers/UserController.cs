@@ -51,9 +51,9 @@ public class UserController : ControllerBase, IUserController
     }
     
     [HttpGet("role")]
-    public async Task<IActionResult> GetUserRole(string handle)
+    public async Task<IActionResult> GetUserRole(string email)
     {
-        Tuple<Role?, string?> result = await MySqlService.GetUserRole(handle);
+        Tuple<Role?, string?> result = await MySqlService.GetUserRole(email);
 
         if (result.Item1 != null)
         {
