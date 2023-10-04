@@ -2,26 +2,40 @@ using IIS_SERVER.Login.Models;
 using IIS_SERVER.User.Models;
 using MySql.Data.MySqlClient;
 
+
 namespace IIS_SERVER.Services;
 
 public partial class MySQLService : IMySQLService
 {
     public async Task<Tuple<bool, string?>> Login(string username, string password)
     {
-        string query = "SELECT COUNT(*) FROM Users WHERE Email = @Email AND Password = @Password";
-        using MySqlCommand command = new MySqlCommand(query, Connection);
-        command.Parameters.AddWithValue("@Email", username);
-        command.Parameters.AddWithValue("@Password", password);
-
-        int count = Convert.ToInt32(await command.ExecuteScalarAsync());
-
-        if (count > 0)
+        try 
         {
-            return new Tuple<bool, string?>(true, null);
-        }
-        else
-        {
+            string selectQuery = "SELECT Password FROM Users WHERE Email = @Email";
+
+            using (MySqlCommand cmd = new MySqlCommand(selectQuery, Connection))
+            {
+                cmd.Parameters.AddWithValue("@Email", username);
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    if (reader.Read())
+                    {
+                        string hashedPasswordFromDB = reader.GetString(reader.GetOrdinal("Password"));
+
+                        if (BCrypt.Net.BCrypt.Verify(password, hashedPasswordFromDB))
+                        {
+                            return new Tuple<bool, string?>(true, null);
+                        }
+                    }
+                }
+            }
+
             return new Tuple<bool, string?>(false, "Invalid email or password.");
+        }
+        catch (Exception ex)
+        {
+            return new Tuple<bool, string?>(false, ex.Message);
         }
         
     }
