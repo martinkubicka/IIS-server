@@ -24,3 +24,11 @@
    ```
    dotnet user-secrets set "jwt-secret" "any string"
    ```
+   
+   You need to setup your gmail account so you can use it for sending mails from this app.
+   ```
+   dotnet user-secrets set "mail" "your gmail" 
+   ```
+   ```
+   dotnet user-secrets set "mail-password" "your password"
+   ```
