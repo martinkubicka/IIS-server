@@ -112,4 +112,18 @@ public class PostController : ControllerBase, IPostController
             return BadRequest(result.Item2);
         }
     }
+
+    [HttpGet("calculateRating/{postId}")]
+    public async Task<IActionResult> CalculateRating(Guid postId)
+    {
+        int? count = await MySqlService.CalculateRating(postId);
+        if (count != null)
+        {
+            return Ok(count);
+        }
+        else
+        {
+            return NotFound($"Could not calculate rating");
+        }
+    }
 }

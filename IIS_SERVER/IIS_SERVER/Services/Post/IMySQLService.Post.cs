@@ -4,7 +4,6 @@ namespace IIS_SERVER.Services;
 
 public partial interface IMySQLService
 {
-
     Task<PostModel?> GetPost(Guid postId);
 
     Task<List<PostModel?>> GetPostsByThread(Guid threadId);
@@ -18,4 +17,6 @@ public partial interface IMySQLService
     Task<Tuple<bool, string?>> EditPost(PostModel post);
 
     Task<Tuple<bool, string?>> DeletePost(PostModel post);
+
+    Task<int?> CalculateRating(Guid postId);
 }

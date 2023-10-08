@@ -95,6 +95,21 @@ END //
 
 DELIMITER ;
 
+DELIMITER //
+CREATE PROCEDURE CalculateRating(
+    IN postId VARCHAR(255),
+    OUT ratingCount INT
+)
+BEGIN
+    SELECT 
+        SUM(CASE WHEN Rating = TRUE THEN 1 ELSE -1 END) AS RatingCount,
+    INTO
+        ratingCount
+    FROM Rating
+    WHERE PostId = postId;
+END //
+DELIMITER ;
+
 -- TRIGGERS
 
 DELIMITER //

@@ -1,101 +1,106 @@
 using IIS_SERVER.Post.Models;
 using IIS_SERVER.Enums;
+using System.Data;
 using MySql.Data.MySqlClient;
 
 namespace IIS_SERVER.Services;
 
 public partial class MySQLService : IMySQLService
 {
-
     public async Task<PostModel?> GetPost(Guid postId)
-{
-    try
     {
-        string selectQuery = "SELECT * FROM Post WHERE Id = @Id";
-        MySqlCommand cmd = new MySqlCommand(selectQuery, Connection);
-        cmd.Parameters.AddWithValue("@Id", postId);
-        using var reader = await cmd.ExecuteReaderAsync();
-
-        if (await reader.ReadAsync())
+        try
         {
-            return new PostModel
+            string selectQuery = "SELECT * FROM Post WHERE Id = @Id";
+            MySqlCommand cmd = new MySqlCommand(selectQuery, Connection);
+            cmd.Parameters.AddWithValue("@Id", postId);
+            using var reader = await cmd.ExecuteReaderAsync();
+
+            if (await reader.ReadAsync())
             {
-                Id = Guid.Parse(reader["Id"].ToString()),
-                ThreadId = reader["ThreadId"].ToString(),
-                UserEmail = reader["Email"].ToString(),
-                Text = reader["Text"].ToString(),
-                Date = DateTime.Parse(reader["Date"].ToString())
-            };
+                return new PostModel
+                {
+                    Id = Guid.Parse(reader["Id"].ToString()),
+                    ThreadId = reader["ThreadId"].ToString(),
+                    UserEmail = reader["Email"].ToString(),
+                    Text = reader["Text"].ToString(),
+                    Date = DateTime.Parse(reader["Date"].ToString())
+                };
+            }
+            return null;
         }
-        return null;
-    }
-    catch
-    {
-        return null;
-    }
-}
-
-public async Task<List<PostModel?>> GetPostsByThread(Guid threadId)
-{
-    try
-    {
-        // Retrieve posts by threadId from the Post table
-        string selectQuery = "SELECT * FROM Post WHERE ThreadId = @ThreadId";
-        MySqlCommand cmd = new MySqlCommand(selectQuery, Connection);
-        cmd.Parameters.AddWithValue("@ThreadId", threadId);
-        var posts = new List<PostModel?>();
-
-        using var reader = await cmd.ExecuteReaderAsync();
-        while (await reader.ReadAsync())
+        catch
         {
-            posts.Add(new PostModel
-            {
-                Id = Guid.Parse(reader["Id"].ToString()),
-                ThreadId = reader["ThreadId"].ToString(),
-                UserEmail = reader["Email"].ToString(),
-                Text = reader["Text"].ToString(),
-                Date = DateTime.Parse(reader["Date"].ToString())
-            });
+            return null;
         }
-
-        return posts;
     }
-    catch 
-    {
-        return new List<PostModel?>();
-    }
-}
 
-public async Task<List<PostModel?>> GetPostsByUser(string userEmail)
-{
-    try
+    public async Task<List<PostModel?>> GetPostsByThread(Guid threadId)
     {
-        // Retrieve posts by userEmail from the Post table
-        string selectQuery = "SELECT * FROM Post WHERE Email = @Email";
-        MySqlCommand cmd = new MySqlCommand(selectQuery, Connection);
-        cmd.Parameters.AddWithValue("@Email", userEmail);
-        var posts = new List<PostModel?>();
-
-        using var reader = await cmd.ExecuteReaderAsync();
-        while (await reader.ReadAsync())
+        try
         {
-            posts.Add(new PostModel
-            {
-                Id = Guid.Parse(reader["Id"].ToString()),
-                ThreadId = reader["ThreadId"].ToString(),
-                UserEmail = reader["Email"].ToString(),
-                Text = reader["Text"].ToString(),
-                Date = DateTime.Parse(reader["Date"].ToString())
-            });
-        }
+            // Retrieve posts by threadId from the Post table
+            string selectQuery = "SELECT * FROM Post WHERE ThreadId = @ThreadId";
+            MySqlCommand cmd = new MySqlCommand(selectQuery, Connection);
+            cmd.Parameters.AddWithValue("@ThreadId", threadId);
+            var posts = new List<PostModel?>();
 
-        return posts;
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                posts.Add(
+                    new PostModel
+                    {
+                        Id = Guid.Parse(reader["Id"].ToString()),
+                        ThreadId = reader["ThreadId"].ToString(),
+                        UserEmail = reader["Email"].ToString(),
+                        Text = reader["Text"].ToString(),
+                        Date = DateTime.Parse(reader["Date"].ToString())
+                    }
+                );
+            }
+
+            return posts;
+        }
+        catch
+        {
+            return new List<PostModel?>();
+        }
     }
-    catch 
+
+    public async Task<List<PostModel?>> GetPostsByUser(string userEmail)
     {
-        return new List<PostModel?>();
+        try
+        {
+            // Retrieve posts by userEmail from the Post table
+            string selectQuery = "SELECT * FROM Post WHERE Email = @Email";
+            MySqlCommand cmd = new MySqlCommand(selectQuery, Connection);
+            cmd.Parameters.AddWithValue("@Email", userEmail);
+            var posts = new List<PostModel?>();
+
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                posts.Add(
+                    new PostModel
+                    {
+                        Id = Guid.Parse(reader["Id"].ToString()),
+                        ThreadId = reader["ThreadId"].ToString(),
+                        UserEmail = reader["Email"].ToString(),
+                        Text = reader["Text"].ToString(),
+                        Date = DateTime.Parse(reader["Date"].ToString())
+                    }
+                );
+            }
+
+            return posts;
+        }
+        catch
+        {
+            return new List<PostModel?>();
+        }
     }
-}
+
     public async Task<Tuple<bool, string?>> AddPost(PostModel post)
     {
         try
@@ -197,6 +202,30 @@ public async Task<List<PostModel?>> GetPostsByUser(string userEmail)
         catch (Exception ex)
         {
             return new Tuple<bool, string?>(false, ex.Message);
+        }
+    }
+
+    public async Task<int?> CalculateRating(Guid postId)
+    {
+        try
+        {
+            string procedureName = "CalculateRating";
+            MySqlCommand cmd = new MySqlCommand(procedureName, Connection);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.AddWithValue("@postId", postId);
+
+            MySqlParameter ratingCountParam = new MySqlParameter("@ratingCount", MySqlDbType.Int32);
+            ratingCountParam.Direction = ParameterDirection.Output;
+            cmd.Parameters.Add(ratingCountParam);
+
+            await cmd.ExecuteNonQueryAsync();
+
+            return Convert.ToInt32(ratingCountParam.Value);
+        }
+        catch
+        {
+            return 0;
         }
     }
 }

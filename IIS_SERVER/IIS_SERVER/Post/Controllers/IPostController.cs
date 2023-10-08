@@ -18,4 +18,6 @@ public interface IPostController
     Task<IActionResult> EditPost(PostModel post);
 
     Task<IActionResult> DeletePost(PostModel post);
+
+    Task<IActionResult> CalculateRating(Guid postId);
 }
