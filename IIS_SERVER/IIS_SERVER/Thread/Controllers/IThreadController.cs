@@ -12,5 +12,6 @@ namespace IIS_SERVER.Thread.Controllers
         Task<IActionResult> UpdateThread(Guid threadId, ThreadModel updatedThread);
         Task<IActionResult> DeleteThread(Guid threadId);
         Task<IActionResult> GetThreadsCount(string Handle, string? filterName, string? filterFromDate, string? filterToDate);
+        Task<IActionResult> GetAllThreadsUserIsIn(string Email);
     }
 }

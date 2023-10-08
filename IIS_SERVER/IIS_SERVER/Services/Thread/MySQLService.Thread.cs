@@ -276,4 +276,46 @@ public partial class MySQLService : IMySQLService
             return Tuple.Create(false, ex.Message);
         }
     }
+
+    public async Task<List<ThreadModel>?> GetAllThreadsUserIsIn(string Email)
+    {
+        try
+        {
+            var threads = new List<ThreadModel>();
+
+            var query = "SELECT t.* " +
+                        "FROM Thread t " +
+                        "INNER JOIN Member m ON t.Handle = m.Handle " +
+                        "WHERE m.Email = @Email";
+
+            using (var command = new MySqlCommand(query, Connection))
+            {
+                command.Parameters.AddWithValue("@Email", Email);
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        var thread = new ThreadModel
+                        {
+                            Id = reader.GetGuid(reader.GetOrdinal("Id")),
+                            Handle = reader.GetString(reader.GetOrdinal("Handle")),
+                            Name = reader.GetString(reader.GetOrdinal("Name")),
+                            Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                            Description = reader.GetString(reader.GetOrdinal("Description")),
+                        };
+
+                        threads.Add(thread);
+                    }
+                }
+            }
+
+            return threads;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
 }

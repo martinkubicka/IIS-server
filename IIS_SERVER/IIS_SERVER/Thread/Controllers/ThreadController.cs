@@ -136,5 +136,18 @@ namespace IIS_SERVER.Thread.Controllers
             }
 
         }
+        [HttpGet("GetAllThreadsUserIsIn/{handle}")]
+        public async Task<IActionResult> GetAllThreadsUserIsIn(string handle)
+        {
+            List<ThreadModel>? thread = await MySqlService.GetAllThreadsUserIsIn(handle);
+            if (thread != null)
+            {
+                return StatusCode(200, thread);
+            }
+            else
+            {
+                return StatusCode(404, "Error: Thread not found.");
+            }
+        }
     }
 }
