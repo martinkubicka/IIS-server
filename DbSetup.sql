@@ -102,7 +102,6 @@ BEGIN
     END IF;
 END //
 
-<<<<<<< HEAD
 DELIMITER ;
 
 DELIMITER //
@@ -144,8 +143,6 @@ END;
 //
 DELIMITER //
 
-=======
->>>>>>> 12b6c5cbcf22c852649af2ea725e91a56de53cb3
 CREATE PROCEDURE DeleteMember(IN userEmail VARCHAR(255), IN groupHandle VARCHAR(255))
 BEGIN
     DECLARE isGroupAdmin INT DEFAULT 0;
