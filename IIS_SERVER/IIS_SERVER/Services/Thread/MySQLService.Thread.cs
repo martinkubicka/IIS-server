@@ -19,7 +19,7 @@ public partial class MySQLService : IMySQLService
                 cmd.Parameters.AddWithValue("@Handle", thread.Handle);
                 cmd.Parameters.AddWithValue("@Email", thread.Email);
                 cmd.Parameters.AddWithValue("@Name", thread.Name);
-                cmd.Parameters.AddWithValue("@Date", DateTime.Today);
+                cmd.Parameters.AddWithValue("@Date", DateTime.Now);
                 cmd.Parameters.AddWithValue("@Description", thread.Description);
 
                 await cmd.ExecuteNonQueryAsync();
@@ -69,79 +69,78 @@ public partial class MySQLService : IMySQLService
     }
 
     public async Task<List<ThreadModel>?> GetThreadsFromSpecificGroup(string Handle, int currentPage, int itemsPerPage, string? filterName, string? filterFromDate, string? filterToDate)
-{
-    try
     {
-        var threads = new List<ThreadModel>();
+        try
+        {
+            var threads = new List<ThreadModel>();
 
-        var query = "SELECT * FROM Thread WHERE Handle = @Handle";
-        
-        var filterClauses = new List<string>();
-        if (!string.IsNullOrEmpty(filterName))
-        {
-            filterClauses.Add("Name LIKE @FilterName");
-        }
-        if (!string.IsNullOrEmpty(filterFromDate))
-        {
-            filterClauses.Add("Date >= @FilterFromDate");
-        }
-        if (!string.IsNullOrEmpty(filterToDate))
-        {
-            filterClauses.Add("Date <= @FilterToDate");
-        }
-        
-        if (filterClauses.Count > 0)
-        {
-            query += " AND " + string.Join(" AND ", filterClauses);
-        }
-
-        query += " LIMIT @ItemsPerPage OFFSET @Offset";
-
-        using (var command = new MySqlCommand(query, Connection))
-        {
-            command.Parameters.AddWithValue("@Handle", Handle);
-            command.Parameters.AddWithValue("@ItemsPerPage", itemsPerPage);
-            command.Parameters.AddWithValue("@Offset", (currentPage - 1) * itemsPerPage);
+            var query = "SELECT * FROM Thread WHERE Handle = @Handle";
             
+            var filterClauses = new List<string>();
             if (!string.IsNullOrEmpty(filterName))
             {
-                command.Parameters.AddWithValue("@FilterName", "%" + filterName + "%");
+                filterClauses.Add("Name LIKE @FilterName");
             }
             if (!string.IsNullOrEmpty(filterFromDate))
             {
-                command.Parameters.AddWithValue("@FilterFromDate", DateTime.Parse(filterFromDate));
+                filterClauses.Add("Date >= @FilterFromDate");
             }
             if (!string.IsNullOrEmpty(filterToDate))
             {
-                command.Parameters.AddWithValue("@FilterToDate", DateTime.Parse(filterToDate));
+                filterClauses.Add("Date <= @FilterToDate");
+            }
+            
+            if (filterClauses.Count > 0)
+            {
+                query += " AND " + string.Join(" AND ", filterClauses);
             }
 
-            using (var reader = await command.ExecuteReaderAsync())
+            query += " ORDER BY Date DESC LIMIT @ItemsPerPage OFFSET @Offset";
+            
+            using (var command = new MySqlCommand(query, Connection))
             {
-                while (await reader.ReadAsync())
+                command.Parameters.AddWithValue("@Handle", Handle);
+                command.Parameters.AddWithValue("@ItemsPerPage", itemsPerPage);
+                command.Parameters.AddWithValue("@Offset", (currentPage - 1) * itemsPerPage);
+                
+                if (!string.IsNullOrEmpty(filterName))
                 {
-                    var thread = new ThreadModel
-                    {
-                        Id = reader.GetGuid(reader.GetOrdinal("Id")),
-                        Handle = reader.GetString(reader.GetOrdinal("Handle")),
-                        Name = reader.GetString(reader.GetOrdinal("Name")),
-                        Date = reader.GetDateTime(reader.GetOrdinal("Date")),
-                        Description = reader.GetString(reader.GetOrdinal("Description")),
-                    };
+                    command.Parameters.AddWithValue("@FilterName", "%" + filterName + "%");
+                }
+                if (!string.IsNullOrEmpty(filterFromDate))
+                {
+                    command.Parameters.AddWithValue("@FilterFromDate", DateTime.Parse(filterFromDate));
+                }
+                if (!string.IsNullOrEmpty(filterToDate))
+                {
+                    command.Parameters.AddWithValue("@FilterToDate", DateTime.Parse(filterToDate));
+                }
 
-                    threads.Add(thread);
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        var thread = new ThreadModel
+                        {
+                            Id = reader.GetGuid(reader.GetOrdinal("Id")),
+                            Handle = reader.GetString(reader.GetOrdinal("Handle")),
+                            Name = reader.GetString(reader.GetOrdinal("Name")),
+                            Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                            Description = reader.GetString(reader.GetOrdinal("Description")),
+                        };
+
+                        threads.Add(thread);
+                    }
                 }
             }
+
+            return threads;
         }
-
-        return threads;
+        catch (Exception)
+        {
+            return null;
+        }
     }
-    catch (Exception)
-    {
-        return null;
-    }
-}
-
     
     public async Task<int?> GetThreadsCount(string Handle, string? filterName, string? filterFromDate, string? filterToDate)
     {
