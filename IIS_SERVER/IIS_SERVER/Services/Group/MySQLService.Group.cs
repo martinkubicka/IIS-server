@@ -72,6 +72,41 @@ public partial class MySQLService : IMySQLService
             return null;
         }
     }
+    
+    public async Task<GroupPrivacySettingsModel?> GetGroupPolicy(string handle)
+    {
+        try
+        {
+            string selectQuery = "SELECT * FROM `Groups` WHERE Handle = @Handle";
+
+            using (MySqlCommand cmd = new MySqlCommand(selectQuery, Connection))
+            {
+                cmd.Parameters.AddWithValue("@Handle", handle);
+                foreach (MySqlParameter item in cmd.Parameters)
+                {
+                    Console.WriteLine(item.Value);
+                }
+
+                using (MySqlDataReader reader = (MySqlDataReader)await cmd.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        return new GroupPrivacySettingsModel
+                        {
+                            VisibilityGuest = reader.GetBoolean(reader.GetOrdinal("VisibilityGuest")),
+                            VisibilityMember = reader.GetBoolean(reader.GetOrdinal("VisibilityMember")),
+                        };
+                    }
+                }
+            }
+
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
 
     public async Task<List<GroupListModel?>> GetGroups()
     {
@@ -199,7 +234,7 @@ public partial class MySQLService : IMySQLService
         }
     }
 
-    public async Task<bool> UpdateGroupPolicy(GroupPrivacySettingsModel privacySettingsModel)
+    public async Task<bool> UpdateGroupPolicy(GroupPrivacySettingsModel privacySettingsModel, string handle)
     {
         try
         {
@@ -218,7 +253,10 @@ public partial class MySQLService : IMySQLService
                     "@VisibilityGuest",
                     privacySettingsModel.VisibilityGuest
                 );
-                // You may need to set @Handle parameter based on your specific use case.
+                cmd.Parameters.AddWithValue(
+                    "@Handle",
+                    handle
+                );
 
                 int rowsAffected = await cmd.ExecuteNonQueryAsync();
                 return rowsAffected > 0;

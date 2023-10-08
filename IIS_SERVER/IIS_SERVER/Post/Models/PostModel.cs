@@ -1,17 +1,8 @@
 using System.ComponentModel.DataAnnotations;
-using IIS_SERVER.Enums;
 using IIS_SERVER.Utils;
 
 namespace IIS_SERVER.Post.Models;
 
-/* Id VARCHAR(255) NOT NULL PRIMARY KEY,
-    ThreadId VARCHAR(255) NOT NULL,
-    Email VARCHAR(255) NOT NULL,
-    Text VARCHAR(255) NOT NULL,
-    Date DATETIME NOT NULL,
-    FOREIGN KEY (Email) REFERENCES Users(Email),
-    FOREIGN KEY (ThreadId) REFERENCES Thread(Id)
- */
 public class PostModel
 {
     [Required(ErrorMessage = "Id is required")]

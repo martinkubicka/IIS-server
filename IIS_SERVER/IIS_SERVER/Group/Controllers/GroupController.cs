@@ -129,12 +129,12 @@ public class GroupController : ControllerBase, IGroupController
 
     [HttpPut("updatePolicy")]
     public async Task<IActionResult> UpdateGroupPolicy(
-        GroupPrivacySettingsModel privacySettingsModel
+        GroupPrivacySettingsModel privacySettingsModel, string handle
     )
     {
         try
         {
-            bool result = await MySqlService.UpdateGroupPolicy(privacySettingsModel);
+            bool result = await MySqlService.UpdateGroupPolicy(privacySettingsModel, handle);
             if (result)
             {
                 return Ok("Group policy successfully updated.");
@@ -142,6 +142,27 @@ public class GroupController : ControllerBase, IGroupController
             else
             {
                 return NotFound("Group policy update failed.");
+            }
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error: {ex.Message}");
+        }
+    }
+    
+    [HttpGet("policy/{handle}")]
+    public async Task<IActionResult> GetGroupPolicy(string handle)
+    {
+        try
+        {
+            var group = await MySqlService.GetGroupPolicy(handle);
+            if (group != null)
+            {
+                return Ok(group);
+            }
+            else
+            {
+                return NotFound("Group not found.");
             }
         }
         catch (Exception ex)

@@ -29,7 +29,7 @@ namespace IIS_SERVER.Thread.Controllers
             }
         }
 
-        [HttpGet("getThreads")]
+        [HttpGet("GetAllThreads")]
         public async Task<IActionResult> GetAllThreads()
         {
             List<ThreadModel>? thread = await MySqlService.GetAllThreads();
@@ -43,8 +43,50 @@ namespace IIS_SERVER.Thread.Controllers
             }
         }
 
+        [HttpGet("GetThreads")]
+        public async Task<IActionResult> GetThreadsFromSpecificGroup(string Handle,  int currentPage, int itemsPerPage, string? filterName, string? filterFromDate, string? filterToDate)
+        {
+            try
+            {
+                List<ThreadModel>? thread = await MySqlService.GetThreadsFromSpecificGroup(Handle, currentPage, itemsPerPage, filterName, filterFromDate, filterToDate);
+                if (thread != null)
+                {
+                    return StatusCode(200, thread);
+                }
+                else
+                {
+                    return StatusCode(404, "Error: Thread not found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred: " + ex.Message);
+            }
+        }
+
+        [HttpGet("GetThreadsCount")]
+        public async Task<IActionResult> GetThreadsCount(string Handle, string? filterName, string? filterFromDate, string? filterToDate)
+        {
+            try
+            {
+                int? count = await MySqlService.GetThreadsCount(Handle, filterName, filterFromDate, filterToDate);
+                if (count != null)
+                {
+                    return StatusCode(200, count);
+                }
+                else
+                {
+                    return StatusCode(404, "Error: Group not found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred: " + ex.Message);
+            }
+        }
+        
         [HttpGet("get/{threadId}")]
-        public async Task<IActionResult> GetThread(string threadId)
+        public async Task<IActionResult> GetThread(Guid threadId)
         {
             ThreadModel? thread = await MySqlService.GetThread(threadId);
             if (thread != null)
@@ -58,7 +100,7 @@ namespace IIS_SERVER.Thread.Controllers
         }
 
         [HttpPut("update/{threadId}")]
-        public async Task<IActionResult> UpdateThread(string threadId, ThreadModel updatedThread)
+        public async Task<IActionResult> UpdateThread(Guid threadId, ThreadModel updatedThread)
         {
             bool result = await MySqlService.UpdateThread(threadId, updatedThread);
             if (result)
@@ -72,45 +114,27 @@ namespace IIS_SERVER.Thread.Controllers
         }
 
         [HttpDelete("delete/{threadId}")]
-        public async Task<IActionResult> DeleteThread(string threadId)
+        public async Task<IActionResult> DeleteThread(Guid threadId)
         {
-            try
+            try 
             {
                 Tuple<bool, string?> result = await MySqlService.DeleteThread(threadId);
 
                 if (result.Item1)
                 {
-                    return NoContent();
+                    return StatusCode(204, "Thread successfully deleted.");
                 }
                 else
                 {
-                    if (result.Item2.Contains("admin"))
-                    {
-                        if (result.Item2.Contains("group"))
-                        {
-                            return StatusCode(
-                                403,
-                                "Error: Thread cannot be deleted because it is an admin in one or more groups."
-                            );
-                        }
-                        else
-                        {
-                            return StatusCode(
-                                403,
-                                "Error: Thread cannot be deleted because it is a system admin."
-                            );
-                        }
-                    }
-                    else
-                    {
-                        return StatusCode(500, "Error: An internal server error occurred.");
-                    }
+
+                    return StatusCode(404, "Error: Thread not found.");
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                return StatusCode(500, "Error: An internal server error occurred.");
+                return StatusCode(500, "Error: DB error occurred.");
             }
+
         }
     }
 }

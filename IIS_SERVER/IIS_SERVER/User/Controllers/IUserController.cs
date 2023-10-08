@@ -14,7 +14,7 @@ public interface IUserController
     Task<IActionResult> AddUser(UserDetailModel user);
     Task<IActionResult> GetUsersList();
     Task<IActionResult> GetUserProfile(string handle);
-    Task<IActionResult> GetUserRole(string handle);
+    Task<IActionResult> GetUserRole(string email);
     Task<IActionResult> UpdateUser(UpdateUserRequest updatedUser);
     Task<IActionResult> DeleteUser(string email);
     Task<IActionResult> GetUserPrivacySettings(string handle);

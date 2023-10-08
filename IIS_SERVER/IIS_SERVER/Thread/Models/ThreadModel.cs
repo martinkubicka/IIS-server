@@ -6,7 +6,7 @@ namespace IIS_SERVER.Thread.Models
     public class ThreadModel
     {
         [Key]
-        public string Id { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
         public string Handle { get; set; }
@@ -19,5 +19,7 @@ namespace IIS_SERVER.Thread.Models
 
         [Required]
         public DateTime Date { get; set; }
+        
+        public string Description { get; set; }
     }
 }

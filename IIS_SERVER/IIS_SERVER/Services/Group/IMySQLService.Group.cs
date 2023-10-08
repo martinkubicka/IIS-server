@@ -17,5 +17,7 @@ public partial interface IMySQLService
 
     Task<bool> UpdateGroup(GroupListModel listModel);
 
-    Task<bool> UpdateGroupPolicy(GroupPrivacySettingsModel privacySettingsModel);
+    Task<bool> UpdateGroupPolicy(GroupPrivacySettingsModel privacySettingsModel, string handle);
+
+    Task<GroupPrivacySettingsModel?> GetGroupPolicy(string handle);
 }

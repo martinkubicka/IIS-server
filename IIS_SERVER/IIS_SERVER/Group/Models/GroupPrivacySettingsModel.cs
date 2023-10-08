@@ -6,7 +6,7 @@ public class GroupPrivacySettingsModel
 
     public bool VisibilityGuest { get; set; }
 
-    GroupPrivacySettingsModel()
+    public GroupPrivacySettingsModel()
     {
         VisibilityMember = true;
         VisibilityGuest = true;
