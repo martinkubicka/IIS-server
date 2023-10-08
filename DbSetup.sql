@@ -102,6 +102,47 @@ BEGIN
     END IF;
 END //
 
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE CalculateRating(
+    IN postId VARCHAR(255),
+    OUT ratingCount INT
+)
+BEGIN
+    SELECT 
+        SUM(CASE WHEN Rating = TRUE THEN 1 ELSE -1 END) AS RatingCount,
+    INTO
+        ratingCount
+    FROM Rating
+    WHERE PostId = postId;
+END //
+DELIMITER ;
+
+-- TRIGGERS
+
+DELIMITER //
+CREATE TRIGGER DeleteThread
+AFTER DELETE ON Thread
+FOR EACH ROW
+BEGIN
+    DELETE FROM Post
+    WHERE Post.ThreadId = OLD.Id;
+END;
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER DeletePost
+AFTER DELETE ON Post
+FOR EACH ROW
+BEGIN
+    DELETE FROM Rating
+    WHERE Rating.PostId = OLD.Id;
+END;
+//
+DELIMITER //
+
 CREATE PROCEDURE DeleteMember(IN userEmail VARCHAR(255), IN groupHandle VARCHAR(255))
 BEGIN
     DECLARE isGroupAdmin INT DEFAULT 0;
