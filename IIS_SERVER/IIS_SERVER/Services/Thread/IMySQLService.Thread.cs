@@ -11,4 +11,6 @@ public partial interface IMySQLService
     Task<ThreadModel?> GetThread(Guid threadId);
     Task<bool> UpdateThread(Guid threadId, ThreadModel updatedThread);
     Task<Tuple<bool, string?>> DeleteThread(Guid threadId);
+    Task<List<ThreadModel>?> GetAllThreadsUserIsIn(string Email);
+    
 }
