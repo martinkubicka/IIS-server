@@ -4,7 +4,7 @@ DROP TABLE Thread;
 DROP TABLE Member;
 DROP TABLE `Groups`;
 DROP TABLE Tokens;
-DROP TABLE Users;
+DROP TABLE Users; 
 DROP PROCEDURE DeleteUser;
 DROP PROCEDURE DeleteMember;
 DROP PROCEDURE CalculateRating;
@@ -22,7 +22,8 @@ CREATE TABLE Users (
     VisibilityGuest BOOLEAN DEFAULT TRUE,
     VisibilityGroup BOOLEAN DEFAULT TRUE,
     Icon VARCHAR(255),
-    UNIQUE KEY (Icon)
+    UNIQUE KEY (Icon),
+    UNIQUE KEY (Name)
 );
 
 CREATE TABLE `Groups` (
@@ -38,12 +39,14 @@ CREATE TABLE `Groups` (
 CREATE TABLE Member (
     Id VARCHAR(255) NOT NULL PRIMARY KEY,
     Handle VARCHAR(255) NOT NULL,
+    Name VARCHAR(255) NOT NULL,
     Email VARCHAR(255) NOT NULL,
     GroupRole INT NOT NULL,
     Icon VARCHAR(255),
     FOREIGN KEY (Email) REFERENCES Users(Email),
     FOREIGN KEY (Handle) REFERENCES `Groups`(Handle) ON DELETE CASCADE,
-    FOREIGN KEY (Icon) REFERENCES Users(Icon)
+    FOREIGN KEY (Icon) REFERENCES Users(Icon),
+    FOREIGN KEY (Name) REFERENCES Users(Name)
 );
 
 CREATE TABLE Thread (
@@ -200,17 +203,17 @@ VALUES
     ('da28ee79-bc45-4380-a0dd-7c8f0bfc8b6f', 'group2', 'Description for Group 2', 'Group 2', TRUE, TRUE, 'group2-icon');
 
 -- Insert additional sample member data to make at least six members
-INSERT INTO Member (Id, Handle, Email, GroupRole, Icon)
+INSERT INTO Member (Id, Handle, Email, GroupRole, Icon, Name)
 VALUES
-    ('ab9cfbc31-1c33-446d-bcae-8c045108b704', 'group1', 'user4@example.com', 1, 'user4-icon'),
-    ('cf9d8f37c-69e5-4e64-a3f0-b006b1a88cb4', 'group1', 'user5@example.com', 2, 'user5-icon'),
-    ('8f5de2a3-7a0b-4f29-9842-5c2727e27483', 'group1', 'user6@example.com', 1, 'user6-icon'),
-    ('ab9cfbc31-1c33-446d-bcae-8c055108b704', 'group2', 'user1@example.com', 1, 'user1-icon'),
-    ('cf9d8f37c-69e5-4e64-a3f0-b007b1a88cb4', 'group2', 'user2@example.com', 2, 'user2-icon'),
-    ('8f5de2a3-7a0b-4f29-9842-5c2727e27473', 'group2', 'user3@example.com', 1, 'user3-icon'),
-    ('de2a2355c-9da3-45a0-85e7-8c4e24a9d8f6', 'group2', 'user4@example.com', 1, 'user4-icon'),
-    ('c8196b4db-5f06-4f3e-9e63-2a752d3b1ef5', 'group2', 'user5@example.com', 2, 'user5-icon'),
-    ('0e12a7cf-25ea-468c-af4e-9f0b4f18f4de', 'group2', 'user6@example.com', 2, 'user6-icon');
+    ('ab9cfbc31-1c33-446d-bcae-8c045108b704', 'group1', 'user4@example.com', 1, 'user4-icon', 'User 4'),
+    ('cf9d8f37c-69e5-4e64-a3f0-b006b1a88cb4', 'group1', 'user5@example.com', 2, 'user5-icon', 'User 5'),
+    ('8f5de2a3-7a0b-4f29-9842-5c2727e27483', 'group1', 'user6@example.com', 1, 'user6-icon', 'User 6'),
+    ('ab9cfbc31-1c33-446d-bcae-8c055108b704', 'group2', 'user1@example.com', 1, 'user1-icon', 'User 1'),
+    ('cf9d8f37c-69e5-4e64-a3f0-b007b1a88cb4', 'group2', 'user2@example.com', 2, 'user2-icon', 'User 2'),
+    ('8f5de2a3-7a0b-4f29-9842-5c2727e27473', 'group2', 'user3@example.com', 1, 'user3-icon', 'User 3'),
+    ('de2a2355c-9da3-45a0-85e7-8c4e24a9d8f6', 'group2', 'user4@example.com', 1, 'user4-icon', 'User 4'),
+    ('c8196b4db-5f06-4f3e-9e63-2a752d3b1ef5', 'group2', 'user5@example.com', 2, 'user5-icon', 'User 5'),
+    ('0e12a7cf-25ea-468c-af4e-9f0b4f18f4de', 'group2', 'user6@example.com', 2, 'user6-icon', 'User 6');
 
 
 -- Insert sample thread data

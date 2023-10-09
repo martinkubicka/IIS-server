@@ -21,4 +21,8 @@ public class MemberModel
     public string Email { get; set; }
     
     public string? Icon { get; set; }
+    
+    [Required(ErrorMessage = "Name is required")]
+    [StringValidation(ErrorMessage = "The Name field cannot be empty or contain only whitespace.")]
+    public string Name { get; set; }
 }

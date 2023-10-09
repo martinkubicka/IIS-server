@@ -128,6 +128,7 @@ public partial class MySQLService : IMySQLService
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex);
             return Tuple.Create<List<UserListModel>?, string?>(null, ex.Message);
         }
     }
