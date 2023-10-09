@@ -11,8 +11,8 @@ public partial class MySQLService : IMySQLService
     {
         try
         {
-            string insertQuery = "INSERT INTO Member (Id, Handle, Email, GroupRole) " +
-                                 "VALUES (@Id, @Handle, @Email, @GroupRole)";
+            string insertQuery = "INSERT INTO Member (Id, Handle, Email, GroupRole, Icon) " +
+                                 "VALUES (@Id, @Handle, @Email, @GroupRole, @Icon)";
 
             using (MySqlCommand cmd = new MySqlCommand(insertQuery, Connection))
             {
@@ -20,6 +20,7 @@ public partial class MySQLService : IMySQLService
                 cmd.Parameters.AddWithValue("@Handle", member.Handle);
                 cmd.Parameters.AddWithValue("@Email", member.Email);
                 cmd.Parameters.AddWithValue("@GroupRole", member.Role);
+                cmd.Parameters.AddWithValue("@Icon", member.Icon);
                 
                 await cmd.ExecuteNonQueryAsync();
             }
