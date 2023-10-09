@@ -10,11 +10,12 @@ public partial class MySQLService : IMySQLService
         try
         {
             string insertQuery =
-                "INSERT INTO `Groups` (Handle, Name, Description, Icon) "
-                + "VALUES (@Handle, @Name, @Description, @Icon)";
+                "INSERT INTO `Groups` (Id, Handle, Name, Description, Icon) "
+                + "VALUES (@Id, @Handle, @Name, @Description, @Icon)";
 
             using (MySqlCommand cmd = new MySqlCommand(insertQuery, Connection))
             {
+                cmd.Parameters.AddWithValue("@Id", Guid.NewGuid());
                 cmd.Parameters.AddWithValue("@Handle", group.Handle);
                 cmd.Parameters.AddWithValue("@Name", group.Name);
                 cmd.Parameters.AddWithValue("@Description", group.Description);

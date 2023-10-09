@@ -13,11 +13,12 @@ public partial class MySQLService : IMySQLService
         {
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(user.Password);
             
-            string insertQuery = "INSERT INTO Users (Email, Password, Handle, Name, Role, Icon) " +
-                                 "VALUES (@Email, @Password, @Handle, @Name, @Role, @Icon)";
+            string insertQuery = "INSERT INTO Users (Id, Email, Password, Handle, Name, Role, Icon) " +
+                                 "VALUES (@Id, @Email, @Password, @Handle, @Name, @Role, @Icon)";
 
             using (MySqlCommand cmd = new MySqlCommand(insertQuery, Connection))
             {
+                cmd.Parameters.AddWithValue("@Id", Guid.NewGuid());
                 cmd.Parameters.AddWithValue("@Email", user.Email);
                 cmd.Parameters.AddWithValue("@Password", hashedPassword);
                 cmd.Parameters.AddWithValue("@Handle", user.Handle);

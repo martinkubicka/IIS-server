@@ -7,11 +7,13 @@ DROP TABLE Tokens;
 DROP TABLE Users;
 DROP PROCEDURE DeleteUser;
 DROP PROCEDURE DeleteMember;
+DROP PROCEDURE CalculateRating;
 
 -- TABLES
 
 CREATE TABLE Users (
-    Email VARCHAR(255) NOT NULL PRIMARY KEY,
+    Id VARCHAR(255) NOT NULL PRIMARY KEY,
+    Email VARCHAR(255) NOT NULL UNIQUE,
     Password VARCHAR(255) NOT NULL,
     Handle VARCHAR(255) NOT NULL UNIQUE,
     Name VARCHAR(255) NOT NULL,
@@ -23,7 +25,8 @@ CREATE TABLE Users (
 );
 
 CREATE TABLE `Groups` (
-    Handle VARCHAR(255) NOT NULL PRIMARY KEY,
+    Id VARCHAR(255) NOT NULL PRIMARY KEY,
+    Handle VARCHAR(255) NOT NULL UNIQUE,
     Description VARCHAR(255),
     Name VARCHAR(255) NOT NULL,
     VisibilityMember BOOLEAN DEFAULT TRUE,
@@ -111,9 +114,7 @@ CREATE PROCEDURE CalculateRating(
 )
 BEGIN
     SELECT 
-        SUM(CASE WHEN Rating = TRUE THEN 1 ELSE -1 END) AS RatingCount,
-    INTO
-        ratingCount
+        SUM(CASE WHEN Rating = TRUE THEN 1 ELSE -1 END) INTO ratingCount
     FROM Rating
     WHERE PostId = postId;
 END //
@@ -179,56 +180,46 @@ END; //
 DELIMITER ;
 
 -- INSERTS
--- Insert data into Users table
-INSERT INTO Users (Email, Password, Handle, Name, Role, VisibilityRegistered, VisibilityGuest, VisibilityGroup, Icon)
+-- Insert sample user data
+INSERT INTO Users (Id, Email, Password, Handle, Name, Role, VisibilityRegistered, VisibilityGuest, VisibilityGroup, Icon)
 VALUES
-    ('user1@example.com', 'password1', 'user1', 'User 1', 1, TRUE, TRUE, TRUE, 'user1_icon.jpg'),
-    ('user2@example.com', 'password2', 'user2', 'User 2', 1, TRUE, TRUE, TRUE, 'user2_icon.jpg'),
-    ('admin@example.com', 'adminpassword', 'admin', 'Admin', 0, TRUE, TRUE, TRUE, 'admin_icon.jpg'),
-    ('user3@example.com', 'password3', 'user3', 'User 3', 1, TRUE, TRUE, TRUE, 'user3_icon.jpg'),
-    ('user4@example.com', 'password4', 'user4', 'User 4', 1, TRUE, TRUE, TRUE, 'user4_icon.jpg');
+    -- all passwords set to "password"
+    ('85e619ff-1593-4fae-a4e1-8b5268c4c9a1', 'user1@example.com', '$2a$10$YWX0i1FngYLmVmpoBMzZZujAP0dnRDmGRjtcfNa11ryxEezzQepBa', 'user1_handle', 'User 1', 1, TRUE, TRUE, TRUE, 'user1-icon'),
+    ('b9d3a8e4-3a62-4b21-a5c8-5ebc0b3bf929', 'user2@example.com', '$2a$10$YWX0i1FngYLmVmpoBMzZZujAP0dnRDmGRjtcfNa11ryxEezzQepBa', 'user2_handle', 'User 2', 1, TRUE, TRUE, TRUE, 'user2-icon'),
+    ('e7ac07c1-7dcd-4b36-b2a3-1f676f10a0ab', 'user3@example.com', '$2a$10$YWX0i1FngYLmVmpoBMzZZujAP0dnRDmGRjtcfNa11ryxEezzQepBa', 'user3_handle', 'User 3', 1, TRUE, TRUE, TRUE, 'user3-icon');
 
--- Insert data into Groups table
-INSERT INTO `Groups` (Handle, Description, Name, VisibilityMember, VisibilityGuest, Icon)
+-- Insert sample group data
+INSERT INTO `Groups` (Id, Handle, Description, Name, VisibilityMember, VisibilityGuest, Icon)
 VALUES
-    ('group1', 'Group 1 Description', 'Group 1', TRUE, TRUE, 'group1_icon.jpg'),
-    ('group2', 'Group 2 Description', 'Group 2', TRUE, TRUE, 'group2_icon.jpg'),
-    ('group3', 'Group 3 Description', 'Group 3', TRUE, TRUE, 'group3_icon.jpg'),
-    ('group4', 'Group 4 Description', 'Group 4', TRUE, TRUE, 'group4_icon.jpg');
+    ('50ca0201-3a6b-4d5b-9e6c-6899a0f0aa7f', 'group1', 'Description for Group 1', 'Group 1', TRUE, TRUE, 'group1-icon'),
+    ('da28ee79-bc45-4380-a0dd-7c8f0bfc8b6f', 'group2', 'Description for Group 2', 'Group 2', TRUE, TRUE, 'group2-icon');
 
--- Insert data into Member table
+-- Insert sample member data
 INSERT INTO Member (Id, Handle, Email, GroupRole)
 VALUES
-    ('1f4b5c1f-5d3a-4b19-b7bf-60b92ca8421f', 'group1', 'user1@example.com', 1),
-    ('2b3e69a8-e76c-47d1-a5f7-c7f23a9e48c3', 'group2', 'user2@example.com', 1),
-    ('3a8c84a6-33d5-4f28-b8f4-90f124a28fc0', 'group1', 'admin@example.com', 0),
-    ('4f4b5c1f-5d3a-4b19-b7bf-60b92ca8421f', 'group3', 'user3@example.com', 1),
-    ('5b3e69a8-e76c-47d1-a5f7-c7f23a9e48c3', 'group4', 'user4@example.com', 1),
-    ('6c8c84a6-33d5-4f28-b8f4-90f124a28fc0', 'group3', 'admin@example.com', 0);
+    ('a9cfbc31-1c33-446d-bcae-8c055108b704', 'group1', 'user1@example.com', 1),
+    ('f9d8f37c-69e5-4e64-a3f0-b006b1a88cb4', 'group1', 'user2@example.com', 2),
+    ('e2a2355c-9da3-45a0-85e7-8c4e24a9d8f6', 'group2', 'user2@example.com', 1),
+    ('8196b4db-5f06-4f3e-9e63-2a752d3b1ef5', 'group2', 'user3@example.com', 2);
 
--- Insert data into Thread table
+-- Insert sample thread data
 INSERT INTO Thread (Id, Description, Handle, Email, Name, Date)
 VALUES
-    ('7d9a319a-0c5c-4c60-875b-6f2e80d7ef93', 'thread 1 description', 'group1', 'user1@example.com', 'Thread 1', NOW()),
-    ('8f8e5a7b-77e0-47d7-b22a-1f29a3c6e065', 'thread 2 description', 'group2', 'user2@example.com', 'Thread 2', NOW()),
-    ('8f8e5a7b-77e0-47d7-b22a-1f29a3c6e066', 'thread 3 description', 'group2', 'user2@example.com', 'Thread 2', NOW()),
-    ('8f8e5a7b-77e0-47d7-b22a-1f29a3c6e067', 'thread 4 description', 'group2', 'user2@example.com', 'Thread 2', NOW()),
-    ('9d9a319a-0c5c-4c60-875b-6f2e80d7ef94', 'thread 5 description', 'group3', 'user3@example.com', 'Thread 3', NOW()),
-    ('1e8e5a7b-77e0-47d7-b22a-1f29a3c6e066', 'thread 6 description', 'group4', 'user4@example.com', 'Thread 4', NOW());
-    
--- Insert data into Post table
+    ('ecdf0794-667e-4de9-86a5-71f7e98d9b3a', 'Description for Thread 1', 'group1', 'user1@example.com', 'Thread 1', NOW()),
+    ('73a1f07c-ee3d-4cc5-a3f5-17ee1d52e554', 'Description for Thread 2', 'group1', 'user2@example.com', 'Thread 2', NOW()),
+    ('bca3ad1f-d8c2-4c9d-b07f-ffbcfaec072e', 'Description for Thread 3', 'group2', 'user3@example.com', 'Thread 3', NOW());
+
+-- Insert sample post data
 INSERT INTO Post (Id, ThreadId, Email, Text, Date)
 VALUES
-    ('3eefc84c-165f-4a0d-9abf-78b5c4421d2d', '7d9a319a-0c5c-4c60-875b-6f2e80d7ef93', 'user1@example.com', 'Post 1', NOW()),
-    ('6b9f0de1-69ab-4c8f-953c-872607d56204', '8f8e5a7b-77e0-47d7-b22a-1f29a3c6e065', 'user2@example.com', 'Post 2', NOW()),
-    ('9eefc84c-165f-4a0d-9abf-78b5c4421d2e', '9d9a319a-0c5c-4c60-875b-6f2e80d7ef94', 'user3@example.com', 'Post 3', NOW()),
-    ('8b9f0de1-69ab-4c8f-953c-872607d56205', '1e8e5a7b-77e0-47d7-b22a-1f29a3c6e066', 'user4@example.com', 'Post 4', NOW());
+    ('e43159aa-72d2-42f1-874b-4289e94036de', 'ecdf0794-667e-4de9-86a5-71f7e98d9b3a', 'user1@example.com', 'Post 1 in Thread 1', NOW()),
+    ('bcdfacab-c915-4a1b-b3a4-9ebe1fc77552', 'ecdf0794-667e-4de9-86a5-71f7e98d9b3a', 'user2@example.com', 'Post 2 in Thread 1', NOW()),
+    ('72b6884d-5f0f-4647-a742-2a0b05b14e02', '73a1f07c-ee3d-4cc5-a3f5-17ee1d52e554', 'user2@example.com', 'Post 1 in Thread 2', NOW()),
+    ('f905fd6e-0057-428d-884b-59ff419a222e', '73a1f07c-ee3d-4cc5-a3f5-17ee1d52e554', 'user3@example.com', 'Post 2 in Thread 2', NOW());
 
--- Insert data into Rating table
+-- Insert sample rating data
 INSERT INTO Rating (Id, Rating, PostId, Email)
 VALUES
-    ('76c776a6-0d3b-40db-bb94-19f6f6ee961e', TRUE, '3eefc84c-165f-4a0d-9abf-78b5c4421d2d', 'user2@example.com'),
-    ('09acfa4b-7c1d-4e67-8a46-b33df2eac846', FALSE, '6b9f0de1-69ab-4c8f-953c-872607d56204', 'user1@example.com'),
-    ('86c776a6-0d3b-40db-bb94-19f6f6ee961f', TRUE, '9eefc84c-165f-4a0d-9abf-78b5c4421d2e', 'user4@example.com'),
-    ('29acfa4b-7c1d-4e67-8a46-b33df2eac847', FALSE, '8b9f0de1-69ab-4c8f-953c-872607d56205', 'user3@example.com');
-
+    ('438e20e9-93e2-4a8f-b9a0-2b73d3727f79', TRUE, 'e43159aa-72d2-42f1-874b-4289e94036de', 'user2@example.com'),
+    ('4b98861a-2a6e-4c7b-bf9f-32ad85a9bea9', TRUE, 'bcdfacab-c915-4a1b-b3a4-9ebe1fc77552', 'user3@example.com'),
+    ('8d7f8081-87a9-490c-8b96-5d4c25b38d42', FALSE, 'e43159aa-72d2-42f1-874b-4289e94036de', 'user3@example.com');
