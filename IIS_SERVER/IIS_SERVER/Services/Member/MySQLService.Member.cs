@@ -73,17 +73,17 @@ public partial class MySQLService : IMySQLService
         }
     }
     
-    public async Task<Tuple<List<UserListModel>?, string?>> GetMembers(string handle, GroupRole? role)
+    public async Task<Tuple<List<UserListModel>?, string?>> GetMembers(string handle, GroupRole? role, int currentPage, int itemsPerPage)
     {
         string query = "SELECT U.* FROM Member AS M INNER JOIN Users AS U ON M.Email = U.Email WHERE  ";
         
         if (role.HasValue)
         {
-            query += "M.Handle = @Handle AND M.GroupRole = @GroupRole";
+            query += "M.Handle = @Handle AND M.GroupRole = @GroupRole LIMIT @ItemsPerPage OFFSET @Offset";
         }
         else
         {
-            query += "M.Handle = @Handle";
+            query += "M.Handle = @Handle LIMIT @ItemsPerPage OFFSET @Offset";
         }
 
         try
@@ -91,6 +91,8 @@ public partial class MySQLService : IMySQLService
             using (MySqlCommand command = new MySqlCommand(query, Connection))
             {
                 command.Parameters.AddWithValue("@Handle", handle);
+                command.Parameters.AddWithValue("@ItemsPerPage", itemsPerPage);
+                command.Parameters.AddWithValue("@Offset", (currentPage - 1) * itemsPerPage);
                 if (role.HasValue)
                 {
                     command.Parameters.AddWithValue("@GroupRole", (int)role);
@@ -126,6 +128,28 @@ public partial class MySQLService : IMySQLService
         catch (Exception ex)
         {
             return Tuple.Create<List<UserListModel>?, string?>(null, ex.Message);
+        }
+    }
+    
+    public async Task<int?> GetMembersCount(string Handle)
+    {
+        try
+        {
+            var totalMembers = 0;
+
+            var countQuery = "SELECT COUNT(*) FROM Member WHERE Handle = @Handle";
+            
+            using (var countCommand = new MySqlCommand(countQuery, Connection))
+            {
+                countCommand.Parameters.AddWithValue("@Handle", Handle);
+                totalMembers = Convert.ToInt32(await countCommand.ExecuteScalarAsync());
+            }
+
+            return totalMembers;
+        }
+        catch
+        {
+            return null;
         }
     }
 }
