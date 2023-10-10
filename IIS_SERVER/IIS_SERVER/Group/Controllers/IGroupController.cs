@@ -3,15 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IIS_SERVER.Group.Controllers;
 
-public interface AddGroupRequest
-{
-    public GroupListModel Group { get; set; }
-    public string OwnerEmail { get; set; }
-}
+
+
 
 public interface IGroupController
 {
-    Task<IActionResult> AddGroup(AddGroupRequest group);
+    Task<IActionResult> AddGroup(GroupEmailModel ownerEmail);
 
     Task<IActionResult> GetGroup(string handle);
 

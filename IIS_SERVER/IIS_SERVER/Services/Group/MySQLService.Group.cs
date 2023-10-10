@@ -7,6 +7,7 @@ public partial class MySQLService : IMySQLService
 {
     public async Task<bool> AddGroup(GroupListModel group)
     {
+        
         try
         {
             string insertQuery =

@@ -9,6 +9,7 @@ public partial class MySQLService : IMySQLService
 {
     public async Task<Tuple<bool, string>> AddUser(UserDetailModel user)
     {
+        Console.WriteLine("userAdded");
         try
         {
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(user.Password);

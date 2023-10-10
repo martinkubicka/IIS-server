@@ -16,11 +16,11 @@ public class GroupController : ControllerBase, IGroupController
     }
 
     [HttpPost("add")]
-    public async Task<IActionResult> AddGroup(AddGroupRequest group)
-    {
+    public async Task<IActionResult> AddGroup(GroupEmailModel group)
+        {
         try
         {
-            bool result = await MySqlService.AddGroup(group.Group);
+            bool result = await MySqlService.AddGroup(group);
             if (result)
             {
                 return StatusCode(201, "Group successfully added to DB.");
@@ -29,6 +29,7 @@ public class GroupController : ControllerBase, IGroupController
             {
                 return StatusCode(500, "Error: Failed to add the Group to the database.");
             }
+            
         }
         catch (Exception ex)
         {
@@ -39,6 +40,7 @@ public class GroupController : ControllerBase, IGroupController
     [HttpGet("{handle}")]
     public async Task<IActionResult> GetGroup(string handle)
     {
+        Console.WriteLine("cool");
         try
         {
             var group = await MySqlService.GetGroup(handle);

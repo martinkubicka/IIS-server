@@ -4,7 +4,7 @@ namespace IIS_SERVER.Services;
 
 public partial interface IMySQLService
 {
-    Task<bool> AddGroup(GroupListModel user);
+    Task<bool> AddGroup(GroupListModel group);
 
     Task<GroupListModel?> GetGroup(string handle);
 
