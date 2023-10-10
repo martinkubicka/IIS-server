@@ -68,9 +68,9 @@ public class MemberController : ControllerBase, IMemberController
     }
 
     [HttpGet("getMembers")]
-    public async Task<IActionResult> GetMembers(string handle, GroupRole? role)
+    public async Task<IActionResult> GetMembers(string handle, GroupRole? role, int currentPage, int itemsPerPage)
     {
-        Tuple<List<UserListModel>?, string?> result = await MySqlService.GetMembers(handle, role);
+        Tuple<List<MemberModel>?, string?> result = await MySqlService.GetMembers(handle, role, currentPage, itemsPerPage);
 
         if (result.Item1 != null)
         {
@@ -78,5 +78,26 @@ public class MemberController : ControllerBase, IMemberController
         }
         
         return result.Item2.Contains("Groups") ? StatusCode(404, "Error: Group not found.") : StatusCode(500, "Error: " + result.Item2);
+    }
+    
+    [HttpGet("GetMembersCount")]
+    public async Task<IActionResult> GetMembersCount(string Handle)
+    {
+        try
+        {
+            int? count = await MySqlService.GetMembersCount(Handle);
+            if (count != null)
+            {
+                return StatusCode(200, count);
+            }
+            else
+            {
+                return StatusCode(404, "Error: Group not found.");
+            }
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, "An error occurred: " + ex.Message);
+        }
     }
 }

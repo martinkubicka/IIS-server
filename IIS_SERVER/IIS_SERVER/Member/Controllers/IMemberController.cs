@@ -9,5 +9,6 @@ public interface IMemberController
     Task<IActionResult> AddMember(MemberModel member);
     Task<IActionResult> DeleteMember(string email, string handle);
     Task<IActionResult> UpdateMemberRole(string email, GroupRole role, string handle);
-    Task<IActionResult> GetMembers(string handle, GroupRole? role);
+    Task<IActionResult> GetMembers(string handle, GroupRole? role, int currentPage, int itemsPerPage);
+    Task<IActionResult> GetMembersCount(string Handle);
 }
