@@ -40,7 +40,7 @@ public class GroupController : ControllerBase, IGroupController
     [HttpGet("{handle}")]
     public async Task<IActionResult> GetGroup(string handle)
     {
-        Console.WriteLine("cool");
+        
         try
         {
             var group = await MySqlService.GetGroup(handle);
