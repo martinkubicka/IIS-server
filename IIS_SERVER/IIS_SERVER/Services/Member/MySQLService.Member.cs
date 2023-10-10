@@ -41,8 +41,26 @@ public partial class MySQLService : IMySQLService
             {
                 command.Parameters.AddWithValue("@Email", email);
                 command.Parameters.AddWithValue("@Handle", handle);
-                int rowsAffected = await command.ExecuteNonQueryAsync();
-                
+
+                int rowsAffected = 0;
+
+                while (true)
+                {
+                    try
+                    {
+                        rowsAffected = await command.ExecuteNonQueryAsync();
+                        break;
+                    }
+                    catch (MySqlException ex)
+                    {
+                        if (!ex.Message.Contains(
+                                "There is already an open DataReader associated with this Connection which must be closed first"))
+                        {
+                            throw;
+                        }
+                    }
+                }
+
                 return Tuple.Create(rowsAffected > 0, "Member");
             }
         }
