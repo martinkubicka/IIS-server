@@ -74,7 +74,7 @@ public partial class MySQLService : IMySQLService
         }
     }
     
-    public async Task<Tuple<List<UserListModel>?, string?>> GetMembers(string handle, GroupRole? role, int currentPage, int itemsPerPage)
+    public async Task<Tuple<List<MemberModel>?, string?>> GetMembers(string handle, GroupRole? role, int currentPage, int itemsPerPage)
     {
         string query = "SELECT U.* FROM Member AS M INNER JOIN Users AS U ON M.Email = U.Email WHERE  ";
         
@@ -99,18 +99,19 @@ public partial class MySQLService : IMySQLService
                     command.Parameters.AddWithValue("@GroupRole", (int)role);
                 }
 
-                List<UserListModel> users = new List<UserListModel>();
+                List<MemberModel> users = new List<MemberModel>();
 
                 using (var reader = await command.ExecuteReaderAsync())
                 {
                     while (await reader.ReadAsync())
                     {
-                        var user = new UserListModel
+                        var user = new MemberModel
                         {
                             Handle = reader.GetString(reader.GetOrdinal("Handle")),
                             Name = reader.GetString(reader.GetOrdinal("Name")),
                             Icon = reader.IsDBNull(reader.GetOrdinal("Icon")) ? null : reader.GetString(reader.GetOrdinal("Icon")),
-                            Role = (Role)reader.GetInt32(reader.GetOrdinal("Role"))
+                            Role = (GroupRole)reader.GetInt32(reader.GetOrdinal("Role")),
+                            Email = reader.GetString(reader.GetOrdinal("Email")),
                         };
                         
                         users.Add(user);
@@ -118,7 +119,7 @@ public partial class MySQLService : IMySQLService
 
                     if (users.Count == 0)
                     {
-                        return Tuple.Create<List<UserListModel>?, string?>(null, "Groups");
+                        return Tuple.Create<List<MemberModel>?, string?>(null, "Groups");
                     }
                     
                     return Tuple.Create(users, "");
@@ -128,7 +129,7 @@ public partial class MySQLService : IMySQLService
         }
         catch (Exception ex)
         {
-            return Tuple.Create<List<UserListModel>?, string?>(null, ex.Message);
+            return Tuple.Create<List<MemberModel>?, string?>(null, ex.Message);
         }
     }
     

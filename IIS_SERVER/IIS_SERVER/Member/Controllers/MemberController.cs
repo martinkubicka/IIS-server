@@ -70,7 +70,7 @@ public class MemberController : ControllerBase, IMemberController
     [HttpGet("getMembers")]
     public async Task<IActionResult> GetMembers(string handle, GroupRole? role, int currentPage, int itemsPerPage)
     {
-        Tuple<List<UserListModel>?, string?> result = await MySqlService.GetMembers(handle, role, currentPage, itemsPerPage);
+        Tuple<List<MemberModel>?, string?> result = await MySqlService.GetMembers(handle, role, currentPage, itemsPerPage);
 
         if (result.Item1 != null)
         {
