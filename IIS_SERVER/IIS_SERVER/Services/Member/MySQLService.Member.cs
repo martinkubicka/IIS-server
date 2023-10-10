@@ -19,7 +19,7 @@ public partial class MySQLService : IMySQLService
                 cmd.Parameters.AddWithValue("@Id", Guid.NewGuid());
                 cmd.Parameters.AddWithValue("@Handle", member.Handle);
                 cmd.Parameters.AddWithValue("@Email", member.Email);
-                cmd.Parameters.AddWithValue("@GroupRole", member.Role);
+                cmd.Parameters.AddWithValue("@GroupRole", (int)member.Role);
                 cmd.Parameters.AddWithValue("@Icon", member.Icon);
                 
                 await cmd.ExecuteNonQueryAsync();
@@ -60,7 +60,7 @@ public partial class MySQLService : IMySQLService
         {
             using (MySqlCommand command = new MySqlCommand(query, Connection))
             {
-                command.Parameters.AddWithValue("@GroupRole", role);
+                command.Parameters.AddWithValue("@GroupRole", (int)role);
                 command.Parameters.AddWithValue("@Email", email);
                 command.Parameters.AddWithValue("@Handle", handle);
                 int rowsAffected = await command.ExecuteNonQueryAsync();
@@ -76,7 +76,7 @@ public partial class MySQLService : IMySQLService
     
     public async Task<Tuple<List<MemberModel>?, string?>> GetMembers(string handle, GroupRole? role, int currentPage, int itemsPerPage)
     {
-        string query = "SELECT U.* FROM Member AS M INNER JOIN Users AS U ON M.Email = U.Email WHERE  ";
+        string query = "SELECT U.*, M.GroupRole FROM Member AS M INNER JOIN Users AS U ON M.Email = U.Email WHERE  ";
         
         if (role.HasValue)
         {
@@ -110,10 +110,9 @@ public partial class MySQLService : IMySQLService
                             Handle = reader.GetString(reader.GetOrdinal("Handle")),
                             Name = reader.GetString(reader.GetOrdinal("Name")),
                             Icon = reader.IsDBNull(reader.GetOrdinal("Icon")) ? null : reader.GetString(reader.GetOrdinal("Icon")),
-                            Role = (GroupRole)reader.GetInt32(reader.GetOrdinal("Role")),
+                            Role = (GroupRole)reader.GetInt32(reader.GetOrdinal("GroupRole")),
                             Email = reader.GetString(reader.GetOrdinal("Email")),
                         };
-                        
                         users.Add(user);
                     }
 
