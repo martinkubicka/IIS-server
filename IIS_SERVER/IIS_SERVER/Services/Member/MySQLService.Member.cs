@@ -9,148 +9,191 @@ public partial class MySQLService : IMySQLService
 {
     public async Task<Tuple<bool, string?>> AddMember(MemberModel member)
     {
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            string insertQuery = "INSERT INTO Member (Id, Handle, Email, GroupRole, Icon) " +
-                                 "VALUES (@Id, @Handle, @Email, @GroupRole, @Icon)";
-
-            using (MySqlCommand cmd = new MySqlCommand(insertQuery, Connection))
+            NewConnection.Open();
+            try
             {
-                cmd.Parameters.AddWithValue("@Id", Guid.NewGuid());
-                cmd.Parameters.AddWithValue("@Handle", member.Handle);
-                cmd.Parameters.AddWithValue("@Email", member.Email);
-                cmd.Parameters.AddWithValue("@GroupRole", (int)member.Role);
-                cmd.Parameters.AddWithValue("@Icon", member.Icon);
-                
-                await cmd.ExecuteNonQueryAsync();
+                string insertQuery =
+                    "INSERT INTO Member (Id, Handle, Email, GroupRole, Icon) "
+                    + "VALUES (@Id, @Handle, @Email, @GroupRole, @Icon)";
+
+                using (MySqlCommand cmd = new MySqlCommand(insertQuery, NewConnection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", Guid.NewGuid());
+                    cmd.Parameters.AddWithValue("@Handle", member.Handle);
+                    cmd.Parameters.AddWithValue("@Email", member.Email);
+                    cmd.Parameters.AddWithValue("@GroupRole", (int)member.Role);
+                    cmd.Parameters.AddWithValue("@Icon", member.Icon);
+
+                    await cmd.ExecuteNonQueryAsync();
+                }
+                NewConnection.Close();
+                return Tuple.Create(true, "");
             }
-            
-            return Tuple.Create(true, "");
-        }
-        catch (Exception ex)
-        {
-            return Tuple.Create(false, ex.Message);
+            catch (Exception ex)
+            {
+                NewConnection.Close();
+                return Tuple.Create(false, ex.Message);
+            }
         }
     }
 
     public async Task<Tuple<bool, string?>> DeleteMember(string email, string handle)
     {
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            using (MySqlCommand command = new MySqlCommand("CALL DeleteMember(@Email, @Handle)", Connection))
+            NewConnection.Open();
+            try
             {
-                command.Parameters.AddWithValue("@Email", email);
-                command.Parameters.AddWithValue("@Handle", handle);
-                int rowsAffected = await command.ExecuteNonQueryAsync();
-                
-                return Tuple.Create(rowsAffected > 0, "Member");
+                using (
+                    MySqlCommand command = new MySqlCommand(
+                        "CALL DeleteMember(@Email, @Handle)",
+                        NewConnection
+                    )
+                )
+                {
+                    command.Parameters.AddWithValue("@Email", email);
+                    command.Parameters.AddWithValue("@Handle", handle);
+                    int rowsAffected = await command.ExecuteNonQueryAsync();
+                    NewConnection.Close();
+                    return Tuple.Create(rowsAffected > 0, "Member");
+                }
             }
-        }
-        catch (Exception ex)
-        {
-            return Tuple.Create(false, ex.Message);
+            catch (Exception ex)
+            {
+                NewConnection.Close();
+                return Tuple.Create(false, ex.Message);
+            }
         }
     }
 
-    public async Task<Tuple<bool, string?>> UpdateMemberRole(string email, GroupRole role, string handle)
+    public async Task<Tuple<bool, string?>> UpdateMemberRole(
+        string email,
+        GroupRole role,
+        string handle
+    )
     {
-        string query = "UPDATE Member SET GroupRole = @GroupRole WHERE Email = @Email AND Handle = @Handle";
-
-        try
+        string query =
+            "UPDATE Member SET GroupRole = @GroupRole WHERE Email = @Email AND Handle = @Handle";
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            using (MySqlCommand command = new MySqlCommand(query, Connection))
+            NewConnection.Open();
+            try
             {
-                command.Parameters.AddWithValue("@GroupRole", (int)role);
-                command.Parameters.AddWithValue("@Email", email);
-                command.Parameters.AddWithValue("@Handle", handle);
-                int rowsAffected = await command.ExecuteNonQueryAsync();
-
-                return Tuple.Create(rowsAffected > 0, "Member");
+                using (MySqlCommand command = new MySqlCommand(query, NewConnection))
+                {
+                    command.Parameters.AddWithValue("@GroupRole", (int)role);
+                    command.Parameters.AddWithValue("@Email", email);
+                    command.Parameters.AddWithValue("@Handle", handle);
+                    int rowsAffected = await command.ExecuteNonQueryAsync();
+                    NewConnection.Close();
+                    return Tuple.Create(rowsAffected > 0, "Member");
+                }
+            }
+            catch (Exception ex)
+            {
+                NewConnection.Close();
+                return Tuple.Create(false, ex.Message);
             }
         }
-        catch (Exception ex)
-        {
-            return Tuple.Create(false, ex.Message);
-        }
     }
-    
-    public async Task<Tuple<List<MemberModel>?, string?>> GetMembers(string handle, GroupRole? role, int currentPage, int itemsPerPage)
+
+    public async Task<Tuple<List<MemberModel>?, string?>> GetMembers(
+        string handle,
+        GroupRole? role,
+        int currentPage,
+        int itemsPerPage
+    )
     {
-        string query = "SELECT U.*, M.GroupRole FROM Member AS M INNER JOIN Users AS U ON M.Email = U.Email WHERE  ";
-        
+        string query =
+            "SELECT U.*, M.GroupRole FROM Member AS M INNER JOIN Users AS U ON M.Email = U.Email WHERE  ";
+
         if (role.HasValue)
         {
-            query += "M.Handle = @Handle AND M.GroupRole = @GroupRole LIMIT @ItemsPerPage OFFSET @Offset";
+            query +=
+                "M.Handle = @Handle AND M.GroupRole = @GroupRole LIMIT @ItemsPerPage OFFSET @Offset";
         }
         else
         {
             query += "M.Handle = @Handle LIMIT @ItemsPerPage OFFSET @Offset";
         }
-
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            using (MySqlCommand command = new MySqlCommand(query, Connection))
+            NewConnection.Open();
+            try
             {
-                command.Parameters.AddWithValue("@Handle", handle);
-                command.Parameters.AddWithValue("@ItemsPerPage", itemsPerPage);
-                command.Parameters.AddWithValue("@Offset", (currentPage - 1) * itemsPerPage);
-                if (role.HasValue)
+                using (MySqlCommand command = new MySqlCommand(query, NewConnection))
                 {
-                    command.Parameters.AddWithValue("@GroupRole", (int)role);
-                }
-
-                List<MemberModel> users = new List<MemberModel>();
-
-                using (var reader = await command.ExecuteReaderAsync())
-                {
-                    while (await reader.ReadAsync())
+                    command.Parameters.AddWithValue("@Handle", handle);
+                    command.Parameters.AddWithValue("@ItemsPerPage", itemsPerPage);
+                    command.Parameters.AddWithValue("@Offset", (currentPage - 1) * itemsPerPage);
+                    if (role.HasValue)
                     {
-                        var user = new MemberModel
+                        command.Parameters.AddWithValue("@GroupRole", (int)role);
+                    }
+
+                    List<MemberModel> users = new List<MemberModel>();
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
                         {
-                            Handle = reader.GetString(reader.GetOrdinal("Handle")),
-                            Name = reader.GetString(reader.GetOrdinal("Name")),
-                            Icon = reader.IsDBNull(reader.GetOrdinal("Icon")) ? null : reader.GetString(reader.GetOrdinal("Icon")),
-                            Role = (GroupRole)reader.GetInt32(reader.GetOrdinal("GroupRole")),
-                            Email = reader.GetString(reader.GetOrdinal("Email")),
-                        };
-                        users.Add(user);
-                    }
+                            var user = new MemberModel
+                            {
+                                Handle = reader.GetString(reader.GetOrdinal("Handle")),
+                                Name = reader.GetString(reader.GetOrdinal("Name")),
+                                Icon = reader.IsDBNull(reader.GetOrdinal("Icon"))
+                                    ? null
+                                    : reader.GetString(reader.GetOrdinal("Icon")),
+                                Role = (GroupRole)reader.GetInt32(reader.GetOrdinal("GroupRole")),
+                                Email = reader.GetString(reader.GetOrdinal("Email")),
+                            };
+                            users.Add(user);
+                        }
 
-                    if (users.Count == 0)
-                    {
-                        return Tuple.Create<List<MemberModel>?, string?>(null, "Groups");
+                        if (users.Count == 0)
+                        {
+                            NewConnection.Close();
+                            return Tuple.Create<List<MemberModel>?, string?>(null, "Groups");
+                        }
+                        NewConnection.Close();
+                        return Tuple.Create(users, "");
                     }
-                    
-                    return Tuple.Create(users, "");
                 }
-                
             }
-        }
-        catch (Exception ex)
-        {
-            return Tuple.Create<List<MemberModel>?, string?>(null, ex.Message);
+            catch (Exception ex)
+            {
+                NewConnection.Close();
+                return Tuple.Create<List<MemberModel>?, string?>(null, ex.Message);
+            }
         }
     }
-    
+
     public async Task<int?> GetMembersCount(string Handle)
     {
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            var totalMembers = 0;
-
-            var countQuery = "SELECT COUNT(*) FROM Member WHERE Handle = @Handle";
-            
-            using (var countCommand = new MySqlCommand(countQuery, Connection))
+            NewConnection.Open();
+            try
             {
-                countCommand.Parameters.AddWithValue("@Handle", Handle);
-                totalMembers = Convert.ToInt32(await countCommand.ExecuteScalarAsync());
-            }
+                var totalMembers = 0;
 
-            return totalMembers;
-        }
-        catch
-        {
-            return null;
+                var countQuery = "SELECT COUNT(*) FROM Member WHERE Handle = @Handle";
+
+                using (var countCommand = new MySqlCommand(countQuery, NewConnection))
+                {
+                    countCommand.Parameters.AddWithValue("@Handle", Handle);
+                    totalMembers = Convert.ToInt32(await countCommand.ExecuteScalarAsync());
+                }
+                NewConnection.Close();
+                return totalMembers;
+            }
+            catch
+            {
+                NewConnection.Close();
+                return null;
+            }
         }
     }
 }

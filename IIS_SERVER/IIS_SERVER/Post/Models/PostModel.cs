@@ -14,9 +14,9 @@ public class PostModel
     )]
     public string ThreadId { get; set; }
 
-    [Required(ErrorMessage = "UserEmail is required")]
-    [EmailAddress(ErrorMessage = "Invalid email address")]
-    public string UserEmail { get; set; }
+    [Required(ErrorMessage = "Handle is required")]
+    [StringValidation(ErrorMessage = "The Handle field cannot be empty or contain only whitespace.")]
+    public string Handle { get; set; }
 
     [Required(ErrorMessage = "Text is required")]
     [StringValidation(ErrorMessage = "The Text field cannot be empty or contain only whitespace.")]

@@ -7,314 +7,381 @@ public partial class MySQLService : IMySQLService
 {
     public async Task<Tuple<bool, string?>> CreateThread(ThreadModel thread)
     {
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            string insertQuery =
-                "INSERT INTO Thread (Id, Handle, Email, Name, Date, Description) "
-                + "VALUES (@Id, @Handle, @Email, @Name, @Date, @Description)";
-
-            using (MySqlCommand cmd = new MySqlCommand(insertQuery, Connection))
+            NewConnection.Open();
+            try
             {
-                cmd.Parameters.AddWithValue("@Id", Guid.NewGuid());
-                cmd.Parameters.AddWithValue("@Handle", thread.Handle);
-                cmd.Parameters.AddWithValue("@Email", thread.Email);
-                cmd.Parameters.AddWithValue("@Name", thread.Name);
-                cmd.Parameters.AddWithValue("@Date", DateTime.Now);
-                cmd.Parameters.AddWithValue("@Description", thread.Description);
+                string insertQuery =
+                    "INSERT INTO Thread (Id, Handle, Email, Name, Date, Description) "
+                    + "VALUES (@Id, @Handle, @Email, @Name, @Date, @Description)";
 
-                await cmd.ExecuteNonQueryAsync();
+                using (MySqlCommand cmd = new MySqlCommand(insertQuery, NewConnection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", Guid.NewGuid());
+                    cmd.Parameters.AddWithValue("@Handle", thread.Handle);
+                    cmd.Parameters.AddWithValue("@Email", thread.Email);
+                    cmd.Parameters.AddWithValue("@Name", thread.Name);
+                    cmd.Parameters.AddWithValue("@Date", DateTime.Now);
+                    cmd.Parameters.AddWithValue("@Description", thread.Description);
+
+                    await cmd.ExecuteNonQueryAsync();
+                }
+                NewConnection.Close();
+                return Tuple.Create(true, "");
             }
-
-            return Tuple.Create(true, "");
-        }
-        catch (Exception ex)
-        {
-            return Tuple.Create(false, ex.Message);
+            catch (Exception ex)
+            {
+                NewConnection.Close();
+                return Tuple.Create(false, ex.Message);
+            }
         }
     }
 
     public async Task<List<ThreadModel>?> GetAllThreads()
     {
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            var threads = new List<ThreadModel>();
-            var query = "SELECT * FROM Thread";
-
-            using (var command = new MySqlCommand(query, Connection))
+            NewConnection.Open();
+            try
             {
-                using (var reader = await command.ExecuteReaderAsync())
-                {
-                    while (await reader.ReadAsync())
-                    {
-                        var thread = new ThreadModel
-                        {
-                            Id = reader.GetGuid(reader.GetOrdinal("Id")),
-                            Handle = reader.GetString(reader.GetOrdinal("Handle")),
-                            Name = reader.GetString(reader.GetOrdinal("Name")),
-                            Date = reader.GetDateTime(reader.GetOrdinal("Date")),
-                            Description = reader.GetString(reader.GetOrdinal("Description")),
-                        };
+                var threads = new List<ThreadModel>();
+                var query = "SELECT * FROM Thread";
 
-                        threads.Add(thread);
+                using (var command = new MySqlCommand(query, NewConnection))
+                {
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            var thread = new ThreadModel
+                            {
+                                Id = reader.GetGuid(reader.GetOrdinal("Id")),
+                                Handle = reader.GetString(reader.GetOrdinal("Handle")),
+                                Name = reader.GetString(reader.GetOrdinal("Name")),
+                                Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                                Description = reader.GetString(reader.GetOrdinal("Description")),
+                            };
+
+                            threads.Add(thread);
+                        }
                     }
                 }
+                NewConnection.Close();
+                return threads;
             }
-
-            return threads;
-        }
-        catch (Exception)
-        {
-            return null;
+            catch (Exception)
+            {
+                NewConnection.Close();
+                return null;
+            }
         }
     }
 
-    public async Task<List<ThreadModel>?> GetThreadsFromSpecificGroup(string Handle, int currentPage, int itemsPerPage, string? filterName, string? filterFromDate, string? filterToDate)
+    public async Task<List<ThreadModel>?> GetThreadsFromSpecificGroup(
+        string Handle,
+        int currentPage,
+        int itemsPerPage,
+        string? filterName,
+        string? filterFromDate,
+        string? filterToDate
+    )
     {
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            var threads = new List<ThreadModel>();
+            NewConnection.Open();
+            try
+            {
+                var threads = new List<ThreadModel>();
 
-            var query = "SELECT * FROM Thread WHERE Handle = @Handle";
-            
-            var filterClauses = new List<string>();
-            if (!string.IsNullOrEmpty(filterName))
-            {
-                filterClauses.Add("Name LIKE @FilterName");
-            }
-            if (!string.IsNullOrEmpty(filterFromDate))
-            {
-                filterClauses.Add("Date >= @FilterFromDate");
-            }
-            if (!string.IsNullOrEmpty(filterToDate))
-            {
-                filterClauses.Add("Date <= @FilterToDate");
-            }
-            
-            if (filterClauses.Count > 0)
-            {
-                query += " AND " + string.Join(" AND ", filterClauses);
-            }
+                var query = "SELECT * FROM Thread WHERE Handle = @Handle";
 
-            query += " ORDER BY Date DESC LIMIT @ItemsPerPage OFFSET @Offset";
-            
-            using (var command = new MySqlCommand(query, Connection))
-            {
-                command.Parameters.AddWithValue("@Handle", Handle);
-                command.Parameters.AddWithValue("@ItemsPerPage", itemsPerPage);
-                command.Parameters.AddWithValue("@Offset", (currentPage - 1) * itemsPerPage);
-                
+                var filterClauses = new List<string>();
                 if (!string.IsNullOrEmpty(filterName))
                 {
-                    command.Parameters.AddWithValue("@FilterName", "%" + filterName + "%");
+                    filterClauses.Add("Name LIKE @FilterName");
                 }
                 if (!string.IsNullOrEmpty(filterFromDate))
                 {
-                    command.Parameters.AddWithValue("@FilterFromDate", DateTime.Parse(filterFromDate));
+                    filterClauses.Add("Date >= @FilterFromDate");
                 }
                 if (!string.IsNullOrEmpty(filterToDate))
                 {
-                    command.Parameters.AddWithValue("@FilterToDate", DateTime.Parse(filterToDate));
+                    filterClauses.Add("Date <= @FilterToDate");
                 }
 
-                using (var reader = await command.ExecuteReaderAsync())
+                if (filterClauses.Count > 0)
                 {
-                    while (await reader.ReadAsync())
-                    {
-                        var thread = new ThreadModel
-                        {
-                            Id = reader.GetGuid(reader.GetOrdinal("Id")),
-                            Handle = reader.GetString(reader.GetOrdinal("Handle")),
-                            Name = reader.GetString(reader.GetOrdinal("Name")),
-                            Date = reader.GetDateTime(reader.GetOrdinal("Date")),
-                            Description = reader.GetString(reader.GetOrdinal("Description")),
-                        };
+                    query += " AND " + string.Join(" AND ", filterClauses);
+                }
 
-                        threads.Add(thread);
+                query += " ORDER BY Date DESC LIMIT @ItemsPerPage OFFSET @Offset";
+
+                using (var command = new MySqlCommand(query, NewConnection))
+                {
+                    command.Parameters.AddWithValue("@Handle", Handle);
+                    command.Parameters.AddWithValue("@ItemsPerPage", itemsPerPage);
+                    command.Parameters.AddWithValue("@Offset", (currentPage - 1) * itemsPerPage);
+
+                    if (!string.IsNullOrEmpty(filterName))
+                    {
+                        command.Parameters.AddWithValue("@FilterName", "%" + filterName + "%");
+                    }
+                    if (!string.IsNullOrEmpty(filterFromDate))
+                    {
+                        command.Parameters.AddWithValue(
+                            "@FilterFromDate",
+                            DateTime.Parse(filterFromDate)
+                        );
+                    }
+                    if (!string.IsNullOrEmpty(filterToDate))
+                    {
+                        command.Parameters.AddWithValue(
+                            "@FilterToDate",
+                            DateTime.Parse(filterToDate)
+                        );
+                    }
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            var thread = new ThreadModel
+                            {
+                                Id = reader.GetGuid(reader.GetOrdinal("Id")),
+                                Handle = reader.GetString(reader.GetOrdinal("Handle")),
+                                Name = reader.GetString(reader.GetOrdinal("Name")),
+                                Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                                Description = reader.GetString(reader.GetOrdinal("Description")),
+                            };
+
+                            threads.Add(thread);
+                        }
                     }
                 }
+                NewConnection.Close();
+                return threads;
             }
-
-            return threads;
-        }
-        catch (Exception)
-        {
-            return null;
+            catch (Exception)
+            {
+                NewConnection.Close();
+                return null;
+            }
         }
     }
-    
-    public async Task<int?> GetThreadsCount(string Handle, string? filterName, string? filterFromDate, string? filterToDate)
+
+    public async Task<int?> GetThreadsCount(
+        string Handle,
+        string? filterName,
+        string? filterFromDate,
+        string? filterToDate
+    )
     {
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            var totalThreads = 0;
+            NewConnection.Open();
+            try
+            {
+                var totalThreads = 0;
 
-            var countQuery = "SELECT COUNT(*) FROM Thread WHERE Handle = @Handle";
-            
-            var filterClauses = new List<string>();
-            if (!string.IsNullOrEmpty(filterName))
-            {
-                filterClauses.Add("Name LIKE @FilterName");
-            }
-            if (!string.IsNullOrEmpty(filterFromDate))
-            {
-                filterClauses.Add("Date >= @FilterFromDate");
-            }
-            if (!string.IsNullOrEmpty(filterToDate))
-            {
-                filterClauses.Add("Date <= @FilterToDate");
-            }
-            
-            if (filterClauses.Count > 0)
-            {
-                countQuery += " AND " + string.Join(" AND ", filterClauses);
-            }
+                var countQuery = "SELECT COUNT(*) FROM Thread WHERE Handle = @Handle";
 
-            using (var countCommand = new MySqlCommand(countQuery, Connection))
-            {
-                countCommand.Parameters.AddWithValue("@Handle", Handle);
-                
+                var filterClauses = new List<string>();
                 if (!string.IsNullOrEmpty(filterName))
                 {
-                    countCommand.Parameters.AddWithValue("@FilterName", "%" + filterName + "%");
+                    filterClauses.Add("Name LIKE @FilterName");
                 }
                 if (!string.IsNullOrEmpty(filterFromDate))
                 {
-                    countCommand.Parameters.AddWithValue("@FilterFromDate", DateTime.Parse(filterFromDate));
+                    filterClauses.Add("Date >= @FilterFromDate");
                 }
                 if (!string.IsNullOrEmpty(filterToDate))
                 {
-                    countCommand.Parameters.AddWithValue("@FilterToDate", DateTime.Parse(filterToDate));
+                    filterClauses.Add("Date <= @FilterToDate");
                 }
 
-                totalThreads = Convert.ToInt32(await countCommand.ExecuteScalarAsync());
-            }
+                if (filterClauses.Count > 0)
+                {
+                    countQuery += " AND " + string.Join(" AND ", filterClauses);
+                }
 
-            return totalThreads;
-        }
-        catch
-        {
-            return null;
+                using (var countCommand = new MySqlCommand(countQuery, NewConnection))
+                {
+                    countCommand.Parameters.AddWithValue("@Handle", Handle);
+
+                    if (!string.IsNullOrEmpty(filterName))
+                    {
+                        countCommand.Parameters.AddWithValue("@FilterName", "%" + filterName + "%");
+                    }
+                    if (!string.IsNullOrEmpty(filterFromDate))
+                    {
+                        countCommand.Parameters.AddWithValue(
+                            "@FilterFromDate",
+                            DateTime.Parse(filterFromDate)
+                        );
+                    }
+                    if (!string.IsNullOrEmpty(filterToDate))
+                    {
+                        countCommand.Parameters.AddWithValue(
+                            "@FilterToDate",
+                            DateTime.Parse(filterToDate)
+                        );
+                    }
+
+                    totalThreads = Convert.ToInt32(await countCommand.ExecuteScalarAsync());
+                }
+                NewConnection.Close();
+                return totalThreads;
+            }
+            catch
+            {
+                NewConnection.Close();
+                return null;
+            }
         }
     }
-    
+
     public async Task<ThreadModel?> GetThread(Guid threadId)
     {
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            var query = "SELECT * FROM Thread WHERE Id = @ThreadId";
-            using (var command = new MySqlCommand(query, Connection))
+            NewConnection.Open();
+            try
             {
-                command.Parameters.AddWithValue("@ThreadId", threadId);
-
-                using (var reader = await command.ExecuteReaderAsync())
+                var query = "SELECT * FROM Thread WHERE Id = @ThreadId";
+                using (var command = new MySqlCommand(query, NewConnection))
                 {
-                    if (await reader.ReadAsync())
-                    {
-                        return new ThreadModel
-                        {
-                            Id = reader.GetGuid(reader.GetOrdinal("Id")),
-                            Handle = reader.GetString(reader.GetOrdinal("Handle")),
-                            Email = reader.GetString(reader.GetOrdinal("Email")),
-                            Name = reader.GetString(reader.GetOrdinal("Name")),
-                            Date = reader.GetDateTime(reader.GetOrdinal("Date")),
-                            Description = reader.GetString(reader.GetOrdinal("Description")),
-                        };
-                    }
+                    command.Parameters.AddWithValue("@ThreadId", threadId);
 
-                    return null;
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            NewConnection.Close();
+                            return new ThreadModel
+                            {
+                                Id = reader.GetGuid(reader.GetOrdinal("Id")),
+                                Handle = reader.GetString(reader.GetOrdinal("Handle")),
+                                Email = reader.GetString(reader.GetOrdinal("Email")),
+                                Name = reader.GetString(reader.GetOrdinal("Name")),
+                                Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                                Description = reader.GetString(reader.GetOrdinal("Description")),
+                            };
+                        }
+                        NewConnection.Close();
+                        return null;
+                    }
                 }
             }
-        }
-        catch
-        {
-            return null;
+            catch
+            {
+                NewConnection.Close();
+                return null;
+            }
         }
     }
 
     public async Task<bool> UpdateThread(Guid threadId, ThreadModel updatedThread)
     {
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            string updateQuery = "UPDATE Thread SET Name = @Name, Description = @Description WHERE Id = @ThreadId";
+            NewConnection.Open();
+            try
+            {
+                string updateQuery =
+                    "UPDATE Thread SET Name = @Name, Description = @Description WHERE Id = @ThreadId";
 
-            MySqlCommand cmd = new MySqlCommand(updateQuery, Connection);
+                MySqlCommand cmd = new MySqlCommand(updateQuery, NewConnection);
 
-            cmd.Parameters.AddWithValue("@Name", updatedThread.Name);
-            cmd.Parameters.AddWithValue("@Description", updatedThread.Description);
-            cmd.Parameters.AddWithValue("@ThreadId", threadId);
+                cmd.Parameters.AddWithValue("@Name", updatedThread.Name);
+                cmd.Parameters.AddWithValue("@Description", updatedThread.Description);
+                cmd.Parameters.AddWithValue("@ThreadId", threadId);
 
-            await cmd.ExecuteNonQueryAsync();
-            
-            return true;
-        }
-        catch (Exception ex)
-        {
-            return false;
+                await cmd.ExecuteNonQueryAsync();
+                NewConnection.Close();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                NewConnection.Close();
+                return false;
+            }
         }
     }
 
     public async Task<Tuple<bool, string?>> DeleteThread(Guid threadId)
     {
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            using (
-                MySqlCommand cmd = new MySqlCommand(
-                    "DELETE FROM Thread WHERE Id = @ThreadId",
-                    Connection
-                )
-            )
+            NewConnection.Open();
+            try
             {
-                cmd.Parameters.AddWithValue("@ThreadId", threadId);
+                using (
+                    MySqlCommand cmd = new MySqlCommand(
+                        "DELETE FROM Thread WHERE Id = @ThreadId",
+                        NewConnection
+                    )
+                )
+                {
+                    cmd.Parameters.AddWithValue("@ThreadId", threadId);
 
-                await cmd.ExecuteNonQueryAsync();
+                    await cmd.ExecuteNonQueryAsync();
+                }
+                NewConnection.Close();
+                return Tuple.Create(true, "");
             }
-            return Tuple.Create(true, "");
-        }
-        catch (Exception ex)
-        {
-            return Tuple.Create(false, ex.Message);
+            catch (Exception ex)
+            {
+                NewConnection.Close();
+                return Tuple.Create(false, ex.Message);
+            }
         }
     }
 
     public async Task<List<ThreadModel>?> GetAllThreadsUserIsIn(string Email)
     {
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            var threads = new List<ThreadModel>();
-
-            var query = "SELECT t.* " +
-                        "FROM Thread t " +
-                        "INNER JOIN Member m ON t.Handle = m.Handle " +
-                        "WHERE m.Email = @Email";
-
-            using (var command = new MySqlCommand(query, Connection))
+            NewConnection.Open();
+            try
             {
-                command.Parameters.AddWithValue("@Email", Email);
+                var threads = new List<ThreadModel>();
 
-                using (var reader = await command.ExecuteReaderAsync())
+                var query =
+                    "SELECT t.* "
+                    + "FROM Thread t "
+                    + "INNER JOIN Member m ON t.Handle = m.Handle "
+                    + "WHERE m.Email = @Email";
+
+                using (var command = new MySqlCommand(query, NewConnection))
                 {
-                    while (await reader.ReadAsync())
-                    {
-                        var thread = new ThreadModel
-                        {
-                            Id = reader.GetGuid(reader.GetOrdinal("Id")),
-                            Handle = reader.GetString(reader.GetOrdinal("Handle")),
-                            Name = reader.GetString(reader.GetOrdinal("Name")),
-                            Date = reader.GetDateTime(reader.GetOrdinal("Date")),
-                            Description = reader.GetString(reader.GetOrdinal("Description")),
-                        };
+                    command.Parameters.AddWithValue("@Email", Email);
 
-                        threads.Add(thread);
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            var thread = new ThreadModel
+                            {
+                                Id = reader.GetGuid(reader.GetOrdinal("Id")),
+                                Handle = reader.GetString(reader.GetOrdinal("Handle")),
+                                Name = reader.GetString(reader.GetOrdinal("Name")),
+                                Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                                Description = reader.GetString(reader.GetOrdinal("Description")),
+                            };
+
+                            threads.Add(thread);
+                        }
                     }
                 }
+                NewConnection.Close();
+                return threads;
             }
-
-            return threads;
-        }
-        catch (Exception)
-        {
-            return null;
+            catch (Exception)
+            {
+                NewConnection.Close();
+                return null;
+            }
         }
     }
-
 }

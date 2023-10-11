@@ -7,122 +7,146 @@ public partial class MySQLService : IMySQLService
 {
     public async Task<RatingModel?> GetRating(Guid ratingId)
     {
-        var query = "SELECT * FROM Rating WHERE Id = @ratingId";
-        using (var command = new MySqlCommand(query, Connection))
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            command.Parameters.AddWithValue("@ratingId", ratingId.ToString());
-
-            using (var reader = await command.ExecuteReaderAsync())
+            NewConnection.Open();
+            var query = "SELECT * FROM Rating WHERE Id = @ratingId";
+            using (var command = new MySqlCommand(query, NewConnection))
             {
-                if (await reader.ReadAsync())
+                command.Parameters.AddWithValue("@ratingId", ratingId.ToString());
+
+                using (var reader = await command.ExecuteReaderAsync())
                 {
-                    return new RatingModel
+                    if (await reader.ReadAsync())
                     {
-                        Id = Guid.Parse(reader["Id"].ToString()),
-                        Rating = reader.GetBoolean(reader.GetOrdinal("Rating")),
-                        PostId = Guid.Parse(reader["PostId"].ToString()),
-                        Email = reader["Email"].ToString()
-                    };
+                        NewConnection.Close();
+                        return new RatingModel
+                        {
+                            Id = Guid.Parse(reader["Id"].ToString()),
+                            Rating = reader.GetBoolean(reader.GetOrdinal("Rating")),
+                            PostId = Guid.Parse(reader["PostId"].ToString()),
+                            Email = reader["Email"].ToString()
+                        };
+                    }
                 }
             }
+            NewConnection.Close();
+            return null;
         }
-
-        return null;
     }
 
     public async Task<List<RatingModel?>> GetRatings(Guid postId)
     {
-        var ratings = new List<RatingModel?>();
-
-        var query = "SELECT * FROM Rating WHERE PostId = @postId";
-        using (var command = new MySqlCommand(query, Connection))
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            command.Parameters.AddWithValue("@postId", postId.ToString());
+            NewConnection.Open();
+            var ratings = new List<RatingModel?>();
 
-            using (var reader = await command.ExecuteReaderAsync())
+            var query = "SELECT * FROM Rating WHERE PostId = @postId";
+            using (var command = new MySqlCommand(query, NewConnection))
             {
-                while (await reader.ReadAsync())
+                command.Parameters.AddWithValue("@postId", postId.ToString());
+
+                using (var reader = await command.ExecuteReaderAsync())
                 {
-                    var rating = new RatingModel
+                    while (await reader.ReadAsync())
                     {
-                        Id = Guid.Parse(reader["Id"].ToString()),
-                        Rating = reader.GetBoolean(reader.GetOrdinal("Rating")),
-                        PostId = Guid.Parse(reader["PostId"].ToString()),
-                        Email = reader["Email"].ToString()
-                    };
-                    ratings.Add(rating);
+                        var rating = new RatingModel
+                        {
+                            Id = Guid.Parse(reader["Id"].ToString()),
+                            Rating = reader.GetBoolean(reader.GetOrdinal("Rating")),
+                            PostId = Guid.Parse(reader["PostId"].ToString()),
+                            Email = reader["Email"].ToString()
+                        };
+                        ratings.Add(rating);
+                    }
                 }
             }
+            NewConnection.Close();
+            return ratings;
         }
-
-        return ratings;
     }
 
     public async Task<Tuple<bool, string?>> AddRating(RatingModel rating)
     {
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            var insertQuery =
-                "INSERT INTO Rating (Id, Rating, PostId, Email) "
-                + "VALUES (@Id, @Rating, @PostId, @Email)";
-
-            using (var command = new MySqlCommand(insertQuery, Connection))
+            NewConnection.Open();
+            try
             {
-                command.Parameters.AddWithValue("@Id", rating.Id.ToString());
-                command.Parameters.AddWithValue("@Rating", rating.Rating);
-                command.Parameters.AddWithValue("@PostId", rating.PostId.ToString());
-                command.Parameters.AddWithValue("@Email", rating.Email);
+                var insertQuery =
+                    "INSERT INTO Rating (Id, Rating, PostId, Email) "
+                    + "VALUES (@Id, @Rating, @PostId, @Email)";
 
-                await command.ExecuteNonQueryAsync();
+                using (var command = new MySqlCommand(insertQuery, NewConnection))
+                {
+                    command.Parameters.AddWithValue("@Id", rating.Id.ToString());
+                    command.Parameters.AddWithValue("@Rating", rating.Rating);
+                    command.Parameters.AddWithValue("@PostId", rating.PostId.ToString());
+                    command.Parameters.AddWithValue("@Email", rating.Email);
+
+                    await command.ExecuteNonQueryAsync();
+                }
+                NewConnection.Close();
+                return Tuple.Create(true, (string?)null);
             }
-
-            return Tuple.Create(true, (string?)null);
-        }
-        catch (Exception ex)
-        {
-            return Tuple.Create(false, ex.Message);
+            catch (Exception ex)
+            {
+                NewConnection.Close();
+                return Tuple.Create(false, ex.Message);
+            }
         }
     }
 
     public async Task<Tuple<bool, string?>> RemoveRating(Guid ratingId)
     {
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            var deleteQuery = "DELETE FROM Rating WHERE Id = @ratingId";
-
-            using (var command = new MySqlCommand(deleteQuery, Connection))
+            NewConnection.Open();
+            try
             {
-                command.Parameters.AddWithValue("@ratingId", ratingId.ToString());
+                var deleteQuery = "DELETE FROM Rating WHERE Id = @ratingId";
 
-                await command.ExecuteNonQueryAsync();
+                using (var command = new MySqlCommand(deleteQuery, NewConnection))
+                {
+                    command.Parameters.AddWithValue("@ratingId", ratingId.ToString());
+
+                    await command.ExecuteNonQueryAsync();
+                }
+                NewConnection.Close();
+                return Tuple.Create(true, (string?)null);
             }
-
-            return Tuple.Create(true, (string?)null);
-        }
-        catch (Exception ex)
-        {
-            return Tuple.Create(false, ex.Message);
+            catch (Exception ex)
+            {
+                NewConnection.Close();
+                return Tuple.Create(false, ex.Message);
+            }
         }
     }
 
     public async Task<Tuple<bool, string?>> ToggleRating(Guid ratingId)
     {
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            var updateQuery = "UPDATE Rating SET Rating = NOT Rating WHERE Id = @ratingId";
-
-            using (var command = new MySqlCommand(updateQuery, Connection))
+            NewConnection.Open();
+            try
             {
-                command.Parameters.AddWithValue("@ratingId", ratingId.ToString());
+                var updateQuery = "UPDATE Rating SET Rating = NOT Rating WHERE Id = @ratingId";
 
-                await command.ExecuteNonQueryAsync();
+                using (var command = new MySqlCommand(updateQuery, NewConnection))
+                {
+                    command.Parameters.AddWithValue("@ratingId", ratingId.ToString());
+
+                    await command.ExecuteNonQueryAsync();
+                }
+                NewConnection.Close();
+                return Tuple.Create(true, (string?)null);
             }
-
-            return Tuple.Create(true, (string?)null);
-        }
-        catch (Exception ex)
-        {
-            return Tuple.Create(false, ex.Message);
+            catch (Exception ex)
+            {
+                NewConnection.Close();
+                return Tuple.Create(false, ex.Message);
+            }
         }
     }
 }

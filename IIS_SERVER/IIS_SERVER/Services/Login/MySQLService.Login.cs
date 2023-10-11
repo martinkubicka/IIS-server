@@ -2,103 +2,122 @@ using IIS_SERVER.Login.Models;
 using IIS_SERVER.User.Models;
 using MySql.Data.MySqlClient;
 
-
 namespace IIS_SERVER.Services;
 
 public partial class MySQLService : IMySQLService
 {
     public async Task<Tuple<bool, string?>> Login(string username, string password)
     {
-        try 
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            string selectQuery = "SELECT Password FROM Users WHERE Email = @Email";
-
-            using (MySqlCommand cmd = new MySqlCommand(selectQuery, Connection))
+            NewConnection.Open();
+            try
             {
-                cmd.Parameters.AddWithValue("@Email", username);
+                string selectQuery = "SELECT Password FROM Users WHERE Email = @Email";
 
-                using (var reader = await cmd.ExecuteReaderAsync())
+                using (MySqlCommand cmd = new MySqlCommand(selectQuery, NewConnection))
                 {
-                    if (reader.Read())
-                    {
-                        string hashedPasswordFromDB = reader.GetString(reader.GetOrdinal("Password"));
+                    cmd.Parameters.AddWithValue("@Email", username);
 
-                        if (BCrypt.Net.BCrypt.Verify(password, hashedPasswordFromDB))
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        if (reader.Read())
                         {
-                            return new Tuple<bool, string?>(true, null);
+                            string hashedPasswordFromDB = reader.GetString(
+                                reader.GetOrdinal("Password")
+                            );
+
+                            if (BCrypt.Net.BCrypt.Verify(password, hashedPasswordFromDB))
+                            {
+                                NewConnection.Close();
+                                return new Tuple<bool, string?>(true, null);
+                            }
                         }
                     }
                 }
+                NewConnection.Close();
+                return new Tuple<bool, string?>(false, "Invalid email or password.");
             }
-
-            return new Tuple<bool, string?>(false, "Invalid email or password.");
+            catch (Exception ex)
+            {
+                NewConnection.Close();
+                return new Tuple<bool, string?>(false, ex.Message);
+            }
         }
-        catch (Exception ex)
-        {
-            return new Tuple<bool, string?>(false, ex.Message);
-        }
-        
     }
 
     public async Task<Tuple<bool, string?>> ForgotPassword(string email)
     {
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            var id = Guid.NewGuid();
-            string insertQuery = "INSERT INTO Tokens (Email, Token, CreatedAt) VALUES (@Email, @Token, NOW())";
-            using MySqlCommand command = new MySqlCommand(insertQuery, Connection);
-            command.Parameters.AddWithValue("@Email", email);
-            command.Parameters.AddWithValue("@Token", id.ToString());
+            NewConnection.Open();
+            try
+            {
+                var id = Guid.NewGuid();
+                string insertQuery =
+                    "INSERT INTO Tokens (Email, Token, CreatedAt) VALUES (@Email, @Token, NOW())";
+                using MySqlCommand command = new MySqlCommand(insertQuery, NewConnection);
+                command.Parameters.AddWithValue("@Email", email);
+                command.Parameters.AddWithValue("@Token", id.ToString());
 
-            await command.ExecuteNonQueryAsync();
-
-            return Tuple.Create(true, id.ToString());
-        }
-        catch (Exception ex)
-        {
-            return Tuple.Create(false, ex.Message);
+                await command.ExecuteNonQueryAsync();
+                NewConnection.Close();
+                return Tuple.Create(true, id.ToString());
+            }
+            catch (Exception ex)
+            {
+                NewConnection.Close();
+                return Tuple.Create(false, ex.Message);
+            }
         }
     }
 
     public async Task<Tuple<bool, string?>> NewPassword(NewPasswordModel data)
     {
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            string query = "SELECT Email FROM Tokens WHERE Token = @Token";
-            using MySqlCommand command = new MySqlCommand(query, Connection);
-            command.Parameters.AddWithValue("@Token", data.Token);
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(data.Password);
-
-            object result = command.ExecuteScalar();
-            var email = result.ToString();
-            
-            if (string.IsNullOrEmpty(email))
+            NewConnection.Open();
+            try
             {
-                return Tuple.Create(false, "Invalid or expired token.");
-            }
-            
-            string updateQuery = "UPDATE Users SET Password = @NewPassword WHERE Email = @Email";
-            using MySqlCommand updateCommand = new MySqlCommand(updateQuery, Connection);
-            updateCommand.Parameters.AddWithValue("@NewPassword", hashedPassword);
-            updateCommand.Parameters.AddWithValue("@Email", email);
+                string query = "SELECT Email FROM Tokens WHERE Token = @Token";
+                using MySqlCommand command = new MySqlCommand(query, NewConnection);
+                command.Parameters.AddWithValue("@Token", data.Token);
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(data.Password);
 
-            int rowsAffected = await updateCommand.ExecuteNonQueryAsync();
-            if (rowsAffected == 0)
+                object result = command.ExecuteScalar();
+                var email = result.ToString();
+
+                if (string.IsNullOrEmpty(email))
+                {
+                    return Tuple.Create(false, "Invalid or expired token.");
+                }
+
+                string updateQuery =
+                    "UPDATE Users SET Password = @NewPassword WHERE Email = @Email";
+                using MySqlCommand updateCommand = new MySqlCommand(updateQuery, NewConnection);
+                updateCommand.Parameters.AddWithValue("@NewPassword", hashedPassword);
+                updateCommand.Parameters.AddWithValue("@Email", email);
+
+                int rowsAffected = await updateCommand.ExecuteNonQueryAsync();
+                if (rowsAffected == 0)
+                {
+                    NewConnection.Close();
+                    return Tuple.Create(false, "Failed to update password.");
+                }
+
+                string deleteQuery = "DELETE FROM Tokens WHERE Token = @Token";
+                using MySqlCommand deleteCommand = new MySqlCommand(deleteQuery, NewConnection);
+                deleteCommand.Parameters.AddWithValue("@Token", data.Token);
+
+                await deleteCommand.ExecuteNonQueryAsync();
+                NewConnection.Close();
+                return Tuple.Create(true, "");
+            }
+            catch (Exception ex)
             {
-                return Tuple.Create(false, "Failed to update password.");
+                NewConnection.Close();
+                return Tuple.Create(false, ex.Message);
             }
-            
-            string deleteQuery = "DELETE FROM Tokens WHERE Token = @Token";
-            using MySqlCommand deleteCommand = new MySqlCommand(deleteQuery, Connection);
-            deleteCommand.Parameters.AddWithValue("@Token", data.Token);
-
-            await deleteCommand.ExecuteNonQueryAsync();
-
-            return Tuple.Create(true, "");
         }
-        catch (Exception ex)
-        {
-            return Tuple.Create(false, ex.Message);
-        }  
     }
 }

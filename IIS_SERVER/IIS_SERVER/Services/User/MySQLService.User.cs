@@ -9,203 +9,276 @@ public partial class MySQLService : IMySQLService
 {
     public async Task<Tuple<bool, string>> AddUser(UserDetailModel user)
     {
-        Console.WriteLine("userAdded");
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(user.Password);
-            
-            string insertQuery = "INSERT INTO Users (Id, Email, Password, Handle, Name, Role, Icon) " +
-                                 "VALUES (@Id, @Email, @Password, @Handle, @Name, @Role, @Icon)";
-
-            using (MySqlCommand cmd = new MySqlCommand(insertQuery, Connection))
+            NewConnection.Open();
+            try
             {
-                cmd.Parameters.AddWithValue("@Id", Guid.NewGuid());
-                cmd.Parameters.AddWithValue("@Email", user.Email);
-                cmd.Parameters.AddWithValue("@Password", hashedPassword);
-                cmd.Parameters.AddWithValue("@Handle", user.Handle);
-                cmd.Parameters.AddWithValue("@Name", user.Name);
-                cmd.Parameters.AddWithValue("@Role", user.Role);
-                cmd.Parameters.AddWithValue("@Icon", user.Icon);
-                
-                await cmd.ExecuteNonQueryAsync();
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(user.Password);
+
+                string insertQuery =
+                    "INSERT INTO Users (Id, Email, Password, Handle, Name, Role, Icon) "
+                    + "VALUES (@Id, @Email, @Password, @Handle, @Name, @Role, @Icon)";
+
+                using (MySqlCommand cmd = new MySqlCommand(insertQuery, NewConnection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", Guid.NewGuid());
+                    cmd.Parameters.AddWithValue("@Email", user.Email);
+                    cmd.Parameters.AddWithValue("@Password", hashedPassword);
+                    cmd.Parameters.AddWithValue("@Handle", user.Handle);
+                    cmd.Parameters.AddWithValue("@Name", user.Name);
+                    cmd.Parameters.AddWithValue("@Role", user.Role);
+                    cmd.Parameters.AddWithValue("@Icon", user.Icon);
+
+                    await cmd.ExecuteNonQueryAsync();
+                }
+                NewConnection.Close();
+                return Tuple.Create(true, "");
             }
-            
-            return Tuple.Create(true, "");
-        }
-        catch (Exception ex)
-        {
-            return Tuple.Create(false, ex.Message);
+            catch (Exception ex)
+            {
+                NewConnection.Close();
+                return Tuple.Create(false, ex.Message);
+            }
         }
     }
 
     public async Task<List<UserListModel>?> GetUsersList()
     {
-        var usersList = new List<UserListModel>();
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            var query = "SELECT * FROM Users";
-            using (var command = new MySqlCommand(query, Connection))
+            NewConnection.Open();
+            var usersList = new List<UserListModel>();
+            try
             {
-                using (var reader = await command.ExecuteReaderAsync())
+                var query = "SELECT * FROM Users";
+                using (var command = new MySqlCommand(query, NewConnection))
                 {
-                    while (await reader.ReadAsync())
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        var user = new UserListModel
+                        while (await reader.ReadAsync())
                         {
-                            Handle = reader.GetString(reader.GetOrdinal("Handle")),
-                            Name = reader.GetString(reader.GetOrdinal("Name")),
-                            Icon = reader.IsDBNull(reader.GetOrdinal("Icon")) ? null : reader.GetString(reader.GetOrdinal("Icon")),
-                            Role = (Role)reader.GetInt32(reader.GetOrdinal("Role"))
-                        };
-                        
-                        usersList.Add(user);
-                    }
+                            var user = new UserListModel
+                            {
+                                Handle = reader.GetString(reader.GetOrdinal("Handle")),
+                                Name = reader.GetString(reader.GetOrdinal("Name")),
+                                Icon = reader.IsDBNull(reader.GetOrdinal("Icon"))
+                                    ? null
+                                    : reader.GetString(reader.GetOrdinal("Icon")),
+                                Role = (Role)reader.GetInt32(reader.GetOrdinal("Role"))
+                            };
 
-                    return usersList;
+                            usersList.Add(user);
+                        }
+                        NewConnection.Close();
+                        return usersList;
+                    }
                 }
             }
-        }
-        catch
-        {
-            return null;
+            catch
+            {
+                NewConnection.Close();
+                return null;
+            }
         }
     }
 
     public async Task<Tuple<UserListModel?, string?>> GetUserProfile(string handle)
     {
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            var query = "SELECT * FROM Users WHERE Handle = @Handle";
-            using (var command = new MySqlCommand(query, Connection))
+            NewConnection.Open();
+            try
             {
-                command.Parameters.AddWithValue("@Handle", handle);
-
-                using (var reader = await command.ExecuteReaderAsync())
+                var query = "SELECT * FROM Users WHERE Handle = @Handle";
+                using (var command = new MySqlCommand(query, NewConnection))
                 {
-                    if (await reader.ReadAsync())
-                    {
-                        return Tuple.Create(new UserListModel
-                        {
-                            Handle = reader.GetString(reader.GetOrdinal("Handle")),
-                            Name = reader.GetString(reader.GetOrdinal("Name")),
-                            Icon = reader.IsDBNull(reader.GetOrdinal("Icon")) ? null : reader.GetString(reader.GetOrdinal("Icon")),
-                            Role = (Role)reader.GetInt32(reader.GetOrdinal("Role"))
-                        }, "");
-                    }
+                    command.Parameters.AddWithValue("@Handle", handle);
 
-                    return Tuple.Create((UserListModel)null, "Users");
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            var tuple = Tuple.Create(
+                                new UserListModel
+                                {
+                                    Handle = reader.GetString(reader.GetOrdinal("Handle")),
+                                    Name = reader.GetString(reader.GetOrdinal("Name")),
+                                    Icon = reader.IsDBNull(reader.GetOrdinal("Icon"))
+                                        ? null
+                                        : reader.GetString(reader.GetOrdinal("Icon")),
+                                    Role = (Role)reader.GetInt32(reader.GetOrdinal("Role"))
+                                },
+                                ""
+                            );
+                            /* reader.Close(); */
+                            NewConnection.Close();
+                            return tuple;
+                        }
+                        /* reader.Close(); */
+                        NewConnection.Close();
+                        return Tuple.Create((UserListModel)null, "Users");
+                    }
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            return Tuple.Create((UserListModel)null, ex.Message);
+            catch (Exception ex)
+            {
+                NewConnection.Close();
+                return Tuple.Create((UserListModel)null, ex.Message);
+            }
         }
     }
 
     public async Task<Tuple<Role?, string>> GetUserRole(string email)
     {
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            var query = "SELECT * FROM Users WHERE Email = @Email";
-            using (var command = new MySqlCommand(query, Connection))
+            NewConnection.Open();
+            try
             {
-                command.Parameters.AddWithValue("@Email", email);
-
-                using (var reader = await command.ExecuteReaderAsync())
+                var query = "SELECT * FROM Users WHERE Email = @Email";
+                using (var command = new MySqlCommand(query, NewConnection))
                 {
-                    if (await reader.ReadAsync())
-                    {
-                        return Tuple.Create((Role?)reader.GetInt32(reader.GetOrdinal("Role")), "");
-                    }
+                    command.Parameters.AddWithValue("@Email", email);
 
-                    return Tuple.Create((Role?)null, "Users");
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            NewConnection.Close();
+                            return Tuple.Create(
+                                (Role?)reader.GetInt32(reader.GetOrdinal("Role")),
+                                ""
+                            );
+                        }
+                        NewConnection.Close();
+                        return Tuple.Create((Role?)null, "Users");
+                    }
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            return Tuple.Create((Role?)null, ex.Message);
+            catch (Exception ex)
+            {
+                NewConnection.Close();
+                return Tuple.Create((Role?)null, ex.Message);
+            }
         }
     }
 
-    public async Task<Tuple<bool, string?>> UpdateUser(UserDetailModel updatedUser, UserPrivacySettingsModel userPrivacy)
+    public async Task<Tuple<bool, string?>> UpdateUser(
+        UserDetailModel updatedUser,
+        UserPrivacySettingsModel userPrivacy
+    )
     {
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(updatedUser.Password);
-            string updateQuery = @"UPDATE Users SET Name = @Name,Role = @Role,VisibilityRegistered = @VisibilityRegistered,VisibilityGuest = @VisibilityGuest,VisibilityGroup = @VisibilityGroup,Icon = @Icon, Password = @Password WHERE Email = @Email";
+            NewConnection.Open();
+            try
+            {
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(updatedUser.Password);
+                string updateQuery =
+                    @"UPDATE Users SET Name = @Name,Role = @Role,VisibilityRegistered = @VisibilityRegistered,VisibilityGuest = @VisibilityGuest,VisibilityGroup = @VisibilityGroup,Icon = @Icon, Password = @Password WHERE Email = @Email";
 
-            MySqlCommand cmd = new MySqlCommand(updateQuery, Connection);
-            
-            cmd.Parameters.AddWithValue("@Name", updatedUser.Name);
-            cmd.Parameters.AddWithValue("@Role", updatedUser.Role);
-            cmd.Parameters.AddWithValue("@VisibilityRegistered", userPrivacy.VisibilityRegistered);
-            cmd.Parameters.AddWithValue("@VisibilityGuest", userPrivacy.VisibilityGuest);
-            cmd.Parameters.AddWithValue("@VisibilityGroup", userPrivacy.VisibilityGroup);
-            cmd.Parameters.AddWithValue("@Icon", updatedUser.Icon);
-            cmd.Parameters.AddWithValue("@Email", updatedUser.Email);
-            cmd.Parameters.AddWithValue("@Password", hashedPassword);
-            
-            await cmd.ExecuteNonQueryAsync();
+                MySqlCommand cmd = new MySqlCommand(updateQuery, NewConnection);
 
-            return Tuple.Create(true, "");
-        }
-        catch (Exception ex)
-        {
-            return Tuple.Create(false, ex.Message);
+                cmd.Parameters.AddWithValue("@Name", updatedUser.Name);
+                cmd.Parameters.AddWithValue("@Role", updatedUser.Role);
+                cmd.Parameters.AddWithValue(
+                    "@VisibilityRegistered",
+                    userPrivacy.VisibilityRegistered
+                );
+                cmd.Parameters.AddWithValue("@VisibilityGuest", userPrivacy.VisibilityGuest);
+                cmd.Parameters.AddWithValue("@VisibilityGroup", userPrivacy.VisibilityGroup);
+                cmd.Parameters.AddWithValue("@Icon", updatedUser.Icon);
+                cmd.Parameters.AddWithValue("@Email", updatedUser.Email);
+                cmd.Parameters.AddWithValue("@Password", hashedPassword);
+
+                await cmd.ExecuteNonQueryAsync();
+                NewConnection.Close();
+                return Tuple.Create(true, "");
+            }
+            catch (Exception ex)
+            {
+                NewConnection.Close();
+                return Tuple.Create(false, ex.Message);
+            }
         }
     }
 
     public async Task<Tuple<bool, string?>> DeleteUser(string email)
     {
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            int rowsAffected = 0;
-            using (MySqlCommand cmd = new MySqlCommand("CALL DeleteUser(@userEmail)", Connection))
+            NewConnection.Open();
+            try
             {
-                cmd.Parameters.AddWithValue("@userEmail", email);
+                int rowsAffected = 0;
+                using (
+                    MySqlCommand cmd = new MySqlCommand(
+                        "CALL DeleteUser(@userEmail)",
+                        NewConnection
+                    )
+                )
+                {
+                    cmd.Parameters.AddWithValue("@userEmail", email);
 
-                rowsAffected = await cmd.ExecuteNonQueryAsync();
+                    rowsAffected = await cmd.ExecuteNonQueryAsync();
+                }
+                NewConnection.Close();
+                return Tuple.Create(rowsAffected > 0, "Users");
             }
-
-            return Tuple.Create(rowsAffected > 0, "Users");
+            catch (Exception ex)
+            {
+                NewConnection.Close();
+                return Tuple.Create(false, ex.Message);
+            }
         }
-        catch (Exception ex)
-        { 
-            return Tuple.Create(false, ex.Message);
-        }
-
     }
 
-    public async Task<Tuple<UserPrivacySettingsModel?, string?>> GetUserPrivacySettings(string handle)
+    public async Task<Tuple<UserPrivacySettingsModel?, string?>> GetUserPrivacySettings(
+        string handle
+    )
     {
-        try
+        using (var NewConnection = new MySqlConnection(ConnectionString))
         {
-            var query = "SELECT * FROM Users WHERE Handle = @Handle";
-            using (var command = new MySqlCommand(query, Connection))
+            NewConnection.Open();
+            try
             {
-                command.Parameters.AddWithValue("@Handle", handle);
-
-                using (var reader = await command.ExecuteReaderAsync())
+                var query = "SELECT * FROM Users WHERE Handle = @Handle";
+                using (var command = new MySqlCommand(query, NewConnection))
                 {
-                    if (await reader.ReadAsync())
-                    {
-                        return Tuple.Create(new UserPrivacySettingsModel
-                        {
-                            VisibilityGroup = reader.GetBoolean(reader.GetOrdinal("VisibilityGroup")),
-                            VisibilityGuest = reader.GetBoolean(reader.GetOrdinal("VisibilityGuest")),
-                            VisibilityRegistered = reader.GetBoolean(reader.GetOrdinal("VisibilityRegistered"))
-                        }, "");
-                    }
+                    command.Parameters.AddWithValue("@Handle", handle);
 
-                    return Tuple.Create((UserPrivacySettingsModel?)null, "Users");
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            NewConnection.Close();
+                            return Tuple.Create(
+                                new UserPrivacySettingsModel
+                                {
+                                    VisibilityGroup = reader.GetBoolean(
+                                        reader.GetOrdinal("VisibilityGroup")
+                                    ),
+                                    VisibilityGuest = reader.GetBoolean(
+                                        reader.GetOrdinal("VisibilityGuest")
+                                    ),
+                                    VisibilityRegistered = reader.GetBoolean(
+                                        reader.GetOrdinal("VisibilityRegistered")
+                                    )
+                                },
+                                ""
+                            );
+                        }
+                        NewConnection.Close();
+                        return Tuple.Create((UserPrivacySettingsModel?)null, "Users");
+                    }
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            return Tuple.Create((UserPrivacySettingsModel?)null, ex.Message);;
+            catch (Exception ex)
+            {
+                NewConnection.Close();
+                return Tuple.Create((UserPrivacySettingsModel?)null, ex.Message);
+            }
         }
     }
 }
