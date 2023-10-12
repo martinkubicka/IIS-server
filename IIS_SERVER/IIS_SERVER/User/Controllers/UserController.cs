@@ -62,6 +62,19 @@ public class UserController : ControllerBase, IUserController
         
         return result.Item2.Contains("Users") ? StatusCode(404, "Error: User not found.") : StatusCode(500, "Error: " + result.Item2);
     }
+    
+    [HttpGet("handle")]
+    public async Task<IActionResult> GetUserHandle(string email)
+    {
+        Tuple<string?, string?> result = await MySqlService.GetUserHandle(email);
+
+        if (result.Item1 != null)
+        {
+            return StatusCode(200, result.Item1);
+        }
+        
+        return result.Item2.Contains("Users") ? StatusCode(404, "Error: User not found.") : StatusCode(500, "Error: " + result.Item2);
+    }
 
     [HttpPut("update")]
     public async Task<IActionResult> UpdateUser(UpdateUserRequest updatedUser)

@@ -159,6 +159,39 @@ public partial class MySQLService : IMySQLService
         }
     }
 
+    public async Task<Tuple<string?, string>> GetUserHandle(string email)
+    {
+        using (var NewConnection = new MySqlConnection(ConnectionString))
+        {
+            NewConnection.Open();
+            try
+            {
+                var query = "SELECT * FROM Users WHERE Email = @Email";
+                using (var command = new MySqlCommand(query, NewConnection))
+                {
+                    command.Parameters.AddWithValue("@Email", email);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            return Tuple.Create(
+                                reader.GetString(reader.GetOrdinal("Handle")),
+                                ""
+                            );
+                        }
+
+                        return Tuple.Create((string)null, "Users");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Tuple.Create((string)null, ex.Message);
+            }
+        }
+    }
+    
     public async Task<Tuple<bool, string?>> UpdateUser(
         UserDetailModel updatedUser,
         UserPrivacySettingsModel userPrivacy

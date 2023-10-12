@@ -36,6 +36,7 @@ public class LoginController : ControllerBase, ILoginContoller
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["jwt-secret"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var role = await MySqlService.GetUserRole(data.Email);
+            var name = await MySqlService.GetUserHandle(data.Email);
 
             var claims = new[]
             {
@@ -44,6 +45,7 @@ public class LoginController : ControllerBase, ILoginContoller
                 new Claim(JwtRegisteredClaimNames.Iss, Configuration["jwt-issuer"]),
                 new Claim(ClaimTypes.Role, role.Item1.ToString()),
                 new Claim(ClaimTypes.Email, data.Email),
+                new Claim(ClaimTypes.Name, name.Item1),
             };
 
             var token = new JwtSecurityToken(
