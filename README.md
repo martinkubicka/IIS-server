@@ -14,15 +14,15 @@
    ```
 
    ```
-   dotnet user-secrets set "jwt-issuer" "any string"
+   dotnet user-secrets set "jwt-issuer" "secretkeyissuer"  
    ```
 
    ```
-   dotnet user-secrets set "jwt-audience" "any string"
+   dotnet user-secrets set "jwt-audience" "http://localhost:5203/"  
    ```
 
    ```
-   dotnet user-secrets set "jwt-secret" "any string"
+   dotnet user-secrets set "jwt-secret" "iis-itu-super-secret-extra-long-key"
    ```
    
    You need to setup your gmail account so you can use it for sending mails from this app.
