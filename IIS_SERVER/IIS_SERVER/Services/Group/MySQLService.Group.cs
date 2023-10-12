@@ -26,12 +26,11 @@ public partial class MySQLService : IMySQLService
 
                     await cmd.ExecuteNonQueryAsync();
                 }
-                NewConnection.Close();
+
                 return true;
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 Console.WriteLine($"Error: {ex.Message}");
                 return false;
             }
@@ -59,7 +58,6 @@ public partial class MySQLService : IMySQLService
                     {
                         if (await reader.ReadAsync())
                         {
-                            NewConnection.Close();
                             return new GroupListModel
                             {
                                 Handle = reader.GetString("Handle"),
@@ -74,12 +72,13 @@ public partial class MySQLService : IMySQLService
                         }
                     }
                 }
-                NewConnection.Close();
+
                 return null;
             }
-            catch
+            catch (Exception ex)
             {
-                NewConnection.Close();
+                Console.WriteLine(ex);
+
                 return null;
             }
         }
@@ -106,7 +105,6 @@ public partial class MySQLService : IMySQLService
                     {
                         if (await reader.ReadAsync())
                         {
-                            NewConnection.Close();
                             return new GroupPrivacySettingsModel
                             {
                                 VisibilityGuest = reader.GetBoolean(
@@ -119,12 +117,11 @@ public partial class MySQLService : IMySQLService
                         }
                     }
                 }
-                NewConnection.Close();
+
                 return null;
             }
             catch
             {
-                NewConnection.Close();
                 return null;
             }
         }
@@ -162,13 +159,12 @@ public partial class MySQLService : IMySQLService
                             );
                         }
                     }
-                    NewConnection.Close();
+
                     return Groups;
                 }
             }
             catch
             {
-                NewConnection.Close();
                 return new List<GroupListModel?>();
             }
         }
@@ -209,13 +205,12 @@ public partial class MySQLService : IMySQLService
                             );
                         }
                     }
-                    NewConnection.Close();
+
                     return Groups;
                 }
             }
             catch
             {
-                NewConnection.Close();
                 return new List<GroupListModel>();
             }
         }
@@ -234,13 +229,12 @@ public partial class MySQLService : IMySQLService
                 {
                     cmd.Parameters.AddWithValue("@Handle", handle);
                     int rowsAffected = await cmd.ExecuteNonQueryAsync();
-                    NewConnection.Close();
+
                     return rowsAffected > 0;
                 }
             }
             catch
             {
-                NewConnection.Close();
                 return false;
             }
         }
@@ -266,13 +260,12 @@ public partial class MySQLService : IMySQLService
                     cmd.Parameters.AddWithValue("@Handle", listModel.Handle);
 
                     int rowsAffected = await cmd.ExecuteNonQueryAsync();
-                    NewConnection.Close();
+
                     return rowsAffected > 0;
                 }
             }
             catch
             {
-                NewConnection.Close();
                 return false;
             }
         }
@@ -306,13 +299,12 @@ public partial class MySQLService : IMySQLService
                     cmd.Parameters.AddWithValue("@Handle", handle);
 
                     int rowsAffected = await cmd.ExecuteNonQueryAsync();
-                    NewConnection.Close();
+
                     return rowsAffected > 0;
                 }
             }
             catch
             {
-                NewConnection.Close();
                 return false;
             }
         }

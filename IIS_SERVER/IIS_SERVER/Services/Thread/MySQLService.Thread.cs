@@ -27,12 +27,11 @@ public partial class MySQLService : IMySQLService
 
                     await cmd.ExecuteNonQueryAsync();
                 }
-                NewConnection.Close();
+
                 return Tuple.Create(true, "");
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 return Tuple.Create(false, ex.Message);
             }
         }
@@ -67,12 +66,11 @@ public partial class MySQLService : IMySQLService
                         }
                     }
                 }
-                NewConnection.Close();
+
                 return threads;
             }
             catch (Exception)
             {
-                NewConnection.Close();
                 return null;
             }
         }
@@ -159,12 +157,11 @@ public partial class MySQLService : IMySQLService
                         }
                     }
                 }
-                NewConnection.Close();
+
                 return threads;
             }
             catch (Exception)
             {
-                NewConnection.Close();
                 return null;
             }
         }
@@ -230,12 +227,11 @@ public partial class MySQLService : IMySQLService
 
                     totalThreads = Convert.ToInt32(await countCommand.ExecuteScalarAsync());
                 }
-                NewConnection.Close();
+
                 return totalThreads;
             }
             catch
             {
-                NewConnection.Close();
                 return null;
             }
         }
@@ -257,7 +253,6 @@ public partial class MySQLService : IMySQLService
                     {
                         if (await reader.ReadAsync())
                         {
-                            NewConnection.Close();
                             return new ThreadModel
                             {
                                 Id = reader.GetGuid(reader.GetOrdinal("Id")),
@@ -268,14 +263,13 @@ public partial class MySQLService : IMySQLService
                                 Description = reader.GetString(reader.GetOrdinal("Description")),
                             };
                         }
-                        NewConnection.Close();
+
                         return null;
                     }
                 }
             }
             catch
             {
-                NewConnection.Close();
                 return null;
             }
         }
@@ -298,12 +292,11 @@ public partial class MySQLService : IMySQLService
                 cmd.Parameters.AddWithValue("@ThreadId", threadId);
 
                 await cmd.ExecuteNonQueryAsync();
-                NewConnection.Close();
+
                 return true;
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 return false;
             }
         }
@@ -327,12 +320,11 @@ public partial class MySQLService : IMySQLService
 
                     await cmd.ExecuteNonQueryAsync();
                 }
-                NewConnection.Close();
+
                 return Tuple.Create(true, "");
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 return Tuple.Create(false, ex.Message);
             }
         }
@@ -374,12 +366,11 @@ public partial class MySQLService : IMySQLService
                         }
                     }
                 }
-                NewConnection.Close();
+
                 return threads;
             }
             catch (Exception)
             {
-                NewConnection.Close();
                 return null;
             }
         }

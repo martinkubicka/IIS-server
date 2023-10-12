@@ -32,12 +32,11 @@ public partial class MySQLService : IMySQLService
 
                     await cmd.ExecuteNonQueryAsync();
                 }
-                NewConnection.Close();
+
                 return Tuple.Create(true, "");
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 return Tuple.Create(false, ex.Message);
             }
         }
@@ -70,14 +69,13 @@ public partial class MySQLService : IMySQLService
 
                             usersList.Add(user);
                         }
-                        NewConnection.Close();
+
                         return usersList;
                     }
                 }
             }
             catch
             {
-                NewConnection.Close();
                 return null;
             }
         }
@@ -112,18 +110,17 @@ public partial class MySQLService : IMySQLService
                                 ""
                             );
                             /* reader.Close(); */
-                            NewConnection.Close();
+
                             return tuple;
                         }
                         /* reader.Close(); */
-                        NewConnection.Close();
+
                         return Tuple.Create((UserListModel)null, "Users");
                     }
                 }
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 return Tuple.Create((UserListModel)null, ex.Message);
             }
         }
@@ -145,20 +142,18 @@ public partial class MySQLService : IMySQLService
                     {
                         if (await reader.ReadAsync())
                         {
-                            NewConnection.Close();
                             return Tuple.Create(
                                 (Role?)reader.GetInt32(reader.GetOrdinal("Role")),
                                 ""
                             );
                         }
-                        NewConnection.Close();
+
                         return Tuple.Create((Role?)null, "Users");
                     }
                 }
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 return Tuple.Create((Role?)null, ex.Message);
             }
         }
@@ -193,12 +188,11 @@ public partial class MySQLService : IMySQLService
                 cmd.Parameters.AddWithValue("@Password", hashedPassword);
 
                 await cmd.ExecuteNonQueryAsync();
-                NewConnection.Close();
+
                 return Tuple.Create(true, "");
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 return Tuple.Create(false, ex.Message);
             }
         }
@@ -223,12 +217,11 @@ public partial class MySQLService : IMySQLService
 
                     rowsAffected = await cmd.ExecuteNonQueryAsync();
                 }
-                NewConnection.Close();
+
                 return Tuple.Create(rowsAffected > 0, "Users");
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 return Tuple.Create(false, ex.Message);
             }
         }
@@ -252,7 +245,6 @@ public partial class MySQLService : IMySQLService
                     {
                         if (await reader.ReadAsync())
                         {
-                            NewConnection.Close();
                             return Tuple.Create(
                                 new UserPrivacySettingsModel
                                 {
@@ -269,14 +261,13 @@ public partial class MySQLService : IMySQLService
                                 ""
                             );
                         }
-                        NewConnection.Close();
+
                         return Tuple.Create((UserPrivacySettingsModel?)null, "Users");
                     }
                 }
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 return Tuple.Create((UserPrivacySettingsModel?)null, ex.Message);
             }
         }

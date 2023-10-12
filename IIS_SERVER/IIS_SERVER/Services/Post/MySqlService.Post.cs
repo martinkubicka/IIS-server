@@ -21,7 +21,6 @@ public partial class MySQLService : IMySQLService
 
                 if (await reader.ReadAsync())
                 {
-                    NewConnection.Close();
                     return new PostModel
                     {
                         Id = Guid.Parse(reader["Id"].ToString()),
@@ -32,12 +31,11 @@ public partial class MySQLService : IMySQLService
                     };
                 }
                 reader.Close();
-                NewConnection.Close();
+
                 return null;
             }
             catch
             {
-                NewConnection.Close();
                 return null;
             }
         }
@@ -51,7 +49,7 @@ public partial class MySQLService : IMySQLService
             try
             {
                 // Retrieve posts by threadId from the Post table
-                string selectQuery = "SELECT * FROM Post WHERE ThreadId = @ThreadId";
+                string selectQuery = "SELECT * FROM Post WHERE ThreadId = @ThreadId ORDER BY Post.Date";
                 MySqlCommand cmd = new MySqlCommand(selectQuery, NewConnection);
                 cmd.Parameters.AddWithValue("@ThreadId", threadId);
                 var posts = new List<PostModel?>();
@@ -71,12 +69,12 @@ public partial class MySQLService : IMySQLService
                     );
                 }
                 reader.Close();
-                NewConnection.Close();
+
                 return posts;
             }
-            catch
+            catch (Exception ex)
             {
-                NewConnection.Close();
+                Console.WriteLine(ex);
                 return new List<PostModel?>();
             }
         }
@@ -109,12 +107,11 @@ public partial class MySQLService : IMySQLService
                         }
                     );
                 }
-                NewConnection.Close();
+
                 return posts;
             }
             catch
             {
-                NewConnection.Close();
                 return new List<PostModel?>();
             }
         }
@@ -137,12 +134,11 @@ public partial class MySQLService : IMySQLService
                 cmd.Parameters.AddWithValue("@Text", post.Text);
                 cmd.Parameters.AddWithValue("@Date", post.Date);
                 await cmd.ExecuteNonQueryAsync();
-                NewConnection.Close();
+
                 return new Tuple<bool, string?>(true, null);
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 return new Tuple<bool, string?>(false, ex.Message);
             }
         }
@@ -164,18 +160,15 @@ public partial class MySQLService : IMySQLService
 
                 if (rowsUpdated > 0)
                 {
-                    NewConnection.Close();
                     return new Tuple<bool, string?>(true, null);
                 }
                 else
                 {
-                    NewConnection.Close();
                     return new Tuple<bool, string?>(false, "Post not found.");
                 }
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 return new Tuple<bool, string?>(false, ex.Message);
             }
         }
@@ -201,18 +194,15 @@ public partial class MySQLService : IMySQLService
 
                 if (rowsUpdated > 0)
                 {
-                    NewConnection.Close();
                     return new Tuple<bool, string?>(true, null);
                 }
                 else
                 {
-                    NewConnection.Close();
                     return new Tuple<bool, string?>(false, "Post not found.");
                 }
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 return new Tuple<bool, string?>(false, ex.Message);
             }
         }
@@ -233,18 +223,15 @@ public partial class MySQLService : IMySQLService
 
                 if (rowsDeleted > 0)
                 {
-                    NewConnection.Close();
                     return new Tuple<bool, string?>(true, null);
                 }
                 else
                 {
-                    NewConnection.Close();
                     return new Tuple<bool, string?>(false, "Post not found.");
                 }
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 return new Tuple<bool, string?>(false, ex.Message);
             }
         }
@@ -271,12 +258,11 @@ public partial class MySQLService : IMySQLService
                 cmd.Parameters.Add(ratingCountParam);
 
                 await cmd.ExecuteNonQueryAsync();
-                NewConnection.Close();
+                Console.WriteLine(ratingCountParam.Value);
                 return Convert.ToInt32(ratingCountParam.Value);
             }
             catch
             {
-                NewConnection.Close();
                 return 0;
             }
         }

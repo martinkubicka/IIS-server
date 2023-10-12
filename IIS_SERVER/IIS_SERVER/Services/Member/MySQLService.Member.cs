@@ -28,12 +28,11 @@ public partial class MySQLService : IMySQLService
 
                     await cmd.ExecuteNonQueryAsync();
                 }
-                NewConnection.Close();
+
                 return Tuple.Create(true, "");
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 return Tuple.Create(false, ex.Message);
             }
         }
@@ -77,13 +76,12 @@ public partial class MySQLService : IMySQLService
                             }
                         }
                     }
-                    NewConnection.Close();
+
                     return Tuple.Create(rowsAffected > 0, "Member");
                 }
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 return Tuple.Create(false, ex.Message);
             }
         }
@@ -108,13 +106,12 @@ public partial class MySQLService : IMySQLService
                     command.Parameters.AddWithValue("@Email", email);
                     command.Parameters.AddWithValue("@Handle", handle);
                     int rowsAffected = await command.ExecuteNonQueryAsync();
-                    NewConnection.Close();
+
                     return Tuple.Create(rowsAffected > 0, "Member");
                 }
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 return Tuple.Create(false, ex.Message);
             }
         }
@@ -175,17 +172,15 @@ public partial class MySQLService : IMySQLService
 
                         if (users.Count == 0)
                         {
-                            NewConnection.Close();
                             return Tuple.Create<List<MemberModel>?, string?>(null, "Groups");
                         }
-                        NewConnection.Close();
+
                         return Tuple.Create(users, "");
                     }
                 }
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 return Tuple.Create<List<MemberModel>?, string?>(null, ex.Message);
             }
         }
@@ -207,12 +202,11 @@ public partial class MySQLService : IMySQLService
                     countCommand.Parameters.AddWithValue("@Handle", Handle);
                     totalMembers = Convert.ToInt32(await countCommand.ExecuteScalarAsync());
                 }
-                NewConnection.Close();
+
                 return totalMembers;
             }
             catch
             {
-                NewConnection.Close();
                 return null;
             }
         }

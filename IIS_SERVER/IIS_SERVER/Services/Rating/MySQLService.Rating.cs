@@ -19,7 +19,6 @@ public partial class MySQLService : IMySQLService
                 {
                     if (await reader.ReadAsync())
                     {
-                        NewConnection.Close();
                         return new RatingModel
                         {
                             Id = Guid.Parse(reader["Id"].ToString()),
@@ -30,7 +29,7 @@ public partial class MySQLService : IMySQLService
                     }
                 }
             }
-            NewConnection.Close();
+
             return null;
         }
     }
@@ -62,7 +61,7 @@ public partial class MySQLService : IMySQLService
                     }
                 }
             }
-            NewConnection.Close();
+
             return ratings;
         }
     }
@@ -87,12 +86,11 @@ public partial class MySQLService : IMySQLService
 
                     await command.ExecuteNonQueryAsync();
                 }
-                NewConnection.Close();
+
                 return Tuple.Create(true, (string?)null);
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 return Tuple.Create(false, ex.Message);
             }
         }
@@ -113,12 +111,11 @@ public partial class MySQLService : IMySQLService
 
                     await command.ExecuteNonQueryAsync();
                 }
-                NewConnection.Close();
+
                 return Tuple.Create(true, (string?)null);
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 return Tuple.Create(false, ex.Message);
             }
         }
@@ -139,12 +136,11 @@ public partial class MySQLService : IMySQLService
 
                     await command.ExecuteNonQueryAsync();
                 }
-                NewConnection.Close();
+
                 return Tuple.Create(true, (string?)null);
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 return Tuple.Create(false, ex.Message);
             }
         }

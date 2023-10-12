@@ -29,18 +29,16 @@ public partial class MySQLService : IMySQLService
 
                             if (BCrypt.Net.BCrypt.Verify(password, hashedPasswordFromDB))
                             {
-                                NewConnection.Close();
                                 return new Tuple<bool, string?>(true, null);
                             }
                         }
                     }
                 }
-                NewConnection.Close();
+
                 return new Tuple<bool, string?>(false, "Invalid email or password.");
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 return new Tuple<bool, string?>(false, ex.Message);
             }
         }
@@ -61,12 +59,11 @@ public partial class MySQLService : IMySQLService
                 command.Parameters.AddWithValue("@Token", id.ToString());
 
                 await command.ExecuteNonQueryAsync();
-                NewConnection.Close();
+
                 return Tuple.Create(true, id.ToString());
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 return Tuple.Create(false, ex.Message);
             }
         }
@@ -101,7 +98,6 @@ public partial class MySQLService : IMySQLService
                 int rowsAffected = await updateCommand.ExecuteNonQueryAsync();
                 if (rowsAffected == 0)
                 {
-                    NewConnection.Close();
                     return Tuple.Create(false, "Failed to update password.");
                 }
 
@@ -110,12 +106,11 @@ public partial class MySQLService : IMySQLService
                 deleteCommand.Parameters.AddWithValue("@Token", data.Token);
 
                 await deleteCommand.ExecuteNonQueryAsync();
-                NewConnection.Close();
+
                 return Tuple.Create(true, "");
             }
             catch (Exception ex)
             {
-                NewConnection.Close();
                 return Tuple.Create(false, ex.Message);
             }
         }
