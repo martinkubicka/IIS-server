@@ -79,7 +79,7 @@ public class UserController : ControllerBase, IUserController
     [HttpPut("update")]
     public async Task<IActionResult> UpdateUser(UpdateUserRequest updatedUser)
     {
-        Tuple<bool, string?> result = await MySqlService.UpdateUser(updatedUser.updatedUser, updatedUser.userPrivacy);
+        Tuple<bool, string?> result = await MySqlService.UpdateUser(updatedUser.updatedUser, updatedUser.userPrivacy, !(string.IsNullOrEmpty(updatedUser.updatedUser.Password)));
 
         return result.Item1 ? StatusCode(204, "User successfully updated.") : result.Item2.Contains("Users") ? StatusCode(404, "Error: User not found.") : StatusCode(500, "Error: " + result.Item2);
     }

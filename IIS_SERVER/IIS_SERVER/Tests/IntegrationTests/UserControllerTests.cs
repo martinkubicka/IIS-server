@@ -133,7 +133,7 @@ namespace UserControllerTests
         public async Task UpdateUser_UserUpdated_ReturnsNoContentResult()
         {
             // Arrange
-            mySqlServiceMock.Setup(service => service.UpdateUser(It.IsAny<UserDetailModel>(), It.IsAny<UserPrivacySettingsModel>()))
+            mySqlServiceMock.Setup(service => service.UpdateUser(It.IsAny<UserDetailModel>(), It.IsAny<UserPrivacySettingsModel>(), true))
                             .ReturnsAsync(Tuple.Create(true, ""));
             // Act
             var updatedUser = new UpdateUserRequest();
@@ -148,7 +148,7 @@ namespace UserControllerTests
         public async Task UpdateUser_UserNotFound_ReturnsNotFoundResult()
         {
             // Arrange
-            mySqlServiceMock.Setup(service => service.UpdateUser(It.IsAny<UserDetailModel>(), It.IsAny<UserPrivacySettingsModel>()))
+            mySqlServiceMock.Setup(service => service.UpdateUser(It.IsAny<UserDetailModel>(), It.IsAny<UserPrivacySettingsModel>(), true))
                             .ReturnsAsync(Tuple.Create(false, "Users"));
             
             // Act

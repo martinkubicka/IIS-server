@@ -9,7 +9,5 @@ public class UserDetailModel : UserListModel
     [EmailAddress(ErrorMessage = "Invalid email address")]
     public string Email { get; set; }
     
-    [Required(ErrorMessage = "Password is required")]
-    [StringValidation(ErrorMessage = "The Password field cannot be empty or contain only whitespace.")]
-    public string Password { get; set; }
+    public string? Password { get; set; }
 }
