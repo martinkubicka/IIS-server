@@ -11,6 +11,7 @@ public partial class MySQLService : IDisposable
     {
         ConnectionString = configuration["DB:ConnectionString"];
         Connection = new MySqlConnection(ConnectionString);
+
         Connection.Open();
     }
 

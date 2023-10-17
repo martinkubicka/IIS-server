@@ -44,11 +44,25 @@ namespace IIS_SERVER.Thread.Controllers
         }
 
         [HttpGet("GetThreads")]
-        public async Task<IActionResult> GetThreadsFromSpecificGroup(string Handle,  int currentPage, int itemsPerPage, string? filterName, string? filterFromDate, string? filterToDate)
+        public async Task<IActionResult> GetThreadsFromSpecificGroup(
+            string Handle,
+            int currentPage,
+            int itemsPerPage,
+            string? filterName,
+            string? filterFromDate,
+            string? filterToDate
+        )
         {
             try
             {
-                List<ThreadModel>? thread = await MySqlService.GetThreadsFromSpecificGroup(Handle, currentPage, itemsPerPage, filterName, filterFromDate, filterToDate);
+                List<ThreadModel>? thread = await MySqlService.GetThreadsFromSpecificGroup(
+                    Handle,
+                    currentPage,
+                    itemsPerPage,
+                    filterName,
+                    filterFromDate,
+                    filterToDate
+                );
                 if (thread != null)
                 {
                     return StatusCode(200, thread);
@@ -65,11 +79,21 @@ namespace IIS_SERVER.Thread.Controllers
         }
 
         [HttpGet("GetThreadsCount")]
-        public async Task<IActionResult> GetThreadsCount(string Handle, string? filterName, string? filterFromDate, string? filterToDate)
+        public async Task<IActionResult> GetThreadsCount(
+            string Handle,
+            string? filterName,
+            string? filterFromDate,
+            string? filterToDate
+        )
         {
             try
             {
-                int? count = await MySqlService.GetThreadsCount(Handle, filterName, filterFromDate, filterToDate);
+                int? count = await MySqlService.GetThreadsCount(
+                    Handle,
+                    filterName,
+                    filterFromDate,
+                    filterToDate
+                );
                 if (count != null)
                 {
                     return StatusCode(200, count);
@@ -84,7 +108,7 @@ namespace IIS_SERVER.Thread.Controllers
                 return StatusCode(500, "An error occurred: " + ex.Message);
             }
         }
-        
+
         [HttpGet("get/{threadId}")]
         public async Task<IActionResult> GetThread(Guid threadId)
         {
@@ -116,7 +140,7 @@ namespace IIS_SERVER.Thread.Controllers
         [HttpDelete("delete/{threadId}")]
         public async Task<IActionResult> DeleteThread(Guid threadId)
         {
-            try 
+            try
             {
                 Tuple<bool, string?> result = await MySqlService.DeleteThread(threadId);
 
@@ -126,7 +150,6 @@ namespace IIS_SERVER.Thread.Controllers
                 }
                 else
                 {
-
                     return StatusCode(404, "Error: Thread not found.");
                 }
             }
@@ -134,8 +157,8 @@ namespace IIS_SERVER.Thread.Controllers
             {
                 return StatusCode(500, "Error: DB error occurred.");
             }
-
         }
+
         [HttpGet("GetAllThreadsUserIsIn/{handle}")]
         public async Task<IActionResult> GetAllThreadsUserIsIn(string handle)
         {

@@ -1,6 +1,8 @@
 using IIS_SERVER.Services;
 using IIS_SERVER.Post.Models;
 using Microsoft.AspNetCore.Mvc;
+using IIS_SERVER.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace IIS_SERVER.Post.Controllers;
 
@@ -9,10 +11,12 @@ namespace IIS_SERVER.Post.Controllers;
 public class PostController : ControllerBase, IPostController
 {
     private readonly IMySQLService MySqlService;
+    private readonly IHubContext<ThreadHub> hub;
 
-    public PostController(IMySQLService mySqlService)
+    public PostController(IMySQLService mySqlService, IHubContext<ThreadHub> threadHub)
     {
         MySqlService = mySqlService;
+        hub = threadHub;
     }
 
     [HttpGet("getPost/{postId}")]
@@ -30,9 +34,9 @@ public class PostController : ControllerBase, IPostController
     }
 
     [HttpGet("getPostsByThread/{threadId}")]
-    public async Task<IActionResult> GetPosts(Guid threadId)
+    public async Task<IActionResult> GetPosts(Guid threadId, int limit, int offset)
     {
-        var posts = await MySqlService.GetPostsByThread(threadId);
+        var posts = await MySqlService.GetPostsByThread(threadId, limit, offset);
         if (posts != null)
         {
             return Ok(posts);
@@ -60,14 +64,24 @@ public class PostController : ControllerBase, IPostController
     [HttpPost("add")]
     public async Task<IActionResult> AddPost(PostModel post)
     {
-        var result = await MySqlService.AddPost(post);
-        if (result.Item1)
+        post.Id = Guid.NewGuid();
+        try
         {
-            return Ok("Post added successfully");
+            var result = await MySqlService.AddPost(post);
+            if (result.Item1)
+            {
+                await hub.Clients.Groups(post.ThreadId).SendAsync("NewPost", post.Id);
+                return Ok("Post added successfully");
+            }
+            else
+            {
+                return BadRequest(result.Item2);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            return BadRequest(result.Item2);
+            Console.WriteLine(ex);
+            return BadRequest();
         }
     }
 
@@ -77,6 +91,7 @@ public class PostController : ControllerBase, IPostController
         var result = await MySqlService.EditPostText(postId, text);
         if (result.Item1)
         {
+            await hub.Clients.All.SendAsync("UpdatePost", postId, text);
             return Ok("Post text edited successfully");
         }
         else
@@ -99,12 +114,13 @@ public class PostController : ControllerBase, IPostController
         }
     }
 
-    [HttpDelete("delete")]
-    public async Task<IActionResult> DeletePost(PostModel post)
+    [HttpDelete("delete/{postId}")]
+    public async Task<IActionResult> DeletePost(Guid postId)
     {
-        var result = await MySqlService.DeletePost(post);
+        var result = await MySqlService.DeletePost(postId);
         if (result.Item1)
         {
+            await hub.Clients.All.SendAsync("DeletePost", postId);
             return Ok("Post deleted successfully");
         }
         else
