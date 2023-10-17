@@ -41,7 +41,7 @@ public partial class MySQLService : IMySQLService
         }
     }
 
-    public async Task<List<PostModel?>> GetPostsByThread(Guid threadId)
+    public async Task<List<PostModel?>> GetPostsByThread(Guid threadId, int limit, int offset)
     {
         using (var NewConnection = new MySqlConnection(ConnectionString))
         {
@@ -49,9 +49,12 @@ public partial class MySQLService : IMySQLService
             try
             {
                 // Retrieve posts by threadId from the Post table
-                string selectQuery = "SELECT * FROM Post WHERE ThreadId = @ThreadId ORDER BY Post.Date";
+                string selectQuery =
+                    "SELECT * FROM Post WHERE ThreadId = @ThreadId ORDER BY Post.Date DESC LIMIT @offset, @limit";
                 MySqlCommand cmd = new MySqlCommand(selectQuery, NewConnection);
                 cmd.Parameters.AddWithValue("@ThreadId", threadId);
+                cmd.Parameters.AddWithValue("@offset", offset);
+                cmd.Parameters.AddWithValue("@limit", limit);
                 var posts = new List<PostModel?>();
 
                 using var reader = await cmd.ExecuteReaderAsync();
@@ -132,7 +135,7 @@ public partial class MySQLService : IMySQLService
                 cmd.Parameters.AddWithValue("@ThreadId", post.ThreadId);
                 cmd.Parameters.AddWithValue("@Handle", post.Handle);
                 cmd.Parameters.AddWithValue("@Text", post.Text);
-                cmd.Parameters.AddWithValue("@Date", post.Date);
+                cmd.Parameters.AddWithValue("@Date", DateTime.Now);
                 await cmd.ExecuteNonQueryAsync();
 
                 return new Tuple<bool, string?>(true, null);
@@ -208,7 +211,7 @@ public partial class MySQLService : IMySQLService
         }
     }
 
-    public async Task<Tuple<bool, string?>> DeletePost(PostModel post)
+    public async Task<Tuple<bool, string?>> DeletePost(Guid postId)
     {
         using (var NewConnection = new MySqlConnection(ConnectionString))
         {
@@ -218,7 +221,7 @@ public partial class MySQLService : IMySQLService
                 // Delete the post from the Post table
                 string deleteQuery = "DELETE FROM Post WHERE Id = @Id";
                 MySqlCommand deleteCommand = new MySqlCommand(deleteQuery, NewConnection);
-                deleteCommand.Parameters.AddWithValue("@Id", post.Id);
+                deleteCommand.Parameters.AddWithValue("@Id", postId);
                 int rowsDeleted = await deleteCommand.ExecuteNonQueryAsync();
 
                 if (rowsDeleted > 0)
@@ -258,7 +261,6 @@ public partial class MySQLService : IMySQLService
                 cmd.Parameters.Add(ratingCountParam);
 
                 await cmd.ExecuteNonQueryAsync();
-                Console.WriteLine(ratingCountParam.Value);
                 return Convert.ToInt32(ratingCountParam.Value);
             }
             catch

@@ -6,7 +6,7 @@ public partial interface IMySQLService
 {
     Task<PostModel?> GetPost(Guid postId);
 
-    Task<List<PostModel?>> GetPostsByThread(Guid threadId);
+    Task<List<PostModel?>> GetPostsByThread(Guid threadId, int limit, int offset);
 
     Task<List<PostModel?>> GetPostsByUser(string userEmail);
 
@@ -16,7 +16,7 @@ public partial interface IMySQLService
 
     Task<Tuple<bool, string?>> EditPost(PostModel post);
 
-    Task<Tuple<bool, string?>> DeletePost(PostModel post);
+    Task<Tuple<bool, string?>> DeletePost(Guid postId);
 
     Task<int?> CalculateRating(Guid postId);
 }

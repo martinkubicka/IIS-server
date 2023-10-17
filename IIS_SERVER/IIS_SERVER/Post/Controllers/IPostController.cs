@@ -7,7 +7,7 @@ public interface IPostController
 {
     Task<IActionResult> GetPost(Guid postId);
 
-    Task<IActionResult> GetPosts(Guid threadId);
+    Task<IActionResult> GetPosts(Guid threadId, int limit, int offset);
 
     Task<IActionResult> GetPosts(string userEmail);
 
@@ -17,7 +17,7 @@ public interface IPostController
 
     Task<IActionResult> EditPost(PostModel post);
 
-    Task<IActionResult> DeletePost(PostModel post);
+    Task<IActionResult> DeletePost(Guid postId);
 
     Task<IActionResult> CalculateRating(Guid postId);
 }
