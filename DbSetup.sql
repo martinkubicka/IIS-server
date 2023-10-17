@@ -1,13 +1,13 @@
-DROP TABLE Rating;
-DROP TABLE Post;
-DROP TABLE Thread;
-DROP TABLE Member;
-DROP TABLE `Groups`;
-DROP TABLE Tokens;
-DROP TABLE Users; 
-DROP PROCEDURE DeleteUser;
-DROP PROCEDURE DeleteMember;
-DROP PROCEDURE CalculateRating;
+DROP TABLE IF EXISTS Rating;
+DROP TABLE IF EXISTS Post;
+DROP TABLE IF EXISTS Thread;
+DROP TABLE  IF EXISTS Member;
+DROP TABLE  IF EXISTS `Groups`;
+DROP TABLE  IF EXISTS Tokens;
+DROP TABLE IF EXISTS Users; 
+DROP PROCEDURE IF EXISTS DeleteUser;
+DROP PROCEDURE IF EXISTS DeleteMember;
+DROP PROCEDURE IF EXISTS CalculateRating;
 
 
 
@@ -238,24 +238,60 @@ VALUES
     ('e43159aa-72d2-42f1-874b-4289e94036de', 'ecdf0794-667e-4de9-86a5-71f7e98d9b3a', 'emily_brown', 'I love making pasta!', NOW()),
     ('bcdfacab-c915-4a1b-b3a4-9ebe1fc77552', 'ecdf0794-667e-4de9-86a5-71f7e98d9b3a', 'david_wilson', 'Any tips for a perfect pizza?', NOW()),
     ('72b6884d-5f0f-4647-a742-2a0b05b14e02', '73a1f07c-ee3d-4cc5-a3f5-17ee1d52e554', 'john_doe', 'Exploring Italy next week!', NOW()),
-    ('1b6acaf5-7cfd-4cd2-88a2-1f9ea5c0b7ca', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'emily_brown', 'Whats your secret to the perfect chocolate cake?', NOW()),
-    ('3f1a20b3-cc25-4392-b0a5-6e9d708e1f7a', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'david_wilson', 'I use dark chocolate for an extra rich taste!', NOW()),
     ('7cfb25e2-4d8e-4b8f-9a0b-3a7d4e7e7e1b', 'e63bc05c-9da3-45a0-85e7-8c4e32a9d8f1', 'emily_brown', 'I made a delicious Greek salad today.', NOW()),
     ('0b9e59e2-95e9-4850-8a4a-2c7e5b0b5b3e', 'e63bc05c-9da3-45a0-85e7-8c4e32a9d8f1', 'linda_jones', 'Share the recipe, please!', NOW()),
     ('c8e72a9d-2ea1-4ca1-bb3a-1f6ec3e5a2e9', '1fcb8b12-25ea-468c-af4e-9f0c4f28f4df', 'john_doe', 'My adventures in Paris were amazing!', NOW()),
     ('558be2c3-8f35-49fe-a8c9-23496d54b9a1', '8e2b1e3e-3d7e-4c7b-8b7e-1f7e6e5e5b2e', 'michael_jones', 'I love Python!', NOW()),
     ('f4bf64dd-9a03-4d2b-ac7c-f9fe600ab9fe', '8e2b1e3e-3d7e-4c7b-8b7e-1f7e6e5e5b2e', 'lisa_martin', 'What about Java?', NOW()),
     ('1b4c8a9b-7c7e-4c7b-7f7a-1f7e6gtgmkuh', '9d4f8f7e-4e6e-4a1b-9f3a-1f6e7e5e5b4e', 'jason_smith', 'The Beatles are classic!', NOW()),
-    ('4a104b0a-e0d4-4ff6-9341-dc6858fe5a1c', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'I just made the best chocolate chip cookies!', NOW()),
-    ('c96bf4b7-4c6d-466c-90b6-9f9358791176', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'michael_jones', 'Share the recipe, please!', NOW()),
-    ('6097bd7d-d8fb-4cd7-945f-87359a856fdc', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Sure! Here it is:', NOW()),
-    ('1f3a2aaf-b5ca-4f0e-a2bf-690f3fd36dcc', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Ingredients:\n- 1 cup butter\n- 1 cup granulated sugar\n- 2 cups all-purpose flour', NOW()),
-    ('efbc0717-a93c-4459-8487-eb3e023b461d', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Instructions: Preheat oven to 350°F (175°C).. In a bowl, cream the butter and sugar together. Mix in the flour until a dough forms. Drop spoonfuls of dough onto baking sheets. Bake for 10-12 minutes or until the edges are golden brown.', NOW()),
-    ('c34a1f05-4847-4c8b-9dc0-e71a1069b0f3', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'michael_jones', 'Thanks, Sarah! I cant wait to try this.', NOW()),
-    ('21755d22-9fd4-4b73-a350-641657925f55', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'lisa_martin', 'I made these cookies last weekend. They were a hit!', NOW()),
-    ('3af18d32-3215-4cbd-a019-0e739a4e8971', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'michael_jones', 'Do you have any other baking tips?', NOW()),
-    ('f037a193-c8eb-4fa3-ac93-481c61e8d169', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Certainly! Here are a few more:', NOW()),
-    ('0c464244-c930-4e7b-8b23-74c8886289c3', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', '1. Use room temperature butter for better texture. Add a pinch of salt to enhance the flavor. Try adding a mix of milk and dark chocolate chips for variety.', NOW());
+    ('4a104b0a-e0d4-4ff6-9341-dc6858fe5a1c', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'I just made the best chocolate chip cookies!', '2023-10-11 08:30:00'),
+    ('c96bf4b7-4c6d-466c-90b6-9f9358791176', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'michael_jones', 'Share the recipe, please!', '2023-10-11 08:35:00'),
+    ('6097bd7d-d8fb-4cd7-945f-87359a856fdc', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Sure! Here it is:', '2023-10-11 08:40:00'),
+    ('1f3a2aaf-b5ca-4f0e-a2bf-690f3fd36dcc', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Ingredients:\n- 1 cup butter\n- 1 cup granulated sugar\n- 2 cups all-purpose flour', '2023-10-11 08:45:00'),
+    ('efbc0717-a93c-4459-8487-eb3e023b461d', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Instructions: Preheat oven to 350°F (175°C).. In a bowl, cream the butter and sugar together. Mix in the flour until a dough forms. Drop spoonfuls of dough onto baking sheets. Bake for 10-12 minutes or until the edges are golden brown.', '2023-10-11 08:50:00'),
+    ('c34a1f05-4847-4c8b-9dc0-e71a1069b0f3', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'michael_jones', 'Thanks, Sarah! I cant wait to try this.', '2023-10-11 09:00:00'),
+    ('21755d22-9fd4-4b73-a350-641657925f55', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'lisa_martin', 'I made these cookies last weekend. They were a hit!', '2023-10-11 09:10:00'),
+    ('3af18d32-3215-4cbd-a019-0e739a4e8971', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'michael_jones', 'Do you have any other baking tips?', '2023-10-11 09:20:00'),
+    ('f037a193-c8eb-4fa3-ac93-481c61e8d169', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Certainly! Here are a few more:', '2023-10-11 09:30:00'),
+    ('0c464244-c930-4e7b-8b23-74c8886289c3', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', '1. Use room temperature butter for better texture.\n2. Add a pinch of salt to enhance the flavor.\n3. Try adding a mix of milk and dark chocolate chips for variety.', '2023-10-11 09:40:00'),
+    ('2f59e893-9a93-4a9b-b9e9-2c79e8e9f3d4', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'linda_jones', 'I tried your cookie recipe, and it was amazing!', '2023-10-11 09:50:00'),
+    ('9c8b21d4-0e34-4c7f-8c5e-8a9a1a0b8b13', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Im glad you liked it, Linda!', '2023-10-11 10:00:00'),
+    ('5d0f01e7-4b68-4c91-9d36-8c4e0e7b4e5b', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'david_wilson', 'Any tips for a moist chocolate cake?', '2023-10-11 10:10:00'),
+    ('1e5e8c6d-4b68-4c8b-9c3e-8c4a5a9a8c1f', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Sure, heres a chocolate cake recipe:', '2023-10-11 10:20:00'),
+    ('7c5e7d9c-0e0e-4a8b-8c5e-8a9a1a0b8b6d', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Ingredients:\n- 2 cups all-purpose flour\n- 2 cups granulated sugar\n- 3/4 cup unsweetened cocoa powder\n- 1 1/2 tsp baking powder', '2023-10-11 10:30:00'),
+    ('4db86920-34a2-4417-b484-792110de3dbd', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', '1/2 tsp baking soda\n- 1/2 tsp salt\n- 2 eggs\n- 1 cup milk\n- 1/2 cup vegetable oil', '2023-10-11 10:40:00'),
+    ('6f6d0d9a-4c8a-4c6f-8c4a-8a9b1a0c8a4b', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', '2 tsp vanilla extract\n- 1 cup boiling water\n\nInstructions:', '2023-10-11 10:50:00'),
+    ('f9c3a6b1-4e89-4b8c-8c5e-8a9a1a0b8c8e', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Preheat your oven to 350°F (175°C). Grease and flour two 9-inch round cake pans. In a large bowl, combine the flour, sugar, cocoa, baking powder, baking soda, and salt.', '2023-10-11 11:00:00'),
+    ('e7d5a5e8-4b48-4c8e-8b5e-8c4b0e7a4e8c', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Add the eggs, milk, oil, and vanilla and mix until well combined. Stir in the boiling water. Pour the batter into the prepared pans.', '2023-10-11 11:10:00'),
+    ('4c4a4a8a-4e48-4b4c-8a5e-8c4b8e9a4c6a', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'michael_jones', 'Thanks for the recipe, Sarah! I cant wait to try this chocolate cake.', '2023-10-11 11:20:00'),
+    ('2a8d4a1a-0c3a-4c9f-9d3e-8a9b1a4c8e9a', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'lisa_martin', 'Im making the cookies and cake this weekend. Thanks for sharing!', '2023-10-11 11:30:00'),
+    ('6c9e9e8b-0e9f-4b9f-8e9b-2c79e8e9f3d4', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Youre welcome, Lisa! Enjoy your baking adventures!', '2023-10-11 11:40:00'),
+    ('9e0f0d9e-9a9f-4a9b-b9e9-8c9b1a0c8b9f', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'michael_jones', 'Sarah, do you have any tips for making gluten-free treats?', '2023-10-11 11:50:00'),
+    ('3e0f3e5a-4b6a-4c8b-8c5e-8a9a1a0b8c8e', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Certainly, Michael! Here are some gluten-free baking tips:', '2023-10-11 12:00:00'),
+    ('7c8e5a4c-4e8e-4a4b-b9e9-8c5e9a8c5e4e', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', '1. Use gluten-free flour blends in your recipes.\n2. Check the labels of ingredients to ensure they are gluten-free.\n3. Use separate utensils and equipment for gluten-free baking.', '2023-10-11 12:10:00'),
+    ('4a9e0c8f-4b68-4c8b-8c5e-8a9a1a0b8c8b', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'linda_jones', 'Thanks, Sarah! Im always looking for gluten-free options.', '2023-10-11 12:20:00'),
+    ('1a4e9c9f-4b8e-4f9a-8c5e-8a9a1a0b8f5a', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Youre welcome, Linda! Enjoy your gluten-free baking!', '2023-10-11 12:30:00'),
+    ('5a8c3e9a-9a9b-4a9e-8c5e-8a9b1a4e8a3e', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'david_wilson', 'I made a cheesecake, and it cracked. Any tips for a smooth top?', '2023-10-11 12:40:00'),
+    ('1a8e9f9c-4b8e-4f9b-8c5e-8a9a1a0c9b8e', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'To prevent cracks, David, try these tips:', '2023-10-11 12:50:00'),
+    ('8c5e8e9c-4b8e-4f8e-8c9e-8a9a1a0b9b8e', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', '1. Dont overmix the cheesecake batter.\n2. Use a water bath when baking.\n3. Cool the cheesecake gradually by turning off the oven and cracking the door.\n4. Chill the cheesecake for several hours or overnight before serving.', '2023-10-11 13:00:00'),
+    ('9a9e8b8c-4e8c-4c8b-8e9b-2c79e8e9f3d4', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'david_wilson', 'Thanks, Sarah! Ill give those a try next time.', '2023-10-11 13:10:00'),
+    ('9a4e8c9b-4b8c-4c8b-8c9b-8a9b1a0b8c9b', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Youre welcome, David! I hope it helps.', '2023-10-11 13:20:00'),
+    ('37dc003c-6417-4c63-b8e1-4e8365b9ce89', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'For those who enjoy a classic pie, try this apple pie recipe:', '2023-10-11 13:30:00'),
+    ('1050a790-2cbf-42e9-9ecc-9ad902c382d4', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Ingredients:\n- 6-7 cups peeled and sliced apples\n- 3/4 cup granulated sugar\n- 1 tsp ground cinnamon', '2023-10-11 13:40:00'),
+    ('27dabd0d-bd3e-41dd-8208-0bfa351e7422', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', '1/4 tsp salt\n- 2 tbsp all-purpose flour\n- 2 9-inch pie crusts', '2023-10-11 13:50:00'),
+    ('988ea1a8-e666-401b-a358-775903d4bc4a', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Instructions: Preheat your oven to 425°F (220°C). In a large bowl, mix the apples, sugar, cinnamon, salt, and flour. Pour the mixture into one of the pie crusts.', '2023-10-11 14:00:00'),
+    ('28865b13-06e6-47de-8c87-13bc05c8d684', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Cover the filling with the second pie crust. Trim and crimp the edges. Make a few small slits in the top crust to allow steam to escape.', '2023-10-11 14:10:00'),
+    ('9e04e946-e15c-4662-aefd-25c0f85ce644', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'linda_jones', 'Im going to make the apple pie for Thanksgiving. Thanks, Sarah!', '2023-10-11 14:20:00'),
+    ('d036bf32-77ef-4184-a68a-d9bcd3d1fcca', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Youre welcome, Linda! Itll be a great addition to your Thanksgiving table.', '2023-10-11 14:30:00'),
+    ('08204a5a-b441-4ed2-8b18-89bb13507371', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'If you love muffins, try these blueberry muffins:', '2023-10-11 14:40:00'),
+    ('97d3072c-eeb9-4d82-a7f9-7235718078e4', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Ingredients:\n- 1 1/2 cups all-purpose flour\n- 3/4 cup granulated sugar\n- 1/2 tsp salt', '2023-10-11 14:50:00'),
+    ('7cea0eb5-776f-4b7e-b6dd-2b33519eacc5', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', '2 tsp baking powder\n- 1/3 cup vegetable oil\n- 1 egg\n- 1/3 cup milk\n- 1 cup fresh or frozen blueberries', '2023-10-11 15:00:00'),
+    ('88a06a0a-afdc-4828-9231-76a1998f4d7d', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Instructions: Preheat your oven to 400°F (200°C). In a bowl, combine the flour, sugar, salt, and baking powder. Add the oil, egg, and milk. Fold in the blueberries.', '2023-10-11 15:10:00'),
+    ('cca60704-fe14-42a2-b34f-aa8db7e48829', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Spoon the batter into muffin cups and bake for 20-25 minutes or until a toothpick comes out clean.', '2023-10-11 15:20:00'),
+    ('5f8f7b5f-fbab-4398-bc3f-4fa76f6f6f49', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'michael_jones', 'I love blueberry muffins! Thanks for sharing, Sarah.', '2023-10-11 15:30:00'),
+    ('1688020b-4337-4d27-9d7b-365a161728d2', '4a1ed285-7a0b-4f29-9842-5c27cf3e2793', 'sarah_miller', 'Youre welcome, Michael! Enjoy your muffins.', '2023-10-11 15:40:00');
+    
+   
 
 
     

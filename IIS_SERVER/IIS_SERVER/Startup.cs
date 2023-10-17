@@ -1,4 +1,5 @@
 using System.Text;
+using IIS_SERVER.Hubs;
 using IIS_SERVER.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -23,34 +24,40 @@ namespace IIS_SERVER
         {
             services.AddControllers();
             services.AddEndpointsApiExplorer();
+            services.AddSignalR();
             services.AddSwaggerGen(option =>
             {
                 option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
-                option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    In = ParameterLocation.Header,
-                    Description = "Please enter a valid token",
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.Http,
-                    BearerFormat = "JWT",
-                    Scheme = "Bearer"
-                });
-                option.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
+                option.AddSecurityDefinition(
+                    "Bearer",
+                    new OpenApiSecurityScheme
                     {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type=ReferenceType.SecurityScheme,
-                                Id="Bearer"
-                            }
-                        },
-                        new string[]{}
+                        In = ParameterLocation.Header,
+                        Description = "Please enter a valid token",
+                        Name = "Authorization",
+                        Type = SecuritySchemeType.Http,
+                        BearerFormat = "JWT",
+                        Scheme = "Bearer"
                     }
-                });
+                );
+                option.AddSecurityRequirement(
+                    new OpenApiSecurityRequirement
+                    {
+                        {
+                            new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            },
+                            new string[] { }
+                        }
+                    }
+                );
             });
-            
+
             services
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -71,15 +78,21 @@ namespace IIS_SERVER
                 });
 
             services.AddSingleton<IMySQLService, MySQLService>();
+            services.AddSingleton<ThreadHub>();
 
             services.AddCors(options =>
             {
-                options.AddPolicy("AllowAllOrigins", builder =>
-                {
-                    builder.AllowAnyOrigin()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader();
-                });
+                options.AddPolicy(
+                    "AllowAllOrigins",
+                    builder =>
+                    {
+                        builder
+                            .WithOrigins("http://localhost:5173")
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
+                            .AllowCredentials();
+                    }
+                );
             });
         }
 
@@ -88,7 +101,7 @@ namespace IIS_SERVER
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
-            
+
             if (Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -104,6 +117,7 @@ namespace IIS_SERVER
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
+                endpoints.MapHub<ThreadHub>("/realtime");
             });
         }
     }
