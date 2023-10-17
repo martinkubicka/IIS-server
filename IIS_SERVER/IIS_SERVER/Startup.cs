@@ -86,7 +86,11 @@ namespace IIS_SERVER
                     "AllowAllOrigins",
                     builder =>
                     {
-                        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                        builder
+                            .WithOrigins("http://localhost:5173", "http://localhost:5203")
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
+                            .AllowCredentials();
                     }
                 );
             });
