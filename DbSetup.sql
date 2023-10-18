@@ -126,25 +126,6 @@ DELIMITER ;
 
 -- TRIGGERS
 DELIMITER //
-CREATE TRIGGER Users_Before_Insert_Update
-BEFORE INSERT ON Users
-FOR EACH ROW
-BEGIN
-  DECLARE password_length INT;
-  DECLARE uppercase_count INT;
-  
-  SET password_length = LENGTH(NEW.Password);
-  SET uppercase_count = LENGTH(NEW.Password) - LENGTH(REPLACE(NEW.Password, BINARY UPPER(NEW.Password), ''));
-
-  IF password_length < 8 OR uppercase_count = 0 THEN
-    SIGNAL SQLSTATE '45010'
-    SET MESSAGE_TEXT = 'Invalid password. Password must be at least 8 characters long and contain at least one uppercase letter.';
-  END IF;
-END;
-//
-DELIMITER ;
-
-DELIMITER //
 CREATE TRIGGER DeleteThread
 AFTER DELETE ON Thread
 FOR EACH ROW
