@@ -17,8 +17,8 @@ CREATE TABLE Users (
     Id VARCHAR(255) NOT NULL PRIMARY KEY,
     Email VARCHAR(255) NOT NULL UNIQUE,
     Password VARCHAR(255) NOT NULL,
-    Handle VARCHAR(255) NOT NULL UNIQUE,
-    Name VARCHAR(255) NOT NULL,
+    Handle VARCHAR(20) NOT NULL UNIQUE,
+    Name VARCHAR(20) NOT NULL,
     Role INT NOT NULL,
     VisibilityRegistered BOOLEAN DEFAULT TRUE,
     VisibilityGuest BOOLEAN DEFAULT TRUE,
@@ -29,8 +29,8 @@ CREATE TABLE Users (
 CREATE TABLE `Groups` (
     Id VARCHAR(255) NOT NULL PRIMARY KEY,
     Handle VARCHAR(255) NOT NULL UNIQUE,
-    Description VARCHAR(255),
-    Name VARCHAR(255) NOT NULL,
+    Description VARCHAR(100),
+    Name VARCHAR(20) NOT NULL,
     VisibilityMember BOOLEAN DEFAULT TRUE,
     VisibilityGuest BOOLEAN DEFAULT TRUE,
     Icon VARCHAR(255)
@@ -49,10 +49,10 @@ CREATE TABLE Member (
 
 CREATE TABLE Thread (
     Id VARCHAR(255) NOT NULL PRIMARY KEY,
-    Description VARCHAR(255),
+    Description VARCHAR(100),
     Handle VARCHAR(255) NOT NULL,
     Email VARCHAR(255),
-    Name VARCHAR(255) NOT NULL,
+    Name VARCHAR(50) NOT NULL,
     Date DATETIME NOT NULL,
     FOREIGN KEY (Email) REFERENCES Users(Email) ON DELETE SET NULL,
     FOREIGN KEY (Handle) REFERENCES `Groups`(Handle) ON DELETE CASCADE
@@ -125,6 +125,24 @@ END //
 DELIMITER ;
 
 -- TRIGGERS
+DELIMITER //
+CREATE TRIGGER Users_Before_Insert_Update
+BEFORE INSERT ON Users
+FOR EACH ROW
+BEGIN
+  DECLARE password_length INT;
+  DECLARE uppercase_count INT;
+  
+  SET password_length = LENGTH(NEW.Password);
+  SET uppercase_count = LENGTH(NEW.Password) - LENGTH(REPLACE(NEW.Password, BINARY UPPER(NEW.Password), ''));
+
+  IF password_length < 8 OR uppercase_count = 0 THEN
+    SIGNAL SQLSTATE '45010'
+    SET MESSAGE_TEXT = 'Invalid password. Password must be at least 8 characters long and contain at least one uppercase letter.';
+  END IF;
+END;
+//
+DELIMITER ;
 
 DELIMITER //
 CREATE TRIGGER DeleteThread
@@ -186,17 +204,17 @@ DELIMITER ;
 -- Insert additional sample user data
 INSERT INTO Users (Id, Email, Password, Handle, Name, Role, VisibilityRegistered, VisibilityGuest, VisibilityGroup, Icon)
 VALUES
-    ('85e619ff-1593-4fae-a4e1-8b5268c4c9a1', 'john.doe@example.com', '$2a$10$YWX0i1FngYLmVmpoBMzZZujAP0dnRDmGRjtcfNa11ryxEezzQepBa', 'john_doe', 'John Doe', 1, TRUE, TRUE, TRUE, 'smile'),
-    ('b9d3a8e4-3a62-4b21-a5c8-5ebc0b3bf929', 'jane.smith@example.com', '$2a$10$YWX0i1FngYLmVmpoBMzZZujAP0dnRDmGRjtcfNa11ryxEezzQepBa', 'jane_smith', 'Jane Smith', 1, TRUE, TRUE, TRUE, 'star'),
-    ('e7ac07c1-7dcd-4b36-b2a3-1f676f10a0ab', 'mark.johnson@example.com', '$2a$10$YWX0i1FngYLmVmpoBMzZZujAP0dnRDmGRjtcfNa11ryxEezzQepBa', 'mark_johnson', 'Mark Johnson', 1, TRUE, TRUE, TRUE, 'racoon'),
-    ('f5e619ff-1593-4fae-a4e1-8b5268c4c9a1', 'emily.brown@example.com', '$2a$10$YWX0i1FngYLmVmpoBMzZZujAP0dnRDmGRjtcfNa11ryxEezzQepBa', 'emily_brown', 'Emily Brown', 1, TRUE, TRUE, TRUE, 'thinking'),
-    ('b9d3a8e4-3a62-4b21-a5c8-5ebc0b3bf939', 'david.wilson@example.com', '$2a$10$YWX0i1FngYLmVmpoBMzZZujAP0dnRDmGRjtcfNa11ryxEezzQepBa', 'david_wilson', 'David Wilson', 1, TRUE, TRUE, TRUE, 'tennis'),
-    ('e7ac07c1-7dcd-4b36-b2a3-1f676f11a0ab', 'linda.jones@example.com', '$2a$10$YWX0i1FngYLmVmpoBMzZZujAP0dnRDmGRjtcfNa11ryxEezzQepBa', 'linda_jones', 'Linda Jones', 1, TRUE, TRUE, TRUE, 'jamaica'),
-    ('ce14b3a9-6d12-4fc2-98b5-4a1e35b6cdcb', 'sarah.miller@example.com', '$2a$10$YWX0i1FngYLmVmpoBMzZZujAP0dnRDmGRjtcfNa11ryxEezzQepBa', 'sarah_miller', 'Sarah Miller', 1, TRUE, TRUE, TRUE, 'smile'),
-    ('a72b5d2c-52bc-4f8e-9a0a-3e1b6c9e5b3a', 'michael.jones@example.com', '$2a$10$YWX0i1FngYLmVmpoBMzZZujAP0dnRDmGRjtcfNa11ryxEezzQepBa', 'michael_jones', 'Michael Jones', 1, TRUE, TRUE, TRUE, 'shark'),
-    ('bd7ca932-94ea-4ec8-8ad9-2a6d5f9e3a2b', 'lisa.martin@example.com', '$2a$10$YWX0i1FngYLmVmpoBMzZZujAP0dnRDmGRjtcfNa11ryxEezzQepBa', 'lisa_martin', 'Lisa Martin', 1, TRUE, TRUE, TRUE, 'sunflower'),
-    ('8fe125d4-5a6d-42f9-86a5-7c1a9e4eabfc', 'jason.smith@example.com', '$2a$10$YWX0i1FngYLmVmpoBMzZZujAP0dnRDmGRjtcfNa11ryxEezzQepBa', 'jason_smith', 'Jason Smith', 1, TRUE, TRUE, TRUE, 'earth'),
-    ('b9d3a8e4-3a62-4b21-a5c8-5ebc0b3bf923', 'olivia.wilson@example.com', '$2a$10$YWX0i1FngYLmVmpoBMzZZujAP0dnRDmGRjtcfNa11ryxEezzQepBa', 'olivia_wilson', 'Olivia Wilson', 1, TRUE, TRUE, TRUE, 'flower');
+    ('85e619ff-1593-4fae-a4e1-8b5268c4c9a1', 'john.doe@example.com', '$2a$10$BBCx8vKl5YwlivXpqH/.r.jrE4r2DWE9FoNc9x/KwmLY4zOs5NekC', 'john_doe', 'John Doe', 1, TRUE, TRUE, TRUE, 'smile'),
+    ('b9d3a8e4-3a62-4b21-a5c8-5ebc0b3bf929', 'jane.smith@example.com', '$2a$10$BBCx8vKl5YwlivXpqH/.r.jrE4r2DWE9FoNc9x/KwmLY4zOs5NekC', 'jane_smith', 'Jane Smith', 1, TRUE, TRUE, TRUE, 'star'),
+    ('e7ac07c1-7dcd-4b36-b2a3-1f676f10a0ab', 'mark.johnson@example.com', '$2a$10$BBCx8vKl5YwlivXpqH/.r.jrE4r2DWE9FoNc9x/KwmLY4zOs5NekC', 'mark_johnson', 'Mark Johnson', 1, TRUE, TRUE, TRUE, 'racoon'),
+    ('f5e619ff-1593-4fae-a4e1-8b5268c4c9a1', 'emily.brown@example.com', '$2a$10$BBCx8vKl5YwlivXpqH/.r.jrE4r2DWE9FoNc9x/KwmLY4zOs5NekC', 'emily_brown', 'Emily Brown', 1, TRUE, TRUE, TRUE, 'thinking'),
+    ('b9d3a8e4-3a62-4b21-a5c8-5ebc0b3bf939', 'david.wilson@example.com', '$2a$10$BBCx8vKl5YwlivXpqH/.r.jrE4r2DWE9FoNc9x/KwmLY4zOs5NekC', 'david_wilson', 'David Wilson', 1, TRUE, TRUE, TRUE, 'tennis'),
+    ('e7ac07c1-7dcd-4b36-b2a3-1f676f11a0ab', 'linda.jones@example.com', '$2a$10$BBCx8vKl5YwlivXpqH/.r.jrE4r2DWE9FoNc9x/KwmLY4zOs5NekC', 'linda_jones', 'Linda Jones', 1, TRUE, TRUE, TRUE, 'jamaica'),
+    ('ce14b3a9-6d12-4fc2-98b5-4a1e35b6cdcb', 'sarah.miller@example.com', '$2a$10$BBCx8vKl5YwlivXpqH/.r.jrE4r2DWE9FoNc9x/KwmLY4zOs5NekC', 'sarah_miller', 'Sarah Miller', 1, TRUE, TRUE, TRUE, 'smile'),
+    ('a72b5d2c-52bc-4f8e-9a0a-3e1b6c9e5b3a', 'michael.jones@example.com', '$2a$10$BBCx8vKl5YwlivXpqH/.r.jrE4r2DWE9FoNc9x/KwmLY4zOs5NekC', 'michael_jones', 'Michael Jones', 1, TRUE, TRUE, TRUE, 'shark'),
+    ('bd7ca932-94ea-4ec8-8ad9-2a6d5f9e3a2b', 'lisa.martin@example.com', '$2a$10$BBCx8vKl5YwlivXpqH/.r.jrE4r2DWE9FoNc9x/KwmLY4zOs5NekC', 'lisa_martin', 'Lisa Martin', 1, TRUE, TRUE, TRUE, 'sunflower'),
+    ('8fe125d4-5a6d-42f9-86a5-7c1a9e4eabfc', 'jason.smith@example.com', '$2a$10$BBCx8vKl5YwlivXpqH/.r.jrE4r2DWE9FoNc9x/KwmLY4zOs5NekC', 'jason_smith', 'Jason Smith', 1, TRUE, TRUE, TRUE, 'earth'),
+    ('b9d3a8e4-3a62-4b21-a5c8-5ebc0b3bf923', 'olivia.wilson@example.com', '$2a$10$BBCx8vKl5YwlivXpqH/.r.jrE4r2DWE9FoNc9x/KwmLY4zOs5NekC', 'olivia_wilson', 'Olivia Wilson', 1, TRUE, TRUE, TRUE, 'flower');
 
 -- Insert sample group data
 INSERT INTO `Groups` (Id, Handle, Description, Name, VisibilityMember, VisibilityGuest, Icon)
