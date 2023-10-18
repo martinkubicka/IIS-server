@@ -1,4 +1,3 @@
-using System.Threading.Channels;
 using IIS_SERVER.Enums;
 using Microsoft.AspNetCore.Mvc;
 using IIS_SERVER.Services;
@@ -90,27 +89,6 @@ public class MemberController : ControllerBase, IMemberController
             if (count != null)
             {
                 return StatusCode(200, count);
-            }
-            else
-            {
-                return StatusCode(404, "Error: Group not found.");
-            }
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, "An error occurred: " + ex.Message);
-        }
-    }
-
-    [HttpGet("UserInGroup")]
-    public async Task<IActionResult> UserInGroup(string email, string handle)
-    {
-        try
-        {
-            bool? result = await MySqlService.UserInGroup(email, handle);
-            if (result != null)
-            {
-                return StatusCode(200, result);
             }
             else
             {

@@ -14,8 +14,8 @@ public partial class MySQLService : IMySQLService
             NewConnection.Open();
             try
             {
-                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(user.Password + Configuration["DB:salt"]);
-                
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(user.Password);
+
                 string insertQuery =
                     "INSERT INTO Users (Id, Email, Password, Handle, Name, Role, Icon) "
                     + "VALUES (@Id, @Email, @Password, @Handle, @Name, @Role, @Icon)";

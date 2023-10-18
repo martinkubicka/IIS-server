@@ -27,7 +27,7 @@ public partial class MySQLService : IMySQLService
                                 reader.GetOrdinal("Password")
                             );
 
-                            if (BCrypt.Net.BCrypt.Verify(password + Configuration["DB:salt"], hashedPasswordFromDB))
+                            if (BCrypt.Net.BCrypt.Verify(password, hashedPasswordFromDB))
                             {
                                 return new Tuple<bool, string?>(true, null);
                             }
@@ -79,7 +79,7 @@ public partial class MySQLService : IMySQLService
                 string query = "SELECT Email FROM Tokens WHERE Token = @Token";
                 using MySqlCommand command = new MySqlCommand(query, NewConnection);
                 command.Parameters.AddWithValue("@Token", data.Token);
-                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(data.Password + Configuration["DB:salt"]);
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(data.Password);
 
                 object result = command.ExecuteScalar();
                 var email = result.ToString();

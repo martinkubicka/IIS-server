@@ -11,6 +11,6 @@ public class StringValidationAttribute : ValidationAttribute
             return !string.IsNullOrWhiteSpace(stringValue);
         }
 
-        return true;
+        return true; // Non-string values are considered valid
     }
 }
