@@ -32,3 +32,6 @@
    ```
    dotnet user-secrets set "mail-password" "your password"
    ```
+   ```
+   dotnet user-secrets set "salt" "iis-itu-salt"
+   ```
