@@ -1,4 +1,3 @@
-using System.Configuration;
 using MySql.Data.MySqlClient;
 
 namespace IIS_SERVER.Services;
@@ -8,7 +7,7 @@ public partial class MySQLService : IDisposable
     private readonly string ConnectionString;
     private readonly MySqlConnection Connection;
     private readonly IConfiguration Configuration;
-    
+
     public MySQLService(IConfiguration configuration)
     {
         ConnectionString = configuration["DB:ConnectionString"];

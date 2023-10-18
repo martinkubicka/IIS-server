@@ -191,10 +191,11 @@ public partial class MySQLService : IMySQLService
             }
         }
     }
-    
+
     public async Task<Tuple<bool, string?>> UpdateUser(
         UserDetailModel updatedUser,
-        UserPrivacySettingsModel userPrivacy
+        UserPrivacySettingsModel userPrivacy,
+        bool updatePassword = false
     )
     {
         using (var NewConnection = new MySqlConnection(ConnectionString))
@@ -202,24 +203,31 @@ public partial class MySQLService : IMySQLService
             NewConnection.Open();
             try
             {
-                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(updatedUser.Password + Configuration["DB:salt"]);
-                
                 string updateQuery =
-                    @"UPDATE Users SET Name = @Name,Role = @Role,VisibilityRegistered = @VisibilityRegistered,VisibilityGuest = @VisibilityGuest,VisibilityGroup = @VisibilityGroup,Icon = @Icon, Password = @Password WHERE Email = @Email";
+                    @"UPDATE Users SET Name = @Name, Role = @Role, VisibilityRegistered = @VisibilityRegistered, VisibilityGuest = @VisibilityGuest, VisibilityGroup = @VisibilityGroup, Icon = @Icon";
+
+                if (updatePassword)
+                {
+                    updateQuery += ", Password = @Password";
+                }
+
+                updateQuery += " WHERE Email = @Email";
 
                 MySqlCommand cmd = new MySqlCommand(updateQuery, NewConnection);
 
                 cmd.Parameters.AddWithValue("@Name", updatedUser.Name);
                 cmd.Parameters.AddWithValue("@Role", updatedUser.Role);
-                cmd.Parameters.AddWithValue(
-                    "@VisibilityRegistered",
-                    userPrivacy.VisibilityRegistered
-                );
+                cmd.Parameters.AddWithValue("@VisibilityRegistered", userPrivacy.VisibilityRegistered);
                 cmd.Parameters.AddWithValue("@VisibilityGuest", userPrivacy.VisibilityGuest);
                 cmd.Parameters.AddWithValue("@VisibilityGroup", userPrivacy.VisibilityGroup);
                 cmd.Parameters.AddWithValue("@Icon", updatedUser.Icon);
                 cmd.Parameters.AddWithValue("@Email", updatedUser.Email);
-                cmd.Parameters.AddWithValue("@Password", hashedPassword);
+
+                if (updatePassword)
+                {
+                    string hashedPassword = BCrypt.Net.BCrypt.HashPassword(updatedUser.Password  + Configuration["DB:salt"]);
+                    cmd.Parameters.AddWithValue("@Password", hashedPassword);
+                }
 
                 await cmd.ExecuteNonQueryAsync();
 

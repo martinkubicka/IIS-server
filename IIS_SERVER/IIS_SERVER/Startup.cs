@@ -87,7 +87,7 @@ namespace IIS_SERVER
                     builder =>
                     {
                         builder
-                            .WithOrigins("http://localhost:5203", "http://127.0.0.1:5173")
+                            .WithOrigins("http://localhost:5173", "http://localhost:5203")
                             .AllowAnyMethod()
                             .AllowAnyHeader()
                             .AllowCredentials();
