@@ -212,4 +212,30 @@ public partial class MySQLService : IMySQLService
             }
         }
     }
+
+    public async Task<bool?> UserInGroup(string email, string handle)
+    {
+        bool result = false;
+        using (var NewConnection = new MySqlConnection(ConnectionString))
+        {
+            NewConnection.Open();
+            try
+            {
+                var countQuery = "SELECT COUNT(*) FROM Member WHERE Handle = @Handle AND Email = @Email";
+
+                using (var countCommand = new MySqlCommand(countQuery, NewConnection))
+                {
+                    countCommand.Parameters.AddWithValue("@Handle", handle);
+                    countCommand.Parameters.AddWithValue("@Email", email);
+                    result = Convert.ToInt32(await countCommand.ExecuteScalarAsync()) != 0;
+                }
+
+                return result;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+    }
 }

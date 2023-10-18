@@ -11,4 +11,5 @@ public interface IMemberController
     Task<IActionResult> UpdateMemberRole(string email, GroupRole role, string handle);
     Task<IActionResult> GetMembers(string handle, GroupRole? role, int currentPage, int itemsPerPage);
     Task<IActionResult> GetMembersCount(string Handle);
+    Task<IActionResult> UserInGroup(string email, string handle);
 }

@@ -14,8 +14,10 @@ public class GroupListModel
 
     [Required(ErrorMessage = "Name is required")]
     [StringValidation(ErrorMessage = "The Name field cannot be empty or contain only whitespace.")]
+    [StringLength(20, ErrorMessage = "The Name field cannot exceed 20 characters.")]
     public string Name { get; set; }
 
+    [StringLength(100, ErrorMessage = "The Description field cannot exceed 100 characters.")]
     public string? Description { get; set; }
 
     public string? Icon { get; set; }
