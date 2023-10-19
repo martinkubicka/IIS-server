@@ -9,6 +9,12 @@ public class UpdateUserRequest
     public UserPrivacySettingsModel userPrivacy { get; set; }
 }
 
+public class UpdateUserRequestWithoutPassword
+{
+    public UserDetailPasswordNotRequiredModel updatedUser { get; set; }
+    public UserPrivacySettingsModel userPrivacy { get; set; }
+}
+
 public interface IUserController
 {
     Task<IActionResult> AddUser(UserDetailModel user);
@@ -17,6 +23,7 @@ public interface IUserController
     Task<IActionResult> GetUserRole(string email);
     Task<IActionResult> GetUserHandle(string email);
     Task<IActionResult> UpdateUser(UpdateUserRequest updatedUser);
+    Task<IActionResult> UpdateUserWithoutPassword(UpdateUserRequestWithoutPassword updatedUser);
     Task<IActionResult> DeleteUser(string email);
     Task<IActionResult> GetUserPrivacySettings(string handle);
 }
