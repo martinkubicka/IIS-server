@@ -185,7 +185,7 @@ DELIMITER ;
 -- Insert additional sample user data
 INSERT INTO Users (Id, Email, Password, Handle, Name, Role, VisibilityRegistered, VisibilityGuest, VisibilityGroup, Icon)
 VALUES
-    ('85e619ff-1593-4fae-a4e1-8b5268c4c9a1', 'john.doe@example.com', '$2a$10$BBCx8vKl5YwlivXpqH/.r.jrE4r2DWE9FoNc9x/KwmLY4zOs5NekC', 'john_doe', 'John Doe', 1, TRUE, TRUE, TRUE, 'smile'),
+    ('85e619ff-1593-4fae-a4e1-8b5268c4c9a1', 'john.doe@example.com', '$2a$10$BBCx8vKl5YwlivXpqH/.r.jrE4r2DWE9FoNc9x/KwmLY4zOs5NekC', 'john_doe', 'John Doe', 0, TRUE, TRUE, TRUE, 'smile'),
     ('b9d3a8e4-3a62-4b21-a5c8-5ebc0b3bf929', 'jane.smith@example.com', '$2a$10$BBCx8vKl5YwlivXpqH/.r.jrE4r2DWE9FoNc9x/KwmLY4zOs5NekC', 'jane_smith', 'Jane Smith', 1, TRUE, TRUE, TRUE, 'star'),
     ('e7ac07c1-7dcd-4b36-b2a3-1f676f10a0ab', 'mark.johnson@example.com', '$2a$10$BBCx8vKl5YwlivXpqH/.r.jrE4r2DWE9FoNc9x/KwmLY4zOs5NekC', 'mark_johnson', 'Mark Johnson', 1, TRUE, TRUE, TRUE, 'racoon'),
     ('f5e619ff-1593-4fae-a4e1-8b5268c4c9a1', 'emily.brown@example.com', '$2a$10$BBCx8vKl5YwlivXpqH/.r.jrE4r2DWE9FoNc9x/KwmLY4zOs5NekC', 'emily_brown', 'Emily Brown', 1, TRUE, TRUE, TRUE, 'thinking'),

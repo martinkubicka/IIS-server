@@ -238,4 +238,37 @@ public partial class MySQLService : IMySQLService
             }
         }
     }
+    
+    public async Task<GroupRole?> GetMemberRole(string email, string handle)
+    {
+        GroupRole? result = null;
+        using (var NewConnection = new MySqlConnection(ConnectionString))
+        {
+            NewConnection.Open();
+            try
+            {
+                var countQuery = "SELECT * FROM Member WHERE Handle = @Handle AND Email = @Email";
+
+                using (var countCommand = new MySqlCommand(countQuery, NewConnection))
+                {
+                    countCommand.Parameters.AddWithValue("@Handle", handle);
+                    countCommand.Parameters.AddWithValue("@Email", email);
+                    
+                    using (var reader = await countCommand.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            result = (GroupRole)reader.GetInt32(reader.GetOrdinal("GroupRole"));
+                        }
+                    }
+                }
+                
+                return result;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+    }
 }

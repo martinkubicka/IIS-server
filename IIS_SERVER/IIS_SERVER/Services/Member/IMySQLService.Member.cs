@@ -12,4 +12,5 @@ public partial interface IMySQLService
     Task<Tuple<List<MemberModel>?, string?>> GetMembers(string handle, GroupRole? role, int currentPage, int itemsPerPage);
     Task<int?> GetMembersCount(string Handle);
     Task<bool?> UserInGroup(string email, string handle);
+    Task<GroupRole?> GetMemberRole(string email, string handle);
 }
