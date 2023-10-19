@@ -194,8 +194,7 @@ public partial class MySQLService : IMySQLService
 
     public async Task<Tuple<bool, string?>> UpdateUser(
         UserDetailModel updatedUser,
-        UserPrivacySettingsModel userPrivacy,
-        bool updatePassword = false
+        UserPrivacySettingsModel userPrivacy
     )
     {
         using (var NewConnection = new MySqlConnection(ConnectionString))
@@ -204,14 +203,7 @@ public partial class MySQLService : IMySQLService
             try
             {
                 string updateQuery =
-                    @"UPDATE Users SET Name = @Name, Role = @Role, VisibilityRegistered = @VisibilityRegistered, VisibilityGuest = @VisibilityGuest, VisibilityGroup = @VisibilityGroup, Icon = @Icon";
-
-                if (updatePassword)
-                {
-                    updateQuery += ", Password = @Password";
-                }
-
-                updateQuery += " WHERE Email = @Email";
+                    @"UPDATE Users SET Name = @Name, Role = @Role, VisibilityRegistered = @VisibilityRegistered, VisibilityGuest = @VisibilityGuest, VisibilityGroup = @VisibilityGroup, Icon = @Icon , Password = @Password WHERE Email = @Email";
 
                 MySqlCommand cmd = new MySqlCommand(updateQuery, NewConnection);
 
@@ -223,11 +215,40 @@ public partial class MySQLService : IMySQLService
                 cmd.Parameters.AddWithValue("@Icon", updatedUser.Icon);
                 cmd.Parameters.AddWithValue("@Email", updatedUser.Email);
 
-                if (updatePassword)
-                {
-                    string hashedPassword = BCrypt.Net.BCrypt.HashPassword(updatedUser.Password  + Configuration["DB:salt"]);
-                    cmd.Parameters.AddWithValue("@Password", hashedPassword);
-                }
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(updatedUser.Password  + Configuration["DB:salt"]);
+                cmd.Parameters.AddWithValue("@Password", hashedPassword);
+
+
+                await cmd.ExecuteNonQueryAsync();
+
+                return Tuple.Create(true, "");
+            }
+            catch (Exception ex)
+            {
+                return Tuple.Create(false, ex.Message);
+            }
+        }
+    }
+
+    public async Task<Tuple<bool, string?>> UpdateUserWithoutPassword(UserDetailPasswordNotRequiredModel updatedUser, UserPrivacySettingsModel userPrivacy)
+    {
+        using (var NewConnection = new MySqlConnection(ConnectionString))
+        {
+            NewConnection.Open();
+            try
+            {
+                string updateQuery =
+                    @"UPDATE Users SET Name = @Name, Role = @Role, VisibilityRegistered = @VisibilityRegistered, VisibilityGuest = @VisibilityGuest, VisibilityGroup = @VisibilityGroup, Icon = @Icon WHERE Email = @Email";
+
+                MySqlCommand cmd = new MySqlCommand(updateQuery, NewConnection);
+
+                cmd.Parameters.AddWithValue("@Name", updatedUser.Name);
+                cmd.Parameters.AddWithValue("@Role", updatedUser.Role);
+                cmd.Parameters.AddWithValue("@VisibilityRegistered", userPrivacy.VisibilityRegistered);
+                cmd.Parameters.AddWithValue("@VisibilityGuest", userPrivacy.VisibilityGuest);
+                cmd.Parameters.AddWithValue("@VisibilityGroup", userPrivacy.VisibilityGroup);
+                cmd.Parameters.AddWithValue("@Icon", updatedUser.Icon);
+                cmd.Parameters.AddWithValue("@Email", updatedUser.Email);
 
                 await cmd.ExecuteNonQueryAsync();
 
