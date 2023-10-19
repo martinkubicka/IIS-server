@@ -3,7 +3,7 @@ using IIS_SERVER.Hubs;
 using IIS_SERVER.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -24,6 +24,7 @@ namespace IIS_SERVER
         {
             services.AddControllers();
             services.AddEndpointsApiExplorer();
+            services.AddHttpContextAccessor();
             services.AddSignalR();
             services.AddSwaggerGen(option =>
             {
@@ -80,6 +81,7 @@ namespace IIS_SERVER
             services.AddSingleton<IMySQLService, MySQLService>();
             services.AddSingleton<ThreadHub>();
 
+            
             services.AddCors(options =>
             {
                 options.AddPolicy(
@@ -87,17 +89,30 @@ namespace IIS_SERVER
                     builder =>
                     {
                         builder
-                            .WithOrigins("http://127.0.0.1:5173", "http://localhost:5203")
+                            .WithOrigins("http://127.0.0.1:5173", "http://localhost:5203", "http://localhost:5173")
                             .AllowAnyMethod()
                             .AllowAnyHeader()
                             .AllowCredentials();
                     }
                 );
             });
+            
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminUserPolicy", policy =>
+                {
+                    policy.RequireRole("admin", "user");
+                });
+                options.AddPolicy("AdminPolicy", policy =>
+                {
+                    policy.RequireRole("admin");
+                });
+            });
         }
 
         public void Configure(IApplicationBuilder app)
         {
+            app.UseCors("AllowAllOrigins");
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
@@ -111,8 +126,6 @@ namespace IIS_SERVER
             app.UseHttpsRedirection();
 
             app.UseStaticFiles();
-
-            app.UseCors("AllowAllOrigins");
 
             app.UseEndpoints(endpoints =>
             {
