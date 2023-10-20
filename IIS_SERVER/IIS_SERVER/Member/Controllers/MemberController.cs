@@ -145,7 +145,7 @@ public class MemberController : ControllerBase, IMemberController
                 return StatusCode(200, role);
             }
 
-            return StatusCode(404, "Error: Group or member not found.");
+            return StatusCode(200, null);
         }
         else
         {
@@ -203,7 +203,7 @@ public class MemberController : ControllerBase, IMemberController
                 }
                 else
                 {
-                    return StatusCode(404, "Error: Group not found.");
+                    return StatusCode(200, null);
                 }
             }
             catch (Exception ex)
