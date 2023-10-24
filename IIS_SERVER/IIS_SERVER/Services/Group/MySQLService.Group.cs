@@ -49,10 +49,6 @@ public partial class MySQLService : IMySQLService
                 using (MySqlCommand cmd = new MySqlCommand(selectQuery, NewConnection))
                 {
                     cmd.Parameters.AddWithValue("@Handle", handle);
-                    foreach (MySqlParameter item in cmd.Parameters)
-                    {
-                        Console.WriteLine(item.Value);
-                    }
 
                     using (MySqlDataReader reader = (MySqlDataReader)await cmd.ExecuteReaderAsync())
                     {
@@ -96,10 +92,6 @@ public partial class MySQLService : IMySQLService
                 using (MySqlCommand cmd = new MySqlCommand(selectQuery, NewConnection))
                 {
                     cmd.Parameters.AddWithValue("@Handle", handle);
-                    foreach (MySqlParameter item in cmd.Parameters)
-                    {
-                        Console.WriteLine(item.Value);
-                    }
 
                     using (MySqlDataReader reader = (MySqlDataReader)await cmd.ExecuteReaderAsync())
                     {
