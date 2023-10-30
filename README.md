@@ -11,6 +11,7 @@
    dotnet user-secrets init
    ```
 
+   - Please use this temporary connection string for accessing DB:  ``` Server=antioznuk-martinkubicka22-d781.aivencloud.com;Port=15939;Database=defaultdb;Uid=avnadmin;Pwd=AVNS_4iCQ_2BI9PsIL6BZ2nu; ```
    ```
    dotnet user-secrets set "DB:ConnectionString" "your mysql connection string"
    ```
