@@ -34,6 +34,37 @@ public partial class MySQLService : IMySQLService
         }
     }
 
+    public async Task<RatingModel?> GetRatingByPost(Guid postId, string userEmail)
+    {
+        using (var NewConnection = new MySqlConnection(ConnectionString))
+        {
+            NewConnection.Open();
+
+            var query = "SELECT * FROM Rating WHERE PostId = @postId and Email = @email";
+            using (var command = new MySqlCommand(query, NewConnection))
+            {
+                command.Parameters.AddWithValue("@postId", postId.ToString());
+                command.Parameters.AddWithValue("@email", userEmail);
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        return new RatingModel
+                        {
+                            Id = Guid.Parse(reader["Id"].ToString()),
+                            Rating = reader.GetBoolean(reader.GetOrdinal("Rating")),
+                            PostId = Guid.Parse(reader["PostId"].ToString()),
+                            Email = reader["Email"].ToString()
+                        };
+                    }
+                }
+            }
+
+            return null;
+        }
+    }
+
     public async Task<List<RatingModel?>> GetRatings(Guid postId)
     {
         using (var NewConnection = new MySqlConnection(ConnectionString))
@@ -108,6 +139,32 @@ public partial class MySQLService : IMySQLService
                 using (var command = new MySqlCommand(deleteQuery, NewConnection))
                 {
                     command.Parameters.AddWithValue("@ratingId", ratingId.ToString());
+
+                    await command.ExecuteNonQueryAsync();
+                }
+
+                return Tuple.Create(true, (string?)null);
+            }
+            catch (Exception ex)
+            {
+                return Tuple.Create(false, ex.Message);
+            }
+        }
+    }
+
+    public async Task<Tuple<bool, string?>> UpdateRating(Guid ratingId, int ratingChange)
+    {
+        using (var NewConnection = new MySqlConnection(ConnectionString))
+        {
+            NewConnection.Open();
+            try
+            {
+                var updateQuery = "UPDATE Rating SET Rating = @ratingChange WHERE Id = @ratingId";
+
+                using (var command = new MySqlCommand(updateQuery, NewConnection))
+                {
+                    command.Parameters.AddWithValue("@ratingId", ratingId.ToString());
+                    command.Parameters.AddWithValue("@ratingChange", ratingChange == 1);
 
                     await command.ExecuteNonQueryAsync();
                 }

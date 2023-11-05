@@ -149,6 +149,7 @@ public partial class MySQLService : IMySQLService
                                 Id = reader.GetGuid(reader.GetOrdinal("Id")),
                                 Handle = reader.GetString(reader.GetOrdinal("Handle")),
                                 Name = reader.GetString(reader.GetOrdinal("Name")),
+                                Email = reader.GetString(reader.GetOrdinal("Email")),
                                 Date = reader.GetDateTime(reader.GetOrdinal("Date")),
                                 Description = reader.GetString(reader.GetOrdinal("Description")),
                             };

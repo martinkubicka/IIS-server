@@ -61,7 +61,7 @@ public class LoginController : ControllerBase, ILoginContoller
             Response.Cookies.Append("jwtToken", tokenString, new CookieOptions
             {
                 HttpOnly = true,
-                Expires = DateTime.Now.AddHours(1),
+                Expires = DateTime.Now.AddMinutes(30),
                 SameSite = SameSiteMode.None,
                 Secure = false,
             });
@@ -75,7 +75,7 @@ public class LoginController : ControllerBase, ILoginContoller
     }
     
     [HttpPost("logout")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize]
     public async Task<IActionResult> Logout() {
         Response.Cookies.Delete("jwtToken");
         return StatusCode(200, "Logout successful.");

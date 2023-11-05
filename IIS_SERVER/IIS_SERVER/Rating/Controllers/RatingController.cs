@@ -43,6 +43,76 @@ public class RatingController : ControllerBase, IPostController
         }
     }
 
+    [HttpGet("getRatingByPostAndUser/{postId}/{userEmail}")]
+    public async Task<IActionResult> GetRatingByPostAndUser(Guid postId, string userEmail)
+    {
+        var rating = await _mySqlService.GetRatingByPost(postId,userEmail);
+        if (rating != null)
+        {
+            return Ok(rating.Rating);
+        }
+        else
+        {
+            return Ok(0);
+        }
+    }
+
+    [HttpPost("update")]
+    public async Task<IActionResult> UpdateRating(Guid postId, string userEmail, int ratingChange)
+    {
+        var resultGet = await _mySqlService.GetRatingByPost(postId, userEmail);
+        if (ratingChange == 0)
+        {
+            if (resultGet != null)
+            {
+                var resultRemove = await _mySqlService.RemoveRating(resultGet.Id);
+                if (resultRemove.Item1)
+                {
+                    return Ok("Rating updated successfully");
+                }
+                else
+                {
+                    return BadRequest(resultRemove.Item2);
+                }
+            }
+            return Ok("Rating updated successfully");
+        }
+        else
+        {
+            if (resultGet == null)
+            {
+                RatingModel newRating = new RatingModel
+                {
+                    Id = Guid.NewGuid(),
+                    Email = userEmail,
+                    PostId = postId,
+                    Rating = ratingChange == 1
+                };
+                var result = await _mySqlService.AddRating(newRating);
+                if (result.Item1)
+                {
+                    return Ok("Rating updated successfully");
+                }
+                else
+                {
+                    return BadRequest(result.Item2);
+                }
+            }
+            else
+            {
+                var result = await _mySqlService.UpdateRating(resultGet.Id, ratingChange);
+                if (result.Item1)
+                {
+                    return Ok("Rating updated successfully");
+                }
+                else
+                {
+                    return BadRequest(result.Item2);
+                }
+            }
+        }
+    }
+
     [HttpPost("add")]
     public async Task<IActionResult> AddRating(RatingModel rating)
     {

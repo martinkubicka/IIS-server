@@ -1,5 +1,8 @@
-﻿using IIS_SERVER.Services;
+﻿using System.Security.Claims;
+using IIS_SERVER.Enums;
+using IIS_SERVER.Services;
 using IIS_SERVER.Thread.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IIS_SERVER.Thread.Controllers
@@ -16,6 +19,7 @@ namespace IIS_SERVER.Thread.Controllers
         }
 
         [HttpPost("create")]
+        [Authorize(Policy="AdminUserPolicy")]
         public async Task<IActionResult> CreateThread(ThreadModel thread)
         {
             Tuple<bool, string?> result = await MySqlService.CreateThread(thread);
@@ -124,52 +128,86 @@ namespace IIS_SERVER.Thread.Controllers
         }
 
         [HttpPut("update/{threadId}")]
+        [Authorize(Policy="AdminUserPolicy")]
         public async Task<IActionResult> UpdateThread(Guid threadId, ThreadModel updatedThread)
         {
-            bool result = await MySqlService.UpdateThread(threadId, updatedThread);
-            if (result)
+            GroupRole? role = await MySqlService.GetMemberRole(User.FindFirst(ClaimTypes.Email).Value, updatedThread.Handle);
+            if (User.IsInRole("admin") ||
+                role == GroupRole.admin || 
+                role == GroupRole.moderator ||
+                User.FindFirst(ClaimTypes.Email).Value == updatedThread.Email)
             {
-                return StatusCode(200, "Thread successfully updated.");
+                bool result = await MySqlService.UpdateThread(threadId, updatedThread);
+                if (result)
+                {
+                    return StatusCode(200, "Thread successfully updated.");
+                }
+                else
+                {
+                    return StatusCode(404, "Error: Thread not found or DB error occurred.");
+                }
             }
             else
             {
-                return StatusCode(404, "Error: Thread not found or DB error occurred.");
+                return Forbid();
             }
         }
 
         [HttpDelete("delete/{threadId}")]
+        [Authorize(Policy="AdminUserPolicy")]
         public async Task<IActionResult> DeleteThread(Guid threadId)
         {
-            try
+            ThreadModel thread = await MySqlService.GetThread(threadId);
+            GroupRole? role = await MySqlService.GetMemberRole(User.FindFirst(ClaimTypes.Email).Value, thread.Handle);
+            if (User.IsInRole("admin") ||
+                role == GroupRole.admin ||
+                role == GroupRole.moderator ||
+                User.FindFirst(ClaimTypes.Email).Value == thread.Email)
             {
-                Tuple<bool, string?> result = await MySqlService.DeleteThread(threadId);
-
-                if (result.Item1)
+                try
                 {
-                    return StatusCode(204, "Thread successfully deleted.");
+                    Tuple<bool, string?> result = await MySqlService.DeleteThread(threadId);
+
+                    if (result.Item1)
+                    {
+                        return StatusCode(204, "Thread successfully deleted.");
+                    }
+                    else
+                    {
+                        return StatusCode(404, "Error: Thread not found.");
+                    }
+                }
+                catch
+                {
+                    return StatusCode(500, "Error: DB error occurred.");
+                }
+            }
+            else
+            {
+                return Forbid();
+            }
+        }
+
+        [HttpGet("GetAllThreadsUserIsIn/{email}")]
+        [Authorize(Policy="AdminUserPolicy")]
+        public async Task<IActionResult> GetAllThreadsUserIsIn(string email)
+        {
+            if (User.IsInRole("admin") ||
+                User.FindFirst(ClaimTypes.Email).Value == email)
+            {
+                List<ThreadModel>? thread = await MySqlService.GetAllThreadsUserIsIn(email);
+                if (thread != null)
+                {
+                    return StatusCode(200, thread);
                 }
                 else
                 {
                     return StatusCode(404, "Error: Thread not found.");
                 }
             }
-            catch
-            {
-                return StatusCode(500, "Error: DB error occurred.");
-            }
-        }
-
-        [HttpGet("GetAllThreadsUserIsIn/{handle}")]
-        public async Task<IActionResult> GetAllThreadsUserIsIn(string handle)
-        {
-            List<ThreadModel>? thread = await MySqlService.GetAllThreadsUserIsIn(handle);
-            if (thread != null)
-            {
-                return StatusCode(200, thread);
-            }
             else
             {
-                return StatusCode(404, "Error: Thread not found.");
+                return Forbid();
             }
         }
     }

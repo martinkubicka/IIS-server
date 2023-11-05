@@ -1,5 +1,8 @@
+using System.Security.Claims;
+using IIS_SERVER.Enums;
 using IIS_SERVER.Services;
 using IIS_SERVER.Group.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IIS_SERVER.Group.Controllers;
@@ -16,8 +19,9 @@ public class GroupController : ControllerBase, IGroupController
     }
 
     [HttpPost("add")]
+    [Authorize(Policy="AdminUserPolicy")]
     public async Task<IActionResult> AddGroup(GroupEmailModel group)
-        {
+    {
         try
         {
             bool result = await MySqlService.AddGroup(group);
@@ -102,67 +106,91 @@ public class GroupController : ControllerBase, IGroupController
     }
 
     [HttpDelete("remove/{handle}")]
+    [Authorize(Policy = "AdminUserPolicy")]
     public async Task<IActionResult> DeleteGroup(string handle)
     {
-        try
+        if (User.IsInRole("admin") || await MySqlService.GetMemberRole(User.FindFirst(ClaimTypes.Email).Value, handle) == GroupRole.admin)
         {
-            bool result = await MySqlService.DeleteGroup(handle);
-            if (result)
+            try
             {
-                return Ok("Group successfully removed.");
+                bool result = await MySqlService.DeleteGroup(handle);
+                if (result)
+                {
+                    return Ok("Group successfully removed.");
+                }
+                else
+                {
+                    return NotFound("Group not found or failed to remove.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return NotFound("Group not found or failed to remove.");
+                return StatusCode(500, $"Error: {ex.Message}");
             }
         }
-        catch (Exception ex)
+        else
         {
-            return StatusCode(500, $"Error: {ex.Message}");
+            return Forbid();
         }
     }
 
     [HttpPut("update")]
+    [Authorize(Policy="AdminUserPolicy")]
     public async Task<IActionResult> UpdateGroup(GroupListModel listModel)
     {
-        try
+        if (User.IsInRole("admin") ||
+            await MySqlService.GetMemberRole(User.FindFirst(ClaimTypes.Email).Value, listModel.Handle) == GroupRole.admin)
         {
-            bool result = await MySqlService.UpdateGroup(listModel);
-            if (result)
+            try
             {
-                return Ok("Group successfully updated.");
+                bool result = await MySqlService.UpdateGroup(listModel);
+                if (result)
+                {
+                    return Ok("Group successfully updated.");
+                }
+                else
+                {
+                    return NotFound("Group not found or failed to update.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return NotFound("Group not found or failed to update.");
+                return StatusCode(500, $"Error: {ex.Message}");
             }
         }
-        catch (Exception ex)
+        else
         {
-            return StatusCode(500, $"Error: {ex.Message}");
+            return Forbid();
         }
     }
 
     [HttpPut("updatePolicy")]
-    public async Task<IActionResult> UpdateGroupPolicy(
-        GroupPrivacySettingsModel privacySettingsModel, string handle
-    )
+    [Authorize(Policy="AdminUserPolicy")]
+    public async Task<IActionResult> UpdateGroupPolicy(GroupPrivacySettingsModel privacySettingsModel, string handle)
     {
-        try
+        if (User.IsInRole("admin") ||
+            await MySqlService.GetMemberRole(User.FindFirst(ClaimTypes.Email).Value, handle) == GroupRole.admin)
         {
-            bool result = await MySqlService.UpdateGroupPolicy(privacySettingsModel, handle);
-            if (result)
+            try
             {
-                return Ok("Group policy successfully updated.");
+                bool result = await MySqlService.UpdateGroupPolicy(privacySettingsModel, handle);
+                if (result)
+                {
+                    return Ok("Group policy successfully updated.");
+                }
+                else
+                {
+                    return NotFound("Group policy update failed.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return NotFound("Group policy update failed.");
+                return StatusCode(500, $"Error: {ex.Message}");
             }
         }
-        catch (Exception ex)
+        else
         {
-            return StatusCode(500, $"Error: {ex.Message}");
+            return Forbid();
         }
     }
     
