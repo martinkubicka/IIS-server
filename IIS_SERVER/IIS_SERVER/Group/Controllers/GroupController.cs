@@ -63,6 +63,20 @@ public class GroupController : ControllerBase, IGroupController
         }
     }
 
+    [HttpGet("user/{handle}")]
+    public async Task<IActionResult> GetGroupsUserIsIn(string handle)
+    {
+        try
+        {
+            var groups = await MySqlService.GetGroupsUserIsIn(handle);
+            return Ok(groups);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error: {ex.Message}");
+        }
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetGroups()
     {
