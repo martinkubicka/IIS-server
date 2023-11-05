@@ -12,6 +12,8 @@ public interface IGroupController
 
     Task<IActionResult> GetGroup(string handle);
 
+    Task<IActionResult> GetGroupsUserIsIn(string handle);
+
     Task<IActionResult> GetGroups();
 
     //returns only groups that the user either joined or not joined depending on joined param
@@ -24,4 +26,6 @@ public interface IGroupController
     Task<IActionResult> UpdateGroupPolicy(GroupPrivacySettingsModel privacySettingsModel, string handle);
 
     Task<IActionResult> GetGroupPolicy(string handle);
+
+
 }
