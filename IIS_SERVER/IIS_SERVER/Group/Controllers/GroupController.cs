@@ -19,7 +19,7 @@ public class GroupController : ControllerBase, IGroupController
     }
 
     [HttpPost("add")]
-    [Authorize(Policy="AdminUserPolicy")]
+    [Authorize(Policy = "AdminUserPolicy")]
     public async Task<IActionResult> AddGroup(GroupEmailModel group)
     {
         try
@@ -33,7 +33,6 @@ public class GroupController : ControllerBase, IGroupController
             {
                 return StatusCode(500, "Error: Failed to add the Group to the database.");
             }
-            
         }
         catch (Exception ex)
         {
@@ -44,7 +43,6 @@ public class GroupController : ControllerBase, IGroupController
     [HttpGet("{handle}")]
     public async Task<IActionResult> GetGroup(string handle)
     {
-        
         try
         {
             var group = await MySqlService.GetGroup(handle);
@@ -64,11 +62,11 @@ public class GroupController : ControllerBase, IGroupController
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetGroups()
+    public async Task<IActionResult> GetGroups(int limit = 0)
     {
         try
         {
-            var groups = await MySqlService.GetGroups();
+            var groups = await MySqlService.GetGroups(limit);
             return Ok(groups);
         }
         catch (Exception ex)
@@ -95,7 +93,11 @@ public class GroupController : ControllerBase, IGroupController
     [Authorize(Policy = "AdminUserPolicy")]
     public async Task<IActionResult> DeleteGroup(string handle)
     {
-        if (User.IsInRole("admin") || await MySqlService.GetMemberRole(User.FindFirst(ClaimTypes.Email).Value, handle) == GroupRole.admin)
+        if (
+            User.IsInRole("admin")
+            || await MySqlService.GetMemberRole(User.FindFirst(ClaimTypes.Email).Value, handle)
+                == GroupRole.admin
+        )
         {
             try
             {
@@ -121,11 +123,16 @@ public class GroupController : ControllerBase, IGroupController
     }
 
     [HttpPut("update")]
-    [Authorize(Policy="AdminUserPolicy")]
+    [Authorize(Policy = "AdminUserPolicy")]
     public async Task<IActionResult> UpdateGroup(GroupListModel listModel)
     {
-        if (User.IsInRole("admin") ||
-            await MySqlService.GetMemberRole(User.FindFirst(ClaimTypes.Email).Value, listModel.Handle) == GroupRole.admin)
+        if (
+            User.IsInRole("admin")
+            || await MySqlService.GetMemberRole(
+                User.FindFirst(ClaimTypes.Email).Value,
+                listModel.Handle
+            ) == GroupRole.admin
+        )
         {
             try
             {
@@ -151,11 +158,17 @@ public class GroupController : ControllerBase, IGroupController
     }
 
     [HttpPut("updatePolicy")]
-    [Authorize(Policy="AdminUserPolicy")]
-    public async Task<IActionResult> UpdateGroupPolicy(GroupPrivacySettingsModel privacySettingsModel, string handle)
+    [Authorize(Policy = "AdminUserPolicy")]
+    public async Task<IActionResult> UpdateGroupPolicy(
+        GroupPrivacySettingsModel privacySettingsModel,
+        string handle
+    )
     {
-        if (User.IsInRole("admin") ||
-            await MySqlService.GetMemberRole(User.FindFirst(ClaimTypes.Email).Value, handle) == GroupRole.admin)
+        if (
+            User.IsInRole("admin")
+            || await MySqlService.GetMemberRole(User.FindFirst(ClaimTypes.Email).Value, handle)
+                == GroupRole.admin
+        )
         {
             try
             {
@@ -179,7 +192,7 @@ public class GroupController : ControllerBase, IGroupController
             return Forbid();
         }
     }
-    
+
     [HttpGet("policy/{handle}")]
     public async Task<IActionResult> GetGroupPolicy(string handle)
     {
@@ -194,6 +207,21 @@ public class GroupController : ControllerBase, IGroupController
             {
                 return NotFound("Group not found.");
             }
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error: {ex.Message}");
+        }
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchGroups(string searchTerm, int limit)
+    {
+        try
+        {
+            var groups = await MySqlService.SearchGroups(searchTerm, limit);
+
+            return Ok(groups);
         }
         catch (Exception ex)
         {

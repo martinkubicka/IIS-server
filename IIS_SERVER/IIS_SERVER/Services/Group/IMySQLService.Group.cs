@@ -8,7 +8,7 @@ public partial interface IMySQLService
 
     Task<GroupListModel?> GetGroup(string handle);
 
-    Task<List<GroupListModel?>> GetGroups();
+    Task<List<GroupListModel?>> GetGroups(int limit = 0);
 
     //returns only groups that the user either joined or not joined depending on joined param
     Task<List<GroupListModel>> GetGroups(string userEmail, bool joined);
@@ -20,4 +20,6 @@ public partial interface IMySQLService
     Task<bool> UpdateGroupPolicy(GroupPrivacySettingsModel privacySettingsModel, string handle);
 
     Task<GroupPrivacySettingsModel?> GetGroupPolicy(string handle);
+
+    Task<List<GroupListModel?>> SearchGroups(string searchTerm, int limit);
 }

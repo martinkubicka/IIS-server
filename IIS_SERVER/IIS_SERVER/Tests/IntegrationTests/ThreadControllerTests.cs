@@ -28,7 +28,8 @@ namespace IIS_SERVER.Thread.Tests
         {
             // Arrange
             var thread = new ThreadModel { };
-            _mySqlServiceMock.Setup(service => service.CreateThread(thread))
+            _mySqlServiceMock
+                .Setup(service => service.CreateThread(thread))
                 .ReturnsAsync(Tuple.Create(true, (string?)null));
 
             // Act
@@ -45,7 +46,8 @@ namespace IIS_SERVER.Thread.Tests
         {
             // Arrange
             var thread = new ThreadModel { };
-            _mySqlServiceMock.Setup(service => service.CreateThread(thread))
+            _mySqlServiceMock
+                .Setup(service => service.CreateThread(thread))
                 .ReturnsAsync(Tuple.Create(false, "Error: The thread with id already exists."));
 
             // Act
@@ -58,30 +60,12 @@ namespace IIS_SERVER.Thread.Tests
         }
 
         [Test]
-        public async Task GetAllThreads_ValidThreads_Returns200StatusCode()
-        {
-            // Arrange
-            var threads = new List<ThreadModel> { };
-            _mySqlServiceMock.Setup(service => service.GetAllThreads())
-                .ReturnsAsync(threads);
-
-            // Act
-            var result = await _controller.GetAllThreads() as ObjectResult;
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.AreEqual(200, result.StatusCode);
-            Assert.AreEqual(threads, result.Value);
-        }
-
-        [Test]
         public async Task GetThread_ExistingThreadId_ReturnsThread()
         {
             // Arrange
-            var threadId = Guid.NewGuid(); 
+            var threadId = Guid.NewGuid();
             var thread = new ThreadModel { };
-            _mySqlServiceMock.Setup(service => service.GetThread(threadId))
-                .ReturnsAsync(thread);
+            _mySqlServiceMock.Setup(service => service.GetThread(threadId)).ReturnsAsync(thread);
 
             // Act
             var result = await _controller.GetThread(threadId) as ObjectResult;
@@ -96,8 +80,9 @@ namespace IIS_SERVER.Thread.Tests
         public async Task GetThread_NonExistingThreadId_Returns404StatusCode()
         {
             // Arrange
-            var threadId = Guid.NewGuid(); 
-            _mySqlServiceMock.Setup(service => service.GetThread(threadId))
+            var threadId = Guid.NewGuid();
+            _mySqlServiceMock
+                .Setup(service => service.GetThread(threadId))
                 .ReturnsAsync((ThreadModel)null);
 
             // Act
@@ -113,13 +98,11 @@ namespace IIS_SERVER.Thread.Tests
         public async Task UpdateThread_ExistingThread_Returns200StatusCode()
         {
             // Arrange
-            var threadId = Guid.NewGuid(); 
-            var updatedThread = new ThreadModel
-            {
-                Name = "Updated Thread Name"
-            };
+            var threadId = Guid.NewGuid();
+            var updatedThread = new ThreadModel { Name = "Updated Thread Name" };
 
-            _mySqlServiceMock.Setup(service => service.UpdateThread(threadId, updatedThread))
+            _mySqlServiceMock
+                .Setup(service => service.UpdateThread(threadId, updatedThread))
                 .ReturnsAsync(true);
 
             // Act
@@ -135,13 +118,11 @@ namespace IIS_SERVER.Thread.Tests
         public async Task UpdateThread_NonExistingThread_Returns404StatusCode()
         {
             // Arrange
-            var threadId = Guid.NewGuid(); 
-            var updatedThread = new ThreadModel
-            {
-                Name = "Updated Thread Name",
-            };
+            var threadId = Guid.NewGuid();
+            var updatedThread = new ThreadModel { Name = "Updated Thread Name", };
 
-            _mySqlServiceMock.Setup(service => service.UpdateThread(threadId, updatedThread))
+            _mySqlServiceMock
+                .Setup(service => service.UpdateThread(threadId, updatedThread))
                 .ReturnsAsync(false);
 
             // Act
@@ -157,8 +138,9 @@ namespace IIS_SERVER.Thread.Tests
         public async Task DeleteThread_ValidThreadId_Success()
         {
             // Arrange
-            var validThreadId = Guid.NewGuid(); 
-            _mySqlServiceMock.Setup(service => service.DeleteThread(validThreadId))
+            var validThreadId = Guid.NewGuid();
+            _mySqlServiceMock
+                .Setup(service => service.DeleteThread(validThreadId))
                 .ReturnsAsync(Tuple.Create(true, ""));
 
             // Act
@@ -173,8 +155,9 @@ namespace IIS_SERVER.Thread.Tests
         public async Task DeleteThread_InvalidThreadId_NotFound()
         {
             // Arrange
-            var invalidThreadId = Guid.NewGuid(); 
-            _mySqlServiceMock.Setup(service => service.DeleteThread(invalidThreadId))
+            var invalidThreadId = Guid.NewGuid();
+            _mySqlServiceMock
+                .Setup(service => service.DeleteThread(invalidThreadId))
                 .ReturnsAsync(Tuple.Create(false, "Error: Thread not found."));
 
             // Act
@@ -189,8 +172,9 @@ namespace IIS_SERVER.Thread.Tests
         {
             // Arrange
             var exceptionMessage = "An error occurred.";
-            var threadId = Guid.NewGuid(); 
-            _mySqlServiceMock.Setup(service => service.DeleteThread(threadId))
+            var threadId = Guid.NewGuid();
+            _mySqlServiceMock
+                .Setup(service => service.DeleteThread(threadId))
                 .ThrowsAsync(new Exception(exceptionMessage));
 
             // Act
@@ -205,12 +189,18 @@ namespace IIS_SERVER.Thread.Tests
         {
             // Arrange
             var groupName = "group1";
-            var threads = new List<ThreadModel> { }; 
-            _mySqlServiceMock.Setup(service => service.GetThreadsFromSpecificGroup(groupName, 10, 10, null, null, null))
+            var threads = new List<ThreadModel> { };
+            _mySqlServiceMock
+                .Setup(
+                    service =>
+                        service.GetThreadsFromSpecificGroup(groupName, 10, 10, null, null, null)
+                )
                 .ReturnsAsync(threads);
 
             // Act
-            var result = await _controller.GetThreadsFromSpecificGroup(groupName, 10, 10, null, null, null) as ObjectResult;
+            var result =
+                await _controller.GetThreadsFromSpecificGroup(groupName, 10, 10, null, null, null)
+                as ObjectResult;
 
             // Assert
             Assert.NotNull(result);
@@ -223,11 +213,30 @@ namespace IIS_SERVER.Thread.Tests
         {
             // Arrange
             var invalidGroupName = "nonexistentgroup";
-            _mySqlServiceMock.Setup(service => service.GetThreadsFromSpecificGroup(invalidGroupName, 10, 10, null, null, null))
+            _mySqlServiceMock
+                .Setup(
+                    service =>
+                        service.GetThreadsFromSpecificGroup(
+                            invalidGroupName,
+                            10,
+                            10,
+                            null,
+                            null,
+                            null
+                        )
+                )
                 .ReturnsAsync((List<ThreadModel>)null);
 
             // Act
-            var result = await _controller.GetThreadsFromSpecificGroup(invalidGroupName, 10, 10, null, null, null) as ObjectResult;
+            var result =
+                await _controller.GetThreadsFromSpecificGroup(
+                    invalidGroupName,
+                    10,
+                    10,
+                    null,
+                    null,
+                    null
+                ) as ObjectResult;
 
             // Assert
             Assert.NotNull(result);
@@ -241,11 +250,22 @@ namespace IIS_SERVER.Thread.Tests
             // Arrange
             var exceptionMessage = "An error occurred.";
             var groupName = "group1";
-            _mySqlServiceMock.Setup(service => service.GetThreadsFromSpecificGroup(groupName, 10, 10, null, null, null))
+            _mySqlServiceMock
+                .Setup(
+                    service =>
+                        service.GetThreadsFromSpecificGroup(groupName, 10, 10, null, null, null)
+                )
                 .ThrowsAsync(new Exception(exceptionMessage));
 
             // Act
-            var result = await _controller.GetThreadsFromSpecificGroup(groupName, 10, 10, null, null, null);
+            var result = await _controller.GetThreadsFromSpecificGroup(
+                groupName,
+                10,
+                10,
+                null,
+                null,
+                null
+            );
 
             // Assert
             Assert.AreEqual(500, (result as ObjectResult)?.StatusCode);

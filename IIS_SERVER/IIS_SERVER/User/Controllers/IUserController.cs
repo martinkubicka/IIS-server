@@ -18,7 +18,7 @@ public class UpdateUserRequestWithoutPassword
 public interface IUserController
 {
     Task<IActionResult> AddUser(UserDetailModel user);
-    Task<IActionResult> GetUsersList();
+    Task<IActionResult> GetUsersList(int limit = 0);
     Task<IActionResult> GetUserProfile(string handle);
     Task<IActionResult> GetUserRole(string email);
     Task<IActionResult> GetUserHandle(string email);
@@ -26,4 +26,6 @@ public interface IUserController
     Task<IActionResult> UpdateUserWithoutPassword(UpdateUserRequestWithoutPassword updatedUser);
     Task<IActionResult> DeleteUser(string email);
     Task<IActionResult> GetUserPrivacySettings(string handle);
+
+    Task<IActionResult> SearchUsers(string searchTerm, int limit);
 }

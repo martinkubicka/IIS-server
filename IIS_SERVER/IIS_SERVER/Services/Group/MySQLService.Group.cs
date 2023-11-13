@@ -119,17 +119,22 @@ public partial class MySQLService : IMySQLService
         }
     }
 
-    public async Task<List<GroupListModel?>> GetGroups()
+    public async Task<List<GroupListModel?>> GetGroups(int limit = 0)
     {
         using (var NewConnection = new MySqlConnection(ConnectionString))
         {
             NewConnection.Open();
             try
             {
-                string selectQuery = "SELECT * FROM `Groups`";
+                string selectQuery =
+                    limit == 0 ? "SELECT * FROM `Groups`" : "SELECT * FROM `Groups` LIMIT @Limit";
 
                 using (MySqlCommand cmd = new MySqlCommand(selectQuery, NewConnection))
                 {
+                    if (limit > 0)
+                    {
+                        cmd.Parameters.AddWithValue("@Limit", limit);
+                    }
                     List<GroupListModel> Groups = new List<GroupListModel>();
 
                     using (MySqlDataReader reader = (MySqlDataReader)await cmd.ExecuteReaderAsync())
@@ -298,6 +303,53 @@ public partial class MySQLService : IMySQLService
             catch
             {
                 return false;
+            }
+        }
+    }
+
+    public async Task<List<GroupListModel?>> SearchGroups(string searchTerm, int limit)
+    {
+        using (var NewConnection = new MySqlConnection(ConnectionString))
+        {
+            NewConnection.Open();
+            try
+            {
+                string selectQuery =
+                    "SELECT * FROM `Groups` WHERE Name LIKE @SearchTerm LIMIT @Limit";
+
+                using (MySqlCommand cmd = new MySqlCommand(selectQuery, NewConnection))
+                {
+                    cmd.Parameters.AddWithValue("@SearchTerm", "%" + searchTerm + "%");
+                    cmd.Parameters.AddWithValue("@Limit", limit);
+
+                    List<GroupListModel> Groups = new List<GroupListModel>();
+                    using (MySqlDataReader reader = (MySqlDataReader)await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            Groups.Add(
+                                new GroupListModel
+                                {
+                                    Handle = reader.GetString("Handle"),
+                                    Name = reader.GetString("Name"),
+                                    Description = reader.IsDBNull(reader.GetOrdinal("Description"))
+                                        ? null
+                                        : reader.GetString("Description"),
+                                    Icon = reader.IsDBNull(reader.GetOrdinal("Icon"))
+                                        ? null
+                                        : reader.GetString("Icon")
+                                }
+                            );
+                        }
+                    }
+
+                    return Groups;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return new List<GroupListModel?>();
             }
         }
     }

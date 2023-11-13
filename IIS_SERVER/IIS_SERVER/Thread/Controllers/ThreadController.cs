@@ -19,7 +19,7 @@ namespace IIS_SERVER.Thread.Controllers
         }
 
         [HttpPost("create")]
-        [Authorize(Policy="AdminUserPolicy")]
+        [Authorize(Policy = "AdminUserPolicy")]
         public async Task<IActionResult> CreateThread(ThreadModel thread)
         {
             Tuple<bool, string?> result = await MySqlService.CreateThread(thread);
@@ -34,9 +34,9 @@ namespace IIS_SERVER.Thread.Controllers
         }
 
         [HttpGet("GetAllThreads")]
-        public async Task<IActionResult> GetAllThreads()
+        public async Task<IActionResult> GetAllThreads(int limit = 0)
         {
-            List<ThreadModel>? thread = await MySqlService.GetAllThreads();
+            List<ThreadModel>? thread = await MySqlService.GetAllThreads(limit);
             if (thread != null)
             {
                 return StatusCode(200, thread);
@@ -128,14 +128,19 @@ namespace IIS_SERVER.Thread.Controllers
         }
 
         [HttpPut("update/{threadId}")]
-        [Authorize(Policy="AdminUserPolicy")]
+        [Authorize(Policy = "AdminUserPolicy")]
         public async Task<IActionResult> UpdateThread(Guid threadId, ThreadModel updatedThread)
         {
-            GroupRole? role = await MySqlService.GetMemberRole(User.FindFirst(ClaimTypes.Email).Value, updatedThread.Handle);
-            if (User.IsInRole("admin") ||
-                role == GroupRole.admin || 
-                role == GroupRole.moderator ||
-                User.FindFirst(ClaimTypes.Email).Value == updatedThread.Email)
+            GroupRole? role = await MySqlService.GetMemberRole(
+                User.FindFirst(ClaimTypes.Email).Value,
+                updatedThread.Handle
+            );
+            if (
+                User.IsInRole("admin")
+                || role == GroupRole.admin
+                || role == GroupRole.moderator
+                || User.FindFirst(ClaimTypes.Email).Value == updatedThread.Email
+            )
             {
                 bool result = await MySqlService.UpdateThread(threadId, updatedThread);
                 if (result)
@@ -154,15 +159,20 @@ namespace IIS_SERVER.Thread.Controllers
         }
 
         [HttpDelete("delete/{threadId}")]
-        [Authorize(Policy="AdminUserPolicy")]
+        [Authorize(Policy = "AdminUserPolicy")]
         public async Task<IActionResult> DeleteThread(Guid threadId)
         {
             ThreadModel thread = await MySqlService.GetThread(threadId);
-            GroupRole? role = await MySqlService.GetMemberRole(User.FindFirst(ClaimTypes.Email).Value, thread.Handle);
-            if (User.IsInRole("admin") ||
-                role == GroupRole.admin ||
-                role == GroupRole.moderator ||
-                User.FindFirst(ClaimTypes.Email).Value == thread.Email)
+            GroupRole? role = await MySqlService.GetMemberRole(
+                User.FindFirst(ClaimTypes.Email).Value,
+                thread.Handle
+            );
+            if (
+                User.IsInRole("admin")
+                || role == GroupRole.admin
+                || role == GroupRole.moderator
+                || User.FindFirst(ClaimTypes.Email).Value == thread.Email
+            )
             {
                 try
                 {
@@ -189,11 +199,10 @@ namespace IIS_SERVER.Thread.Controllers
         }
 
         [HttpGet("GetAllThreadsUserIsIn/{email}")]
-        [Authorize(Policy="AdminUserPolicy")]
+        [Authorize(Policy = "AdminUserPolicy")]
         public async Task<IActionResult> GetAllThreadsUserIsIn(string email)
         {
-            if (User.IsInRole("admin") ||
-                User.FindFirst(ClaimTypes.Email).Value == email)
+            if (User.IsInRole("admin") || User.FindFirst(ClaimTypes.Email).Value == email)
             {
                 List<ThreadModel>? thread = await MySqlService.GetAllThreadsUserIsIn(email);
                 if (thread != null)
@@ -208,6 +217,21 @@ namespace IIS_SERVER.Thread.Controllers
             else
             {
                 return Forbid();
+            }
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchThreads(string searchTerm, int limit)
+        {
+            try
+            {
+                var threads = await MySqlService.SearchThreads(searchTerm, limit);
+
+                return Ok(threads);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error: {ex.Message}");
             }
         }
     }

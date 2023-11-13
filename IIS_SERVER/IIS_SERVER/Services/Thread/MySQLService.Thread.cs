@@ -37,7 +37,7 @@ public partial class MySQLService : IMySQLService
         }
     }
 
-    public async Task<List<ThreadModel>?> GetAllThreads()
+    public async Task<List<ThreadModel>?> GetAllThreads(int limit = 0)
     {
         using (var NewConnection = new MySqlConnection(ConnectionString))
         {
@@ -45,10 +45,16 @@ public partial class MySQLService : IMySQLService
             try
             {
                 var threads = new List<ThreadModel>();
-                var query = "SELECT * FROM Thread";
+                string query =
+                    limit == 0 ? "SELECT * FROM Thread" : "SELECT * FROM Thread LIMIT @Limit";
 
                 using (var command = new MySqlCommand(query, NewConnection))
                 {
+                    if (limit > 0)
+                    {
+                        command.Parameters.AddWithValue("@Limit", limit);
+                    }
+
                     using (var reader = await command.ExecuteReaderAsync())
                     {
                         while (await reader.ReadAsync())
@@ -373,6 +379,51 @@ public partial class MySQLService : IMySQLService
             catch (Exception)
             {
                 return null;
+            }
+        }
+    }
+
+    public async Task<List<ThreadModel?>> SearchThreads(string searchTerm, int limit)
+    {
+        using (var NewConnection = new MySqlConnection(ConnectionString))
+        {
+            NewConnection.Open();
+            try
+            {
+                string selectQuery =
+                    "SELECT * FROM Thread WHERE Name LIKE @SearchTerm LIMIT @Limit";
+
+                using (MySqlCommand cmd = new MySqlCommand(selectQuery, NewConnection))
+                {
+                    cmd.Parameters.AddWithValue("@SearchTerm", "%" + searchTerm + "%");
+                    cmd.Parameters.AddWithValue("@Limit", limit);
+
+                    List<ThreadModel?> threads = new List<ThreadModel?>();
+
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            var thread = new ThreadModel
+                            {
+                                Id = reader.GetGuid(reader.GetOrdinal("Id")),
+                                Handle = reader.GetString(reader.GetOrdinal("Handle")),
+                                Name = reader.GetString(reader.GetOrdinal("Name")),
+                                Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                                Description = reader.GetString(reader.GetOrdinal("Description")),
+                            };
+
+                            threads.Add(thread);
+                        }
+                    }
+
+                    return threads;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return new List<ThreadModel?>();
             }
         }
     }

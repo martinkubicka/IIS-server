@@ -3,16 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IIS_SERVER.Group.Controllers;
 
-
-
-
 public interface IGroupController
 {
     Task<IActionResult> AddGroup(GroupEmailModel ownerEmail);
 
     Task<IActionResult> GetGroup(string handle);
 
-    Task<IActionResult> GetGroups();
+    Task<IActionResult> GetGroups(int limit = 0);
 
     //returns only groups that the user either joined or not joined depending on joined param
     Task<IActionResult> GetGroups(string userEmail, bool joined);
@@ -21,7 +18,12 @@ public interface IGroupController
 
     Task<IActionResult> UpdateGroup(GroupListModel listModel);
 
-    Task<IActionResult> UpdateGroupPolicy(GroupPrivacySettingsModel privacySettingsModel, string handle);
+    Task<IActionResult> UpdateGroupPolicy(
+        GroupPrivacySettingsModel privacySettingsModel,
+        string handle
+    );
 
     Task<IActionResult> GetGroupPolicy(string handle);
+
+    Task<IActionResult> SearchGroups(string searchTerm, int limit);
 }
