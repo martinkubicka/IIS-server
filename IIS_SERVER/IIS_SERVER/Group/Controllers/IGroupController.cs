@@ -10,6 +10,7 @@ public interface IGroupController
     Task<IActionResult> GetGroup(string handle);
 
     Task<IActionResult> GetGroups(int limit = 0);
+    Task<IActionResult> GetGroupsUserIsIn(string handle);
 
     //returns only groups that the user either joined or not joined depending on joined param
     Task<IActionResult> GetGroups(string userEmail, bool joined);

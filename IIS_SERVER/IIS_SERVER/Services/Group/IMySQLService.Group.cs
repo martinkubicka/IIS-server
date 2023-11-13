@@ -10,6 +10,8 @@ public partial interface IMySQLService
 
     Task<List<GroupListModel?>> GetGroups(int limit = 0);
 
+    Task<List<GroupListModel?>> GetGroupsUserIsIn(string userHandle);
+
     //returns only groups that the user either joined or not joined depending on joined param
     Task<List<GroupListModel>> GetGroups(string userEmail, bool joined);
 

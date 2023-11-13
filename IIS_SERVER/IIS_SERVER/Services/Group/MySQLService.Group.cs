@@ -80,6 +80,50 @@ public partial class MySQLService : IMySQLService
         }
     }
 
+    public async Task<List<GroupListModel?>> GetGroupsUserIsIn(string handle)
+    {
+        using (var NewConnection = new MySqlConnection(ConnectionString))
+        {
+            NewConnection.Open();
+            try
+            {
+                string selectQuery = "SELECT G.* FROM `Groups` G INNER JOIN Member M ON G.Handle = M.Handle WHERE M.Email = (SELECT Email FROM Users WHERE Handle = @Handle)";
+
+                using (MySqlCommand cmd = new MySqlCommand(selectQuery, NewConnection))
+                {
+                    cmd.Parameters.AddWithValue("@Handle", handle);
+
+                    List<GroupListModel> Groups = new List<GroupListModel>();
+                    using (MySqlDataReader reader = (MySqlDataReader)await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            Groups.Add(
+                                new GroupListModel
+                                {
+                                    Handle = reader.GetString("Handle"),
+                                    Name = reader.GetString("Name"),
+                                    Description = reader.IsDBNull(reader.GetOrdinal("Description"))
+                                        ? null
+                                        : reader.GetString("Description"),
+                                    Icon = reader.IsDBNull(reader.GetOrdinal("Icon"))
+                                        ? null
+                                        : reader.GetString("Icon")
+                                }
+                            );
+                        }
+                    }
+
+                    return Groups;
+                }
+            }
+            catch
+            {
+                return new List<GroupListModel?>();
+            }
+        }
+    }
+
     public async Task<GroupPrivacySettingsModel?> GetGroupPolicy(string handle)
     {
         using (var NewConnection = new MySqlConnection(ConnectionString))
