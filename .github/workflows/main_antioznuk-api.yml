@@ -26,7 +26,7 @@ jobs:
         run: |
           echo "mail-password=${{ secrets.MAIL_PASSWORD_SECRET }}" >> $GITHUB_ENV
           echo "mail=${{ secrets.MAIL_SECRET }}" >> $GITHUB_ENV
-          echo "jwt-secret=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
+          echo "jwt-secret=${{ secrets.JWT_SECRET_SECRET }}" >> $GITHUB_ENV
           echo "jwt-issuer=${{ secrets.JWT_ISSUER_SECRET }}" >> $GITHUB_ENV
           echo "jwt-audience=${{ secrets.JWT_AUDIENCE_SECRET }}" >> $GITHUB_ENV
           echo "DB:ConnectionString=${{ secrets.DB_CONNECTION_STRING_SECRET }}" >> $GITHUB_ENV
