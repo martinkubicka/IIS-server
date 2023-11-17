@@ -30,6 +30,7 @@ jobs:
           echo "jwt-issuer=${{ secrets.JWT_ISSUER_SECRET }}" >> $GITHUB_ENV
           echo "jwt-audience=${{ secrets.JWT_AUDIENCE_SECRET }}" >> $GITHUB_ENV
           echo "DB:ConnectionString=${{ secrets.DB_CONNECTION_STRING_SECRET }}" >> $GITHUB_ENV
+          echo "salt=${{ secrets.SALT_SECRET }}" >> $GITHUB_ENV
           
       - name: Build with dotnet
         run: |
