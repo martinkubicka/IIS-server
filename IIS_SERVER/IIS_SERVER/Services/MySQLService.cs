@@ -10,7 +10,7 @@ public partial class MySQLService : IDisposable
 
     public MySQLService(IConfiguration configuration)
     {
-        ConnectionString = "Server=antioznuk-martinkubicka22-d781.aivencloud.com;Port=15939;Database=defaultdb;Uid=avnadmin;Pwd=AVNS_4iCQ_2BI9PsIL6BZ2nu;";
+        ConnectionString = configuration["DB_ConnectionString"];
         Connection = new MySqlConnection(ConnectionString);
         Configuration = configuration;
         

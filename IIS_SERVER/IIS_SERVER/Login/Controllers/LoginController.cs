@@ -33,7 +33,7 @@ public class LoginController : ControllerBase, ILoginContoller
         Tuple<bool, string?> result = await MySqlService.Login(data.Email, data.Password);
         if (result.Item1)
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("iis-itu-super-secret-extra-long-key"));
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["jwt_secret"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var role = await MySqlService.GetUserRole(data.Email);
             var name = await MySqlService.GetUserHandle(data.Email);
@@ -41,16 +41,16 @@ public class LoginController : ControllerBase, ILoginContoller
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Aud, "http://localhost:5203/"),
-                new Claim(JwtRegisteredClaimNames.Iss, "secretkeyissuer"),
+                new Claim(JwtRegisteredClaimNames.Aud, Configuration["jwt_audience"]),
+                new Claim(JwtRegisteredClaimNames.Iss, Configuration["jwt_issuer"]),
                 new Claim(ClaimTypes.Role, role.Item1.ToString()),
                 new Claim(ClaimTypes.Email, data.Email),
                 new Claim(ClaimTypes.Name, name.Item1),
             };
 
             var token = new JwtSecurityToken(
-                issuer: "secretkeyissuer",
-                audience: "http://localhost:5203/",
+                issuer: Configuration["jwt_issuer"],
+                audience: Configuration["jwt_audience"],
                 claims: claims,
                 expires: DateTime.Now.AddMinutes(30),
                 signingCredentials: credentials
@@ -96,12 +96,12 @@ public class LoginController : ControllerBase, ILoginContoller
                 client.Port = 587;
 
                 System.Net.NetworkCredential credentials = 
-                    new System.Net.NetworkCredential("mail", "password");
+                    new System.Net.NetworkCredential(Configuration["mail"], Configuration["mail_password"]);
                 client.UseDefaultCredentials = false;
                 client.Credentials = credentials;                
 
                 MailMessage msg = new MailMessage();
-                msg.From = new MailAddress("mail");
+                msg.From = new MailAddress(Configuration["mail"]);
                 msg.To.Add(new MailAddress(email));
 
                 msg.Subject = "Password reset";

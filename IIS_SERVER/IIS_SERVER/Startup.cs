@@ -70,10 +70,10 @@ namespace IIS_SERVER
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = "secretkeyissuer",
-                        ValidAudience = "http://localhost:5203/",
+                        ValidIssuer = Configuration["jwt_issuer"],
+                        ValidAudience = Configuration["jwt_audience"],
                         IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes("iis-itu-super-secret-extra-long-key")
+                            Encoding.UTF8.GetBytes(Configuration["jwt_secret"])
                         ),
                     };
                 });
