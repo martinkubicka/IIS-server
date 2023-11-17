@@ -10,7 +10,7 @@ public partial class MySQLService : IDisposable
 
     public MySQLService(IConfiguration configuration)
     {
-        ConnectionString = configuration["DB:ConnectionString"];
+        ConnectionString = configuration["DB_ConnectionString"];
         Connection = new MySqlConnection(ConnectionString);
         Configuration = configuration;
         

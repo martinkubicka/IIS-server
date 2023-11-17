@@ -70,10 +70,10 @@ namespace IIS_SERVER
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = Configuration["jwt-issuer"],
-                        ValidAudience = Configuration["jwt-audience"],
+                        ValidIssuer = Configuration["jwt_issuer"],
+                        ValidAudience = Configuration["jwt_audience"],
                         IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(Configuration["jwt-secret"])
+                            Encoding.UTF8.GetBytes(Configuration["jwt_secret"])
                         ),
                     };
                 });
