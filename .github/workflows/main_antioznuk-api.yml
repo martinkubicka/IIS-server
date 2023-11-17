@@ -21,9 +21,12 @@ jobs:
         with:
           dotnet-version: '7.x'
           include-prerelease: true
+      
+      - name: Change directory
+        run: cd IIS_SERVER
 
       - name: Build with dotnet
-        run: dotnet build --configuration Release --project IIS_SERVER/IIS_SERVER.sln
+        run: dotnet build --configuration Release
 
       - name: dotnet publish
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp --project IIS_SERVER/IIS_SERVER.sln
