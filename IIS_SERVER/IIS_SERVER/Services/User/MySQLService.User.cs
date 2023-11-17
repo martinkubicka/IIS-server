@@ -15,7 +15,7 @@ public partial class MySQLService : IMySQLService
             try
             {
                 string hashedPassword = BCrypt.Net.BCrypt.HashPassword(
-                    user.Password
+                    user.Password + Configuration["DB:salt"]
                 );
 
                 string insertQuery =
@@ -225,7 +225,7 @@ public partial class MySQLService : IMySQLService
                 cmd.Parameters.AddWithValue("@Email", updatedUser.Email);
 
                 string hashedPassword = BCrypt.Net.BCrypt.HashPassword(
-                    updatedUser.Password
+                    updatedUser.Password + Configuration["DB:salt"]
                 );
                 cmd.Parameters.AddWithValue("@Password", hashedPassword);
 
