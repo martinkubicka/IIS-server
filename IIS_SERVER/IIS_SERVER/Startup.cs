@@ -116,12 +116,9 @@ namespace IIS_SERVER
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
-
-            if (Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+            
+            app.UseSwagger();
+            app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
 
