@@ -116,10 +116,20 @@ namespace IIS_SERVER
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
-            
-            app.UseSwagger();
-            app.UseSwaggerUI();
 
+            app.UseSwagger();
+            if (Environment.IsDevelopment())
+            {
+                app.UseSwaggerUI();
+            }
+            if (!Environment.IsDevelopment())
+            {
+                app.UseSwaggerUI(options =>
+                {
+                    options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+                    options.RoutePrefix = string.Empty;
+                });
+            }
             app.UseHttpsRedirection();
 
             app.UseStaticFiles();
