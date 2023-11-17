@@ -21,16 +21,6 @@ jobs:
         with:
           dotnet-version: '7.x'
           include-prerelease: true
-
-      - name: Set up secrets as environment variables
-        run: |
-          echo "mail-password=${{ secrets.MAIL_PASSWORD_SECRET }}" >> $GITHUB_ENV
-          echo "mail=${{ secrets.MAIL_SECRET }}" >> $GITHUB_ENV
-          echo "jwt-secret=${{ secrets.JWT_SECRET_SECRET }}" >> $GITHUB_ENV
-          echo "jwt-issuer=${{ secrets.JWT_ISSUER_SECRET }}" >> $GITHUB_ENV
-          echo "jwt-audience=${{ secrets.JWT_AUDIENCE_SECRET }}" >> $GITHUB_ENV
-          echo "DB:ConnectionString=${{ secrets.DB_CONNECTION_STRING_SECRET }}" >> $GITHUB_ENV
-          echo "salt=${{ secrets.SALT_SECRET }}" >> $GITHUB_ENV
           
       - name: Build with dotnet
         run: |
