@@ -21,17 +21,17 @@ jobs:
         with:
           dotnet-version: '7.x'
           include-prerelease: true
-      
-      - name: Change directory
-        run: cd IIS_SERVER/IIS_SERVER
-
+    
       - name: Build with dotnet
         run: |
+              cd IIS_SERVER
               ls
               dotnet build --configuration Release --project IIS
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: |
+              cd IIS_SERVER
+              dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
