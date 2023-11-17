@@ -23,7 +23,7 @@ jobs:
           include-prerelease: true
       
       - name: Change directory
-        run: cd IIS_SERVER
+        run: cd IIS_SERVER/IIS_SERVER
 
       - name: Build with dotnet
         run: |
