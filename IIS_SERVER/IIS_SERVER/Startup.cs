@@ -89,7 +89,7 @@ namespace IIS_SERVER
                     builder =>
                     {
                         builder
-                            .WithOrigins("http://127.0.0.1:5173", "http://localhost:5203", "http://localhost:5173")
+                            .WithOrigins("http://127.0.0.1:5173", "http://localhost:5203", "http://localhost:5173", "https://antioznuk-web.azurewebsites.net")
                             .AllowAnyMethod()
                             .AllowAnyHeader()
                             .AllowCredentials();
