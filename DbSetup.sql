@@ -231,14 +231,14 @@ VALUES
 -- Insert additional sample member data
 INSERT INTO Member (Id, Handle, Email, GroupRole, Icon, Name)
 VALUES
-    ('ab9cfbc31-1c33-446d-bcae-8c045108b704', 'cooking-enthusiasts', 'emily.brown@example.com', 1, 'thinking', 'Emily Brown'),
+    ('ab9cfbc31-1c33-446d-bcae-8c045108b704', 'cooking-enthusiasts', 'emily.brown@example.com', 0, 'thinking', 'Emily Brown'),
     ('cf9d8f37c-69e5-4e64-a3f0-b006b1a88cb4', 'cooking-enthusiasts', 'david.wilson@example.com', 2, 'tennis', 'David Wilson'),
     ('8f5de2a3-7a0b-4f29-9842-5c2727e27483', 'cooking-enthusiasts', 'linda.jones@example.com', 1, 'jamaica', 'Linda Jones'),
-    ('ab9cfbc31-1c33-446d-bcae-8c055108b704', 'travel-lovers', 'john.doe@example.com', 1, 'smile', 'John Doe'),
+    ('ab9cfbc31-1c33-446d-bcae-8c055108b704', 'travel-lovers', 'john.doe@example.com', 0, 'smile', 'John Doe'),
     ('cf9d8f37c-69e5-4e64-a3f0-b007b1a88cb4', 'travel-lovers', 'jane.smith@example.com', 2, 'star', 'Jane Smith'),
-    ('a0b3bc17-1c33-4d6d-bc3e-8c4a5a9a8c04', 'tech-enthusiasts', 'michael.jones@example.com', 1, 'shark', 'Michael Jones'),
+    ('a0b3bc17-1c33-4d6d-bc3e-8c4a5a9a8c04', 'tech-enthusiasts', 'michael.jones@example.com', 0, 'shark', 'Michael Jones'),
     ('c8f6b4c4-6e6e-4e6e-8e6e-1a7e6e7e7e7e', 'tech-enthusiasts', 'lisa.martin@example.com', 2, 'sun', 'Lisa Martin'),
-    ('1b3c8e7e7e-7c7e-4c7b-7f7a-1f7e6e7e7e7e', 'music-lovers', 'jason.smith@example.com', 1, 'earth', 'Jason Smith'),
+    ('1b3c8e7e7e-7c7e-4c7b-7f7a-1f7e6e7e7e7e', 'music-lovers', 'jason.smith@example.com', 0, 'earth', 'Jason Smith'),
     ('2a6c3e5e5b-9a0e-4a6b-8b9e-3a9d1e7a8b7c', 'music-lovers', 'olivia.wilson@example.com', 2, 'flower', 'Olivia Wilson');
 
 -- Insert sample thread data
