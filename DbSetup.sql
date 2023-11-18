@@ -125,6 +125,27 @@ END //
 DELIMITER ;
 
 -- TRIGGERS
+
+DELIMITER //
+CREATE TRIGGER UpdateGroupRole
+BEFORE UPDATE ON Member
+FOR EACH ROW
+BEGIN
+    DECLARE adminCount INT;
+
+    SELECT COUNT(*)
+    INTO adminCount
+    FROM Member
+    WHERE Handle = NEW.Handle AND GroupRole = 0;
+
+    IF OLD.GroupRole = 0 AND adminCount = 1 THEN
+        SIGNAL SQLSTATE '45002'
+        SET MESSAGE_TEXT = 'Group must have at least one admin';
+    END IF;
+END;
+//
+DELIMITER ;
+
 DELIMITER //
 CREATE TRIGGER DeleteThread
 AFTER DELETE ON Thread
