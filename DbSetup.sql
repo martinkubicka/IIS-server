@@ -171,12 +171,14 @@ DELIMITER //
 CREATE PROCEDURE DeleteMember(IN userEmail VARCHAR(255), IN groupHandle VARCHAR(255))
 BEGIN
     DECLARE isGroupAdmin INT DEFAULT 0;
+    DECLARE countGroupAdmins INT DEFAULT 0;
     
     SELECT COUNT(*) INTO isGroupAdmin FROM Member WHERE Email = userEmail AND Handle = groupHandle AND GroupRole = 0;
+    SELECT COUNT(*) INTO countGroupAdmins FROM Member WHERE Handle = groupHandle AND GroupRole = 0;
 
-    IF isGroupAdmin > 0 THEN
+    IF isGroupAdmin > 0 AND countGroupAdmins = 1 THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'User is an group admin and cannot be deleted';
+        SET MESSAGE_TEXT = 'User is the only group admin and cannot be deleted';
     ELSE
         DELETE FROM Member WHERE Email = userEmail AND Handle = groupHandle;
     END IF;
