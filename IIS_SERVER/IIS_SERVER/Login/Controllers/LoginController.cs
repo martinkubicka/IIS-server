@@ -106,7 +106,7 @@ public class LoginController : ControllerBase, ILoginContoller
 
                 msg.Subject = "Password reset";
                 msg.IsBodyHtml = true;
-                msg.Body = string.Format("<html><head></head><body><b> http://127.0.0.1:5173/passwordReset?token=" + result.Item2 + "</b></body>");
+                msg.Body = string.Format("<html><head></head><body><b> https://musical-haupia-37aecd.netlify.app/passwordReset?token=" + result.Item2 + "</b></body>");
                 client.Send(msg);
             }
             catch (Exception ex)
