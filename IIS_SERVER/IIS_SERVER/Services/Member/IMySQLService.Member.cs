@@ -7,6 +7,8 @@ namespace IIS_SERVER.Services;
 public partial interface IMySQLService
 {
     Task<Tuple<bool, string?>> AddMember(MemberModel member);
+    Task<Tuple<bool, string?>> JoinRequest(string handle, string email);
+    Task<Tuple<bool, string?>> ModeratorRequest(string handle, string email);
     Task<Tuple<bool, string?>> DeleteMember(string email, string handle);
     Task<Tuple<bool, string?>> UpdateMemberRole(string email, GroupRole role, string handle);
     Task<Tuple<List<MemberModel>?, string?>> GetMembers(string handle, GroupRole? role, int currentPage, int itemsPerPage);

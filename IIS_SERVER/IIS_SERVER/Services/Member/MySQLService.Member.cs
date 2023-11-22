@@ -38,6 +38,64 @@ public partial class MySQLService : IMySQLService
             }
         }
     }
+    
+    public async Task<Tuple<bool, string?>> JoinRequest(string handle, string email)
+    {
+        using (var NewConnection = new MySqlConnection(ConnectionString))
+        {
+            NewConnection.Open();
+            try
+            {
+                string insertQuery =
+                    "INSERT INTO JoinRequest (Id, Handle, Email) "
+                    + "VALUES (@Id, @Handle, @Email";
+
+                using (MySqlCommand cmd = new MySqlCommand(insertQuery, NewConnection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", Guid.NewGuid());
+                    cmd.Parameters.AddWithValue("@Handle", handle);
+                    cmd.Parameters.AddWithValue("@Email", email);
+
+                    await cmd.ExecuteNonQueryAsync();
+                }
+
+                return Tuple.Create(true, "");
+            }
+            catch (Exception ex)
+            {
+                return Tuple.Create(false, ex.Message);
+            }
+        }
+    }
+    
+    public async Task<Tuple<bool, string?>> ModeratorRequest(string handle, string email)
+    {
+        using (var NewConnection = new MySqlConnection(ConnectionString))
+        {
+            NewConnection.Open();
+            try
+            {
+                string insertQuery =
+                    "INSERT INTO ModeratorRequest (Id, Handle, Email) "
+                    + "VALUES (@Id, @Handle, @Email";
+
+                using (MySqlCommand cmd = new MySqlCommand(insertQuery, NewConnection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", Guid.NewGuid());
+                    cmd.Parameters.AddWithValue("@Handle", handle);
+                    cmd.Parameters.AddWithValue("@Email", email);
+
+                    await cmd.ExecuteNonQueryAsync();
+                }
+
+                return Tuple.Create(true, "");
+            }
+            catch (Exception ex)
+            {
+                return Tuple.Create(false, ex.Message);
+            }
+        }
+    }
 
     public async Task<Tuple<bool, string?>> DeleteMember(string email, string handle)
     {
