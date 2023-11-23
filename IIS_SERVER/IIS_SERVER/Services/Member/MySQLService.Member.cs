@@ -221,7 +221,8 @@ public partial class MySQLService : IMySQLService
             NewConnection.Open();
             try
             {
-                var countQuery = "SELECT COUNT(*) FROM Member WHERE Handle = @Handle AND Email = @Email";
+                var countQuery =
+                    "SELECT COUNT(*) FROM Member WHERE Handle = @Handle AND Email = @Email";
 
                 using (var countCommand = new MySqlCommand(countQuery, NewConnection))
                 {
@@ -238,7 +239,7 @@ public partial class MySQLService : IMySQLService
             }
         }
     }
-    
+
     public async Task<GroupRole?> GetMemberRole(string email, string handle)
     {
         GroupRole? result = null;
@@ -253,7 +254,7 @@ public partial class MySQLService : IMySQLService
                 {
                     countCommand.Parameters.AddWithValue("@Handle", handle);
                     countCommand.Parameters.AddWithValue("@Email", email);
-                    
+
                     using (var reader = await countCommand.ExecuteReaderAsync())
                     {
                         while (await reader.ReadAsync())
@@ -262,12 +263,37 @@ public partial class MySQLService : IMySQLService
                         }
                     }
                 }
-                
+
                 return result;
             }
             catch (Exception)
             {
                 return null;
+            }
+        }
+    }
+
+    public async Task<bool> IsMember(string email, string groupHandle)
+    {
+        using (var NewConnection = new MySqlConnection(ConnectionString))
+        {
+            NewConnection.Open();
+            try
+            {
+                var countQuery =
+                    "SELECT COUNT(*) FROM Member WHERE Handle = @Handle AND Email = @Email";
+
+                using (var countCommand = new MySqlCommand(countQuery, NewConnection))
+                {
+                    countCommand.Parameters.AddWithValue("@Handle", groupHandle);
+                    countCommand.Parameters.AddWithValue("@Email", email);
+
+                    return Convert.ToInt32(await countCommand.ExecuteScalarAsync()) != 0;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
     }

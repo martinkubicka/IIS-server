@@ -1,8 +1,14 @@
 using IIS_SERVER.Services;
 using IIS_SERVER.Post.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using IIS_SERVER.Hubs;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.Authorization;
+using IIS_SERVER.Thread.Models;
+using IIS_SERVER.Helpers;
+using IIS_SERVER.Enums;
+using IIS_SERVER.Group.Models;
 
 namespace IIS_SERVER.Post.Controllers;
 
@@ -61,21 +67,52 @@ public class PostController : ControllerBase, IPostController
         }
     }
 
+    [HttpGet("getGroupHandleByPostId/{postId}")]
+    public async Task<IActionResult> GetGroupHandleByPostId(Guid postId)
+    {
+        GroupListModel group;
+        try
+        {
+            group = await PostHelper.GetGroupByPostOrThread(postId, MySqlService);
+        }
+        catch
+        {
+            return NotFound($"No group found");
+        }
+
+        return Ok(group.Handle);
+    }
+
     [HttpPost("add")]
+    [Authorize(Policy = "AdminUserPolicy")]
     public async Task<IActionResult> AddPost(PostModel post)
     {
         post.Id = Guid.NewGuid();
         try
         {
-            var result = await MySqlService.AddPost(post);
-            if (result.Item1)
+            bool isMember = await PostHelper.IsPosterInGroup(
+                post.ThreadId,
+                User.FindFirst(ClaimTypes.Email).Value,
+                MySqlService
+            );
+            if (isMember || User.IsInRole("admin"))
             {
-                await hub.Clients.Groups(post.ThreadId).SendAsync("NewPost", post.Id);
-                return Ok("Post added successfully");
+                var result = await MySqlService.AddPost(post);
+                if (result.Item1)
+                {
+                    await hub.Clients
+                        .Groups(post.ThreadId.ToString())
+                        .SendAsync("NewPost", post.Id);
+                    return Ok("Post added successfully");
+                }
+                else
+                {
+                    return BadRequest(result.Item2);
+                }
             }
             else
             {
-                return BadRequest(result.Item2);
+                return Forbid();
             }
         }
         catch (Exception ex)
@@ -86,17 +123,39 @@ public class PostController : ControllerBase, IPostController
     }
 
     [HttpPut("updateText")]
+    [Authorize(Policy = "AdminUserPolicy")]
     public async Task<IActionResult> EditPostText(Guid postId, string text)
     {
-        var result = await MySqlService.EditPostText(postId, text);
-        if (result.Item1)
+        bool isOwner;
+        try
         {
-            await hub.Clients.All.SendAsync("UpdatePost", postId, text);
-            return Ok("Post text edited successfully");
+            isOwner = await PostHelper.IsUserPostOwner(
+                postId,
+                User.FindFirst(ClaimTypes.Email).Value,
+                MySqlService
+            );
+        }
+        catch
+        {
+            return BadRequest();
+        }
+
+        if (isOwner)
+        {
+            var result = await MySqlService.EditPostText(postId, text);
+            if (result.Item1)
+            {
+                await hub.Clients.All.SendAsync("UpdatePost", postId, text);
+                return Ok("Post text edited successfully");
+            }
+            else
+            {
+                return BadRequest(result.Item2);
+            }
         }
         else
         {
-            return BadRequest(result.Item2);
+            return Forbid();
         }
     }
 
@@ -117,15 +176,39 @@ public class PostController : ControllerBase, IPostController
     [HttpDelete("delete/{postId}")]
     public async Task<IActionResult> DeletePost(Guid postId)
     {
-        var result = await MySqlService.DeletePost(postId);
-        if (result.Item1)
+        bool isOwner;
+        GroupRole memberRole;
+        try
         {
-            await hub.Clients.All.SendAsync("DeletePost", postId);
-            return Ok("Post deleted successfully");
+            string email = User.FindFirst(ClaimTypes.Email).Value;
+            isOwner = await PostHelper.IsUserPostOwner(postId, email, MySqlService);
+            memberRole = await PostHelper.getMemberGroupRole(postId, email, MySqlService);
+        }
+        catch
+        {
+            return BadRequest();
+        }
+        if (
+            isOwner
+            || User.IsInRole("admin")
+            || memberRole == GroupRole.admin
+            || memberRole == GroupRole.moderator
+        )
+        {
+            var result = await MySqlService.DeletePost(postId);
+            if (result.Item1)
+            {
+                await hub.Clients.All.SendAsync("DeletePost", postId);
+                return Ok("Post deleted successfully");
+            }
+            else
+            {
+                return BadRequest(result.Item2);
+            }
         }
         else
         {
-            return BadRequest(result.Item2);
+            return Forbid();
         }
     }
 

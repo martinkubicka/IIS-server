@@ -24,7 +24,7 @@ public partial class MySQLService : IMySQLService
                     return new PostModel
                     {
                         Id = Guid.Parse(reader["Id"].ToString()),
-                        ThreadId = reader["ThreadId"].ToString(),
+                        ThreadId = Guid.Parse(reader["ThreadId"].ToString()),
                         Handle = reader["Handle"].ToString(),
                         Text = reader["Text"].ToString(),
                         Date = DateTime.Parse(reader["Date"].ToString())
@@ -64,7 +64,7 @@ public partial class MySQLService : IMySQLService
                         new PostModel
                         {
                             Id = Guid.Parse(reader["Id"].ToString()),
-                            ThreadId = reader["ThreadId"].ToString(),
+                            ThreadId = Guid.Parse(reader["ThreadId"].ToString()),
                             Handle = reader["Handle"].ToString(),
                             Text = reader["Text"].ToString(),
                             Date = DateTime.Parse(reader["Date"].ToString())
@@ -103,7 +103,7 @@ public partial class MySQLService : IMySQLService
                         new PostModel
                         {
                             Id = Guid.Parse(reader["Id"].ToString()),
-                            ThreadId = reader["ThreadId"].ToString(),
+                            ThreadId = Guid.Parse(reader["ThreadId"].ToString()),
                             Handle = reader["Handle"].ToString(),
                             Text = reader["Text"].ToString(),
                             Date = DateTime.Parse(reader["Date"].ToString())

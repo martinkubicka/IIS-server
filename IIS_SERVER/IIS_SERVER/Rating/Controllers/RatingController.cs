@@ -1,6 +1,8 @@
 using IIS_SERVER.Services;
 using IIS_SERVER.Rating.Models;
 using Microsoft.AspNetCore.Mvc;
+using IIS_SERVER.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IIS_SERVER.Rating.Controllers;
 
@@ -46,7 +48,7 @@ public class RatingController : ControllerBase, IPostController
     [HttpGet("getRatingByPostAndUser/{postId}/{userEmail}")]
     public async Task<IActionResult> GetRatingByPostAndUser(Guid postId, string userEmail)
     {
-        var rating = await _mySqlService.GetRatingByPost(postId,userEmail);
+        var rating = await _mySqlService.GetRatingByPost(postId, userEmail);
         if (rating != null)
         {
             return Ok(rating.Rating);
@@ -58,58 +60,68 @@ public class RatingController : ControllerBase, IPostController
     }
 
     [HttpPost("update")]
+    [Authorize(Policy = "AdminUserPolicy")]
     public async Task<IActionResult> UpdateRating(Guid postId, string userEmail, int ratingChange)
     {
-        var resultGet = await _mySqlService.GetRatingByPost(postId, userEmail);
-        if (ratingChange == 0)
+        bool isMember = await PostHelper.IsUserMemberByPost(postId, userEmail, _mySqlService);
+
+        if (isMember || User.IsInRole("admin"))
         {
-            if (resultGet != null)
+            var resultGet = await _mySqlService.GetRatingByPost(postId, userEmail);
+            if (ratingChange == 0)
             {
-                var resultRemove = await _mySqlService.RemoveRating(resultGet.Id);
-                if (resultRemove.Item1)
+                if (resultGet != null)
                 {
-                    return Ok("Rating updated successfully");
+                    var resultRemove = await _mySqlService.RemoveRating(resultGet.Id);
+                    if (resultRemove.Item1)
+                    {
+                        return Ok("Rating updated successfully");
+                    }
+                    else
+                    {
+                        return BadRequest(resultRemove.Item2);
+                    }
                 }
-                else
-                {
-                    return BadRequest(resultRemove.Item2);
-                }
-            }
-            return Ok("Rating updated successfully");
-        }
-        else
-        {
-            if (resultGet == null)
-            {
-                RatingModel newRating = new RatingModel
-                {
-                    Id = Guid.NewGuid(),
-                    Email = userEmail,
-                    PostId = postId,
-                    Rating = ratingChange == 1
-                };
-                var result = await _mySqlService.AddRating(newRating);
-                if (result.Item1)
-                {
-                    return Ok("Rating updated successfully");
-                }
-                else
-                {
-                    return BadRequest(result.Item2);
-                }
+                return Ok("Rating updated successfully");
             }
             else
             {
-                var result = await _mySqlService.UpdateRating(resultGet.Id, ratingChange);
-                if (result.Item1)
+                if (resultGet == null)
                 {
-                    return Ok("Rating updated successfully");
+                    RatingModel newRating = new RatingModel
+                    {
+                        Id = Guid.NewGuid(),
+                        Email = userEmail,
+                        PostId = postId,
+                        Rating = ratingChange == 1
+                    };
+                    var result = await _mySqlService.AddRating(newRating);
+                    if (result.Item1)
+                    {
+                        return Ok("Rating updated successfully");
+                    }
+                    else
+                    {
+                        return BadRequest(result.Item2);
+                    }
                 }
                 else
                 {
-                    return BadRequest(result.Item2);
+                    var result = await _mySqlService.UpdateRating(resultGet.Id, ratingChange);
+                    if (result.Item1)
+                    {
+                        return Ok("Rating updated successfully");
+                    }
+                    else
+                    {
+                        return BadRequest(result.Item2);
+                    }
                 }
             }
+        }
+        else
+        {
+            return Forbid();
         }
     }
 

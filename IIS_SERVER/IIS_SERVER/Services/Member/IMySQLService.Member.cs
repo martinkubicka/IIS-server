@@ -9,8 +9,15 @@ public partial interface IMySQLService
     Task<Tuple<bool, string?>> AddMember(MemberModel member);
     Task<Tuple<bool, string?>> DeleteMember(string email, string handle);
     Task<Tuple<bool, string?>> UpdateMemberRole(string email, GroupRole role, string handle);
-    Task<Tuple<List<MemberModel>?, string?>> GetMembers(string handle, GroupRole? role, int currentPage, int itemsPerPage);
+    Task<Tuple<List<MemberModel>?, string?>> GetMembers(
+        string handle,
+        GroupRole? role,
+        int currentPage,
+        int itemsPerPage
+    );
     Task<int?> GetMembersCount(string Handle);
     Task<bool?> UserInGroup(string email, string handle);
     Task<GroupRole?> GetMemberRole(string email, string handle);
+
+    Task<bool> IsMember(string email, string groupHandle);
 }

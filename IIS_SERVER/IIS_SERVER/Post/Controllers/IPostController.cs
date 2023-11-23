@@ -11,6 +11,8 @@ public interface IPostController
 
     Task<IActionResult> GetPosts(string userEmail);
 
+    Task<IActionResult> GetGroupHandleByPostId(Guid postId);
+
     Task<IActionResult> AddPost(PostModel post);
 
     Task<IActionResult> EditPostText(Guid postId, string text);

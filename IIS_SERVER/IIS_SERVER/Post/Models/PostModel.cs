@@ -11,7 +11,7 @@ public class PostModel
     [StringValidation(
         ErrorMessage = "The ThreadId field cannot be empty or contain only whitespace."
     )]
-    public string ThreadId { get; set; }
+    public Guid ThreadId { get; set; }
 
     [Required(ErrorMessage = "Handle is required")]
     [StringValidation(
