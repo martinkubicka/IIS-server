@@ -7,6 +7,12 @@ namespace IIS_SERVER.Member.Controllers;
 public interface IMemberController
 {
     Task<IActionResult> AddMember(MemberModel member);
+    Task<IActionResult> ModeratorRequested(string handle, string email);
+    Task<IActionResult> JoinRequested(string handle, string email);
+    Task<IActionResult> DeleteJoinRequest(string handle, string email);
+    Task<IActionResult> DeleteModeratorRequest(string handle, string email);
+    Task<IActionResult> CreateJoinRequest(RequestDataModel model);
+    Task<IActionResult> CreateModeratorRequest(RequestDataModel model);
     Task<IActionResult> DeleteMember(string email, string handle);
     Task<IActionResult> UpdateMemberRole(string email, GroupRole role, string handle);
     Task<IActionResult> GetMembers(string handle, GroupRole? role, int currentPage, int itemsPerPage);

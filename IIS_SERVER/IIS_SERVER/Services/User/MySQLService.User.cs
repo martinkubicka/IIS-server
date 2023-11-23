@@ -89,6 +89,46 @@ public partial class MySQLService : IMySQLService
             }
         }
     }
+    
+    public async Task<UserDetailModel?> GetUserBasicInfo(string email)
+    {
+        using (var NewConnection = new MySqlConnection(ConnectionString))
+        {
+            NewConnection.Open();
+            try
+            {
+                var query = "SELECT * FROM Users WHERE Email = @Email";
+                using (var command = new MySqlCommand(query, NewConnection))
+                {
+                    command.Parameters.AddWithValue("@Email", email);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            UserDetailModel usr =
+                                new UserDetailModel
+                                {
+                                    Handle = reader.GetString(reader.GetOrdinal("Handle")),
+                                    Name = reader.GetString(reader.GetOrdinal("Name")),
+                                    Icon = reader.IsDBNull(reader.GetOrdinal("Icon"))
+                                        ? null
+                                        : reader.GetString(reader.GetOrdinal("Icon")),
+                                    Email = email
+                                };
+                            return usr;
+                        }
+
+                        return null;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+    }
 
     public async Task<Tuple<UserListModel?, string?>> GetUserProfile(string handle)
     {

@@ -8,6 +8,8 @@ using System.Text;
 using IIS_SERVER.Login.Models;
 using System.Net;
 using System.Net.Mail;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;

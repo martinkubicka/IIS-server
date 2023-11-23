@@ -38,6 +38,241 @@ public partial class MySQLService : IMySQLService
             }
         }
     }
+    
+    public async Task<List<string>?> GetJoinRequests(string handle)
+    {
+        List<string> result = new List<string>();
+        using (var NewConnection = new MySqlConnection(ConnectionString))
+        {
+            NewConnection.Open();
+            try
+            {
+                var countQuery = "SELECT * FROM JoinRequest WHERE Handle = @Handle";
+
+                using (var countCommand = new MySqlCommand(countQuery, NewConnection))
+                {
+                    countCommand.Parameters.AddWithValue("@Handle", handle);
+                    
+                    using (var reader = await countCommand.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            result.Add(reader.GetString(reader.GetOrdinal("Email")));
+                        }
+                    }
+                }
+                
+                return result;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+    }
+    
+    public async Task<List<string>?> GetModeratorRequests(string handle)
+    {
+        List<string> result = new List<string>();
+        using (var NewConnection = new MySqlConnection(ConnectionString))
+        {
+            NewConnection.Open();
+            try
+            {
+                var countQuery = "SELECT * FROM ModeratorRequest WHERE Handle = @Handle";
+
+                using (var countCommand = new MySqlCommand(countQuery, NewConnection))
+                {
+                    countCommand.Parameters.AddWithValue("@Handle", handle);
+                    
+                    using (var reader = await countCommand.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            result.Add(reader.GetString(reader.GetOrdinal("Email")));
+                        }
+                    }
+                }
+                
+                return result;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+    }
+    
+    public async Task<Tuple<bool, string?>> CreateJoinRequest(string handle, string email)
+    {
+        using (var NewConnection = new MySqlConnection(ConnectionString))
+        {
+            NewConnection.Open();
+            try
+            {
+                string insertQuery =
+                    "INSERT INTO JoinRequest (Id, Handle, Email) "
+                    + "VALUES (@Id, @Handle, @Email)";
+
+                using (MySqlCommand cmd = new MySqlCommand(insertQuery, NewConnection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", Guid.NewGuid());
+                    cmd.Parameters.AddWithValue("@Handle", handle);
+                    cmd.Parameters.AddWithValue("@Email", email);
+
+                    await cmd.ExecuteNonQueryAsync();
+                }
+
+                return Tuple.Create(true, "");
+            }
+            catch (Exception ex)
+            {
+                return Tuple.Create(false, ex.Message);
+            }
+        }
+    }
+    
+    public async Task<bool> JoinRequested(string handle, string email)
+    {
+        using (var NewConnection = new MySqlConnection(ConnectionString))
+        {
+            NewConnection.Open();
+            try
+            {
+                int res = 0;
+                string insertQuery =
+                    "SELECT COUNT(*) FROM JoinRequest WHERE Handle = @Handle AND Email = @Email";
+
+                using (MySqlCommand cmd = new MySqlCommand(insertQuery, NewConnection))
+                {
+                    cmd.Parameters.AddWithValue("@Handle", handle);
+                    cmd.Parameters.AddWithValue("@Email", email);
+
+                    await cmd.ExecuteNonQueryAsync();
+                    res = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+                }
+                
+                return res > 0;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+    }
+    
+    public async  Task<bool> ModeratorRequested(string handle, string email)
+    {
+        using (var NewConnection = new MySqlConnection(ConnectionString))
+        {
+            NewConnection.Open();
+            try
+            {
+                int res = 0;
+                string insertQuery =
+                    "SELECT COUNT(*) FROM ModeratorRequest WHERE Handle = @Handle AND Email = @Email";
+
+                using (MySqlCommand cmd = new MySqlCommand(insertQuery, NewConnection))
+                {
+                    cmd.Parameters.AddWithValue("@Handle", handle);
+                    cmd.Parameters.AddWithValue("@Email", email);
+
+                    await cmd.ExecuteNonQueryAsync();
+                    res = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+                }
+                return res > 0;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+    }
+    
+    public async Task<Tuple<bool, string?>> CreateModeratorRequest(string handle, string email)
+    {
+        using (var NewConnection = new MySqlConnection(ConnectionString))
+        {
+            NewConnection.Open();
+            try
+            {
+                string insertQuery =
+                    "INSERT INTO ModeratorRequest (Id, Handle, Email) "
+                    + "VALUES (@Id, @Handle, @Email)";
+
+                using (MySqlCommand cmd = new MySqlCommand(insertQuery, NewConnection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", Guid.NewGuid());
+                    cmd.Parameters.AddWithValue("@Handle", handle);
+                    cmd.Parameters.AddWithValue("@Email", email);
+
+                    await cmd.ExecuteNonQueryAsync();
+                }
+
+                return Tuple.Create(true, "");
+            }
+            catch (Exception ex)
+            {
+                return Tuple.Create(false, ex.Message);
+            }
+        }
+    }
+    
+    public async Task<bool> DeleteModeratorRequest(string email, string handle)
+    {
+        using (var NewConnection = new MySqlConnection(ConnectionString))
+        {
+            NewConnection.Open();
+            try
+            {
+                using (
+                    MySqlCommand command = new MySqlCommand(
+                        "DELETE FROM ModeratorRequest WHERE Handle = @Handle AND Email = @Email",
+                        NewConnection
+                    )
+                )
+                {
+                    command.Parameters.AddWithValue("@Email", email);
+                    command.Parameters.AddWithValue("@Handle", handle);
+                    await command.ExecuteNonQueryAsync();
+                }
+                
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+    }
+    
+    public async Task<bool> DeleteJoinRequest(string email, string handle)
+    {
+        using (var NewConnection = new MySqlConnection(ConnectionString))
+        {
+            NewConnection.Open();
+            try
+            {
+                using (
+                    MySqlCommand command = new MySqlCommand(
+                        "DELETE FROM JoinRequest WHERE Handle = @Handle AND Email = @Email",
+                        NewConnection
+                    )
+                )
+                {
+                    command.Parameters.AddWithValue("@Email", email);
+                    command.Parameters.AddWithValue("@Handle", handle);
+                    await command.ExecuteNonQueryAsync();
+                }
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+    }
 
     public async Task<Tuple<bool, string?>> DeleteMember(string email, string handle)
     {
