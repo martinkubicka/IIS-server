@@ -225,4 +225,26 @@ public class PostController : ControllerBase, IPostController
             return NotFound($"Could not calculate rating");
         }
     }
+
+    [HttpGet("getPostsGroupedByThread/{userHandle}")]
+    public async Task<IActionResult> GetPostsGroupedByThread(
+        string userHandle,
+        int threadLimit = 10,
+        int postsPerThreadLimit = 10
+    )
+    {
+        var posts = await MySqlService.GetPostsGroupedByThread(
+            userHandle,
+            threadLimit,
+            postsPerThreadLimit
+        );
+        if (posts != null)
+        {
+            return Ok(posts);
+        }
+        else
+        {
+            return NotFound($"No posts found for user with handle {userHandle}.");
+        }
+    }
 }

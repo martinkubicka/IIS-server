@@ -19,4 +19,10 @@ public partial interface IMySQLService
     Task<Tuple<bool, string?>> DeletePost(Guid postId);
 
     Task<int?> CalculateRating(Guid postId);
+
+    Task<Dictionary<string, PostModel[]>> GetPostsGroupedByThread(
+        string userHandle,
+        int threadLimit,
+        int postsPerThreadLimit
+    );
 }

@@ -22,4 +22,10 @@ public interface IPostController
     Task<IActionResult> DeletePost(Guid postId);
 
     Task<IActionResult> CalculateRating(Guid postId);
+
+    Task<IActionResult> GetPostsGroupedByThread(
+        string userHandle,
+        int threadLimit = 10,
+        int postsPerThreadLimit = 10
+    );
 }

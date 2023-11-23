@@ -269,4 +269,87 @@ public partial class MySQLService : IMySQLService
             }
         }
     }
+
+    public async Task<Dictionary<string, PostModel[]>> GetPostsGroupedByThread(
+        string userHandle,
+        int threadLimit,
+        int postsPerThreadLimit
+    )
+    {
+        using (var connection = new MySqlConnection(ConnectionString))
+        {
+            await connection.OpenAsync();
+            try
+            {
+                // Retrieve threadIds by userHandle from the Thread table
+                string selectThreadsQuery =
+                    "SELECT DISTINCT Thread.Id, Thread.Name FROM Thread "
+                    + "INNER JOIN Post ON Thread.Id = Post.ThreadId "
+                    + "WHERE Post.Handle = @Handle LIMIT @ThreadLimit";
+                MySqlCommand threadsCmd = new MySqlCommand(selectThreadsQuery, connection);
+                threadsCmd.Parameters.AddWithValue("@Handle", userHandle);
+                threadsCmd.Parameters.AddWithValue("@ThreadLimit", threadLimit);
+
+                var threadsList = new List<Tuple<Guid, string>>();
+                var threadsDictionary = new Dictionary<string, PostModel[]>();
+
+                using (var threadsReader = await threadsCmd.ExecuteReaderAsync())
+                {
+                    while (await threadsReader.ReadAsync())
+                    {
+                        Guid threadId = Guid.Parse(threadsReader["Id"].ToString());
+                        string threadName = threadsReader["Name"].ToString();
+                        threadsList.Add(new Tuple<Guid, string>(threadId, threadName));
+                    }
+                }
+
+                // Close the first reader before executing the second query
+                await threadsCmd.Connection.CloseAsync();
+
+                foreach (var threadTuple in threadsList)
+                {
+                    Guid threadId = threadTuple.Item1;
+                    string threadName = threadTuple.Item2;
+
+                    using (var postsConnection = new MySqlConnection(ConnectionString))
+                    {
+                        await postsConnection.OpenAsync();
+
+                        string selectPostsQuery =
+                            "SELECT * FROM Post WHERE ThreadId = @ThreadId AND Handle = @Handle LIMIT @PostsLimit";
+                        MySqlCommand postsCmd = new MySqlCommand(selectPostsQuery, postsConnection);
+                        postsCmd.Parameters.AddWithValue("@ThreadId", threadId);
+                        postsCmd.Parameters.AddWithValue("@PostsLimit", postsPerThreadLimit);
+                        postsCmd.Parameters.AddWithValue("@Handle", userHandle);
+                        var posts = new List<PostModel>();
+
+                        using var postsReader = await postsCmd.ExecuteReaderAsync();
+                        while (await postsReader.ReadAsync())
+                        {
+                            posts.Add(
+                                new PostModel
+                                {
+                                    Id = Guid.Parse(postsReader["Id"].ToString()),
+                                    ThreadId = Guid.Parse(postsReader["ThreadId"].ToString()),
+                                    Handle = postsReader["Handle"].ToString(),
+                                    Text = postsReader["Text"].ToString(),
+                                    Date = DateTime.Parse(postsReader["Date"].ToString())
+                                }
+                            );
+                        }
+
+                        threadsDictionary.Add(threadName, posts.ToArray());
+                    }
+                }
+
+                return threadsDictionary;
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions appropriately
+                Console.WriteLine(ex);
+                return new Dictionary<string, PostModel[]>();
+            }
+        }
+    }
 }
