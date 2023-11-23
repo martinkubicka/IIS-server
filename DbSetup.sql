@@ -219,6 +219,7 @@ BEGIN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'User is the only group admin and cannot be deleted';
     ELSE
+        DELETE FROM ModeratorRequest WHERE Email = userEmail AND Handle = groupHandle;
         DELETE FROM Member WHERE Email = userEmail AND Handle = groupHandle;
     END IF;
 END //

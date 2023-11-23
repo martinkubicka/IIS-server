@@ -14,6 +14,8 @@ public partial interface IMySQLService
         UserDetailModel updatedUser,
         UserPrivacySettingsModel userPrivacy
     );
+
+    Task<UserDetailModel?> GetUserBasicInfo(string email);
     Task<Tuple<bool, string?>> UpdateUserWithoutPassword(
         UserDetailPasswordNotRequiredModel updatedUser,
         UserPrivacySettingsModel userPrivacy

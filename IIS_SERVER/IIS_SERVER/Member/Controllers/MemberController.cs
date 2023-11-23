@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Threading.Channels;
 using IIS_SERVER.Enums;
@@ -25,7 +26,7 @@ public class MemberController : ControllerBase, IMemberController
     [Authorize(Policy = "AdminUserPolicy")]
     public async Task<IActionResult> AddMember(MemberModel member)
     {
-        if (User.IsInRole("admin") || member.Email == User.FindFirst(ClaimTypes.Email).Value)
+        if (User.IsInRole("admin") || await MySqlService.GetMemberRole(User.FindFirst(ClaimTypes.Email).Value, member.Handle) == GroupRole.admin)
         {
             Tuple<bool, string?> result = await MySqlService.AddMember(member);
             if (result.Item1)
@@ -57,6 +58,148 @@ public class MemberController : ControllerBase, IMemberController
             return Forbid();
         }
     }
+    
+    [HttpGet("moderatorRequested")]
+    [Authorize(Policy="AdminUserPolicy")]
+    public async Task<IActionResult> ModeratorRequested(string handle, string email)
+    {
+        if (User.IsInRole("admin") ||
+            await MySqlService.GetMemberRole(User.FindFirst(ClaimTypes.Email).Value, handle) == GroupRole.admin || 
+            User.FindFirst(ClaimTypes.Email).Value == email
+           )
+        {
+            bool result = await MySqlService.ModeratorRequested(handle, email);
+            
+            return StatusCode(200, result);
+        }
+        else
+        {
+            return Forbid();
+        }
+    }
+    
+    [HttpGet("joinRequested")]
+    [Authorize(Policy="AdminUserPolicy")]
+    public async Task<IActionResult> JoinRequested(string handle, string email)
+    {
+        if (User.IsInRole("admin") ||
+            await MySqlService.GetMemberRole(User.FindFirst(ClaimTypes.Email).Value, handle) == GroupRole.admin || 
+            User.FindFirst(ClaimTypes.Email).Value == email
+           )
+        {
+            bool result = await MySqlService.JoinRequested(handle, email);
+            
+            return StatusCode(200, result);
+        }
+        else
+        {
+            return Forbid();
+        }
+    }
+    
+    [HttpPost("joinRequest")]
+    [Authorize(Policy = "AdminUserPolicy")]
+    public async Task<IActionResult> CreateJoinRequest(RequestDataModel model)
+    {
+        if (User.IsInRole("admin") || model.Email == User.FindFirst(ClaimTypes.Email).Value)
+        {
+            Tuple<bool, string?> result = await MySqlService.CreateJoinRequest(model.Handle, model.Email);
+            if (result.Item1)
+            {
+                return StatusCode(200, "Join request sent successfully.");
+            }
+            else
+            {
+                return StatusCode(404, result.Item2);
+            }
+        }
+        else
+        {
+            return Forbid();
+        }
+    }
+    
+    [HttpPost("moderatorRequest")]
+    [Authorize(Policy = "AdminUserPolicy")]
+    public async Task<IActionResult> CreateModeratorRequest(RequestDataModel model)
+    {
+        if ((User.IsInRole("admin") || model.Email == User.FindFirst(ClaimTypes.Email).Value) && await MySqlService.GetMemberRole(User.FindFirst(ClaimTypes.Email).Value, model.Handle) != null)
+        {
+            Tuple<bool, string?> result = await MySqlService.CreateModeratorRequest(model.Handle, model.Email);
+            if (result.Item1)
+            {
+                return StatusCode(200, "Moderator request sent successfully.");
+            }
+            else
+            {
+                return StatusCode(404, result.Item2);
+            }
+        }
+        else
+        {
+            return Forbid();
+        }
+    }
+    
+    [HttpGet("joinRequests")]
+    [Authorize(Policy="AdminUserPolicy")]
+    public async Task<IActionResult> GetJoinRequests(string handle)
+    {
+        if (User.IsInRole("admin") ||
+            await MySqlService.GetMemberRole(User.FindFirst(ClaimTypes.Email).Value, handle) == GroupRole.admin
+           )
+        {
+            List<UserDetailModel> users = new List<UserDetailModel>();
+            List<string>? result = await MySqlService.GetJoinRequests(handle);
+            if (result != null)
+            {
+                foreach (string res in result)
+                {
+                    UserDetailModel? usr = await MySqlService.GetUserBasicInfo(res);
+                    if (usr != null)
+                    {
+                        users.Add(usr);
+                    }
+                }
+            }
+            
+            return StatusCode(200, users);
+        }
+        else
+        {
+            return Forbid();
+        }
+    }
+    
+    [HttpGet("moderatorRequests")]
+    [Authorize(Policy="AdminUserPolicy")]
+    public async Task<IActionResult> GetModeratorRequests(string handle)
+    {
+        if (User.IsInRole("admin") ||
+            await MySqlService.GetMemberRole(User.FindFirst(ClaimTypes.Email).Value, handle) == GroupRole.admin
+           )
+        {
+            List<UserDetailModel> users = new List<UserDetailModel>();
+            List<string>? result = await MySqlService.GetModeratorRequests(handle);
+            if (result != null)
+            {
+                foreach (string res in result)
+                {
+                    UserDetailModel? usr = await MySqlService.GetUserBasicInfo(res);
+                    if (usr != null)
+                    {
+                        users.Add(usr);
+                    }
+                }
+            }
+
+            return StatusCode(200, users);
+        }
+        else
+        {
+            return Forbid();
+        }
+    }
 
     [HttpDelete("delete")]
     [Authorize(Policy="AdminUserPolicy")]
@@ -74,6 +217,40 @@ public class MemberController : ControllerBase, IMemberController
                     : result.Item2.Contains("Member")
                         ? StatusCode(404, "Error: Group or member not found.")
                         : StatusCode(500, "Error: " + result.Item2);
+        }
+        else
+        {
+            return Forbid();
+        }
+    }
+    
+    [HttpDelete("moderatorRequest")]
+    [Authorize(Policy="AdminUserPolicy")]
+    public async Task<IActionResult> DeleteModeratorRequest(string email, string handle)
+    {
+        if (User.IsInRole("admin") ||
+            await MySqlService.GetMemberRole(User.FindFirst(ClaimTypes.Email).Value, handle) == GroupRole.admin || User.FindFirst(ClaimTypes.Email).Value == email)
+        {
+            await MySqlService.DeleteModeratorRequest(email, handle);
+
+            return StatusCode(204, "Moderator request successfully deleted.");
+        }
+        else
+        {
+            return Forbid();
+        }
+    }
+    
+    [HttpDelete("joinRequest")]
+    [Authorize(Policy="AdminUserPolicy")]
+    public async Task<IActionResult> DeleteJoinRequest(string email, string handle)
+    {
+        if (User.IsInRole("admin") ||
+            await MySqlService.GetMemberRole(User.FindFirst(ClaimTypes.Email).Value, handle) == GroupRole.admin || User.FindFirst(ClaimTypes.Email).Value == email)
+        {
+            await MySqlService.DeleteJoinRequest(email, handle);
+
+            return StatusCode(204, "Join request successfully deleted.");
         }
         else
         {
@@ -135,8 +312,9 @@ public class MemberController : ControllerBase, IMemberController
     public async Task<IActionResult> GetMemberRole(string email, string handle)
     {
         if (User.IsInRole("admin") ||
-            await MySqlService.GetMemberRole(User.FindFirst(ClaimTypes.Email).Value, handle) == GroupRole.admin ||
-            User.FindFirst(ClaimTypes.Email).Value == email)
+            User.FindFirst(ClaimTypes.Email).Value == email || 
+            await MySqlService.GetMemberRole(User.FindFirst(ClaimTypes.Email).Value, handle) == GroupRole.admin
+            )
         {
             GroupRole? role = await MySqlService.GetMemberRole(User.FindFirst(ClaimTypes.Email).Value, handle);
 
