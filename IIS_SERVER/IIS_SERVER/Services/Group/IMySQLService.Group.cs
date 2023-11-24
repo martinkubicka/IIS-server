@@ -1,10 +1,11 @@
 using IIS_SERVER.Group.Models;
+using IIS_SERVER.Member.Models;
 
 namespace IIS_SERVER.Services;
 
 public partial interface IMySQLService
 {
-    Task<bool> AddGroup(GroupListModel group);
+    Task<bool> AddGroup(GroupListModel group, MemberModel member);
 
     Task<GroupListModel?> GetGroup(string handle);
 

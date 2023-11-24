@@ -1,17 +1,19 @@
 using IIS_SERVER.Group.Models;
 using MySql.Data.MySqlClient;
+using IIS_SERVER.Member.Models;
 
 namespace IIS_SERVER.Services;
 
 public partial class MySQLService : IMySQLService
 {
-    public async Task<bool> AddGroup(GroupListModel group)
+    public async Task<bool> AddGroup(GroupListModel group, MemberModel member)
     {
         using (var NewConnection = new MySqlConnection(ConnectionString))
         {
             NewConnection.Open();
             try
             {
+                // create group
                 string insertQuery =
                     "INSERT INTO `Groups` (Id, Handle, Name, Description, Icon) "
                     + "VALUES (@Id, @Handle, @Name, @Description, @Icon)";
@@ -27,6 +29,22 @@ public partial class MySQLService : IMySQLService
                     await cmd.ExecuteNonQueryAsync();
                 }
 
+                // add member as admin
+                string insertQuery2 =
+                    "INSERT INTO Member (Id, Handle, Email, GroupRole, Icon, Name) "
+                    + "VALUES (@Id, @Handle, @Email, @GroupRole, @Icon, @Name)";
+
+                using (MySqlCommand cmd = new MySqlCommand(insertQuery2, NewConnection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", Guid.NewGuid());
+                    cmd.Parameters.AddWithValue("@Handle", member.Handle);
+                    cmd.Parameters.AddWithValue("@Email", member.Email);
+                    cmd.Parameters.AddWithValue("@GroupRole", (int)member.Role);
+                    cmd.Parameters.AddWithValue("@Icon", member.Icon);
+                    cmd.Parameters.AddWithValue("@Name", member.Name);
+
+                    await cmd.ExecuteNonQueryAsync();
+                }
                 return true;
             }
             catch (Exception ex)

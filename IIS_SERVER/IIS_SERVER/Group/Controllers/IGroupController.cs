@@ -1,11 +1,12 @@
 using IIS_SERVER.Group.Models;
+using IIS_SERVER.Member.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IIS_SERVER.Group.Controllers;
 
 public interface IGroupController
 {
-    Task<IActionResult> AddGroup(GroupEmailModel ownerEmail);
+    Task<IActionResult> AddGroup(GroupMemberCompositeModel model);
 
     Task<IActionResult> GetGroup(string handle);
 

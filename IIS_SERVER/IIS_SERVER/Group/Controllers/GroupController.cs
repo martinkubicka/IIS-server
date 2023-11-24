@@ -4,6 +4,7 @@ using IIS_SERVER.Services;
 using IIS_SERVER.Group.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using IIS_SERVER.Member.Models;
 
 namespace IIS_SERVER.Group.Controllers;
 
@@ -20,18 +21,18 @@ public class GroupController : ControllerBase, IGroupController
 
     [HttpPost("add")]
     [Authorize(Policy = "AdminUserPolicy")]
-    public async Task<IActionResult> AddGroup(GroupEmailModel group)
+    public async Task<IActionResult> AddGroup([FromBody] GroupMemberCompositeModel model)
     {
         try
         {
-            bool result = await MySqlService.AddGroup(group);
+            bool result = await MySqlService.AddGroup(model.Group, model.Member);
             if (result)
             {
-                return StatusCode(201, "Group successfully added to DB.");
+                return StatusCode(201, "Group successfully added to DB. Member successfully added to Group as Admin.");
             }
             else
             {
-                return StatusCode(500, "Error: Failed to add the Group to the database.");
+                return StatusCode(500, "Error: Failed to add the Group to the database or set member member as admin.");
             }
         }
         catch (Exception ex)
