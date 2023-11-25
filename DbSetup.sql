@@ -245,6 +245,25 @@ END; //
 
 DELIMITER ;
 
+DELIMITER //
+
+CREATE TRIGGER CheckDuplicatesJoinRequests
+BEFORE INSERT ON JoinRequest
+FOR EACH ROW
+BEGIN
+    DECLARE handle_count INT;
+    DECLARE member_count INT;
+    SET handle_count = (SELECT COUNT(*) FROM JoinRequest WHERE Handle = NEW.Handle AND Email = NEW.Email);
+    SET member_count = (SELECT COUNT(*) FROM Member WHERE Handle = NEW.Handle AND Email = NEW.Email);
+    
+    IF handle_count > 0 OR member_count > 0 THEN
+        SIGNAL SQLSTATE '45002'
+        SET MESSAGE_TEXT = 'User requested to join to this group or is already a member.';
+    END IF;
+END; //
+
+DELIMITER ;
+
 -- Insert additional sample user data
 INSERT INTO Users (Id, Email, Password, Handle, Name, Role, VisibilityRegistered, VisibilityGuest, VisibilityGroup, Icon)
 VALUES
