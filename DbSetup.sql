@@ -267,6 +267,10 @@ DELIMITER ;
 -- Insert additional sample user data
 INSERT INTO Users (Id, Email, Password, Handle, Name, Role, VisibilityRegistered, VisibilityGuest, VisibilityGroup, Icon)
 VALUES
+    ('89e619ff-1593-4fae-a4e1-8b5268c4c9a1', 'admin@admin.com', '$2a$10$BBCx8vKl5YwlivXpqH/.r.jrE4r2DWE9FoNc9x/KwmLY4zOs5NekC', 'admin', 'Admin Admin', 0, TRUE, TRUE, TRUE, 'smile'),
+    ('81e619ff-1593-4fae-a4e1-8b5268c4c9a1', 'moderatorTravelLovers@moderator.com', '$2a$10$BBCx8vKl5YwlivXpqH/.r.jrE4r2DWE9FoNc9x/KwmLY4zOs5NekC', 'moderator', 'Moderator Moderator', 1, TRUE, TRUE, TRUE, 'smile'),
+    ('82e619ff-1593-4fae-a4e1-8b5268c4c9a1', 'memberTravelLovers@member.com', '$2a$10$BBCx8vKl5YwlivXpqH/.r.jrE4r2DWE9FoNc9x/KwmLY4zOs5NekC', 'member', 'Member Member', 1, TRUE, TRUE, TRUE, 'smile'),
+    ('83e619ff-1593-4fae-a4e1-8b5268c4c9a1', 'adminTravelLovers@admin.com', '$2a$10$BBCx8vKl5YwlivXpqH/.r.jrE4r2DWE9FoNc9x/KwmLY4zOs5NekC', 'adminTravelLovers', 'Admin TravelLovers', 1, TRUE, TRUE, TRUE, 'smile'),
     ('85e619ff-1593-4fae-a4e1-8b5268c4c9a1', 'john.doe@example.com', '$2a$10$BBCx8vKl5YwlivXpqH/.r.jrE4r2DWE9FoNc9x/KwmLY4zOs5NekC', 'john_doe', 'John Doe', 0, TRUE, TRUE, TRUE, 'smile'),
     ('b9d3a8e4-3a62-4b21-a5c8-5ebc0b3bf929', 'jane.smith@example.com', '$2a$10$BBCx8vKl5YwlivXpqH/.r.jrE4r2DWE9FoNc9x/KwmLY4zOs5NekC', 'jane_smith', 'Jane Smith', 1, TRUE, TRUE, TRUE, 'star'),
     ('e7ac07c1-7dcd-4b36-b2a3-1f676f10a0ab', 'mark.johnson@example.com', '$2a$10$BBCx8vKl5YwlivXpqH/.r.jrE4r2DWE9FoNc9x/KwmLY4zOs5NekC', 'mark_johnson', 'Mark Johnson', 1, TRUE, TRUE, TRUE, 'racoon'),
@@ -287,15 +291,16 @@ VALUES
     ('6f3b4120-5f63-482c-8b0c-8d94fbd8b2f6', 'tech-enthusiasts', 'A group for tech enthusiasts', 'Tech Enthusiasts', TRUE, TRUE, 'computer'),
     ('85c2f0d8-6f3d-48c7-9f5a-7c1e8e1f72f5', 'music-lovers', 'For those who love music', 'Music Lovers', TRUE, TRUE, 'musical_note');
 
-
-
 -- Insert additional sample member data
 INSERT INTO Member (Id, Handle, Email, GroupRole, Icon, Name)
 VALUES
     ('ab9cfbc31-1c33-446d-bcae-8c045108b704', 'cooking-enthusiasts', 'emily.brown@example.com', 0, 'thinking', 'Emily Brown'),
     ('cf9d8f37c-69e5-4e64-a3f0-b006b1a88cb4', 'cooking-enthusiasts', 'david.wilson@example.com', 2, 'tennis', 'David Wilson'),
     ('8f5de2a3-7a0b-4f29-9842-5c2727e27483', 'cooking-enthusiasts', 'linda.jones@example.com', 1, 'jamaica', 'Linda Jones'),
-    ('ab9cfbc31-1c33-446d-bcae-8c055108b704', 'travel-lovers', 'john.doe@example.com', 0, 'smile', 'John Doe'),
+    ('c19d8f37c-69e5-4e64-a3f0-b007b1a88cb4', 'travel-lovers', 'moderatorTravelLovers@moderator.com', 2, 'smile', 'Moderator Moderator'),
+    ('c49d8f37c-69e5-4e64-a3f0-b007b1a88cb4', 'travel-lovers', 'adminTravelLovers@admin.com', 0, 'smile', 'Admin TravelLovers'),
+    ('ab9cfbc31-1c33-446d-bcae-8c055108b704', 'travel-lovers', 'john.doe@example.com', 1, 'smile', 'John Doe'),
+    ('ac9cfbc31-1c33-446d-bcae-8c055108b704', 'travel-lovers', 'memberTravelLovers@member.com', 1, 'smile', 'Member Member'),
     ('cf9d8f37c-69e5-4e64-a3f0-b007b1a88cb4', 'travel-lovers', 'jane.smith@example.com', 2, 'star', 'Jane Smith'),
     ('a0b3bc17-1c33-4d6d-bc3e-8c4a5a9a8c04', 'tech-enthusiasts', 'michael.jones@example.com', 0, 'shark', 'Michael Jones'),
     ('c8f6b4c4-6e6e-4e6e-8e6e-1a7e6e7e7e7e', 'tech-enthusiasts', 'lisa.martin@example.com', 2, 'sun', 'Lisa Martin'),
