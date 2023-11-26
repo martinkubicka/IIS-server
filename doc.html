@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>Projekt IIS</title>
+	<style type="text/css">
+		table {
+			border-collapse: collapse;
+		}
+
+		td,
+		th {
+			border: 1px solid black;
+			padding: 0.3em 0.5em;
+			text-align: left;
+		}
+
+		dt {
+			font-weight: bold;
+			margin-top: 0.5em;
+		}
+	</style>
+</head>
+
+<body>
+
+	<!-- Zkontrolujte pros�m nastaven� k�dov�n� v hlavi�ce dokumentu 
+     podle pou�it�ho editoru -->
+
+	<h1>Sociální síť</h1> <!-- Nahradte n�zvem sv�ho zad�n� -->
+
+	<dl>
+		<dt>Autoři</dt>
+		<dd>Martin Kubička <!-- Nahra�te skute�n�m jm�nem a e-mailem autora a popisem �innosti -->
+			<a href="mailto:xkubic45@stud.fit.vutbr.cz">xkubic45@stud.fit.vutbr.cz</a>
+			<br />
+			Dizajn a implementácia stránok skupín
+			<br />
+			Dizajn a implementácia stránok prihlasovania a registrácie
+			<br />
+			Dizajn a implementácia navigácie
+			<br />
+			<br />
+		</dd>
+		<dd>Matěj Macek <!-- Nahra�te skute�n�m jm�nem a e-mailem autora a popisem �innosti -->
+			<a href="mailto:xmacek27@stud.fit.vutbr.cz">xmacek27@stud.fit.vutbr.cz</a>
+			<br />
+			Dizajn a implementácia úvodnej stránky
+			<br />
+			Dizajn a implementácia stránky profilu
+			<br />
+			<br />
+		</dd>
+		<dd>Dominik Petřík <!-- Nahra�te skute�n�m jm�nem a e-mailem autora a popisem �innosti -->
+			<a href="mailto:xpetri25@stud.fit.vutbr.cz">xpetri25@stud.fit.vutbr.cz</a>
+			<br />
+			Dizajn a implementácia stránky vlákna
+			<br />
+			Dizajn a implementácia stránky vyhladávania
+			<br />
+			<br />
+		</dd>
+		<dt>URL aplikace</dt>
+		<p>Frontend:</p>
+		<dd><a
+				href="https://prod--musical-haupia-37aecd.netlify.app">https://prod--musical-haupia-37aecd.netlify.app</a>
+		</dd>
+		<p>Backend (Swagger):</p>
+		<dd><a
+				href="https://antioznuk-api.azurewebsites.net/index.html">https://antioznuk-api.azurewebsites.net/index.html</a>
+		</dd>
+	</dl>
+
+	<h2>Uživatelé systému pro testování</h2>
+	<table>
+		<tr>
+			<th>Login</th>
+			<th>Heslo</th>
+			<th>Role</th>
+		</tr>
+		<tr>
+			<td>admin@admin.com</td>
+			<td>Password1@</td>
+			<td>Server administrátor</td>
+		</tr>
+		<tr>
+			<td>adminTravelLovers@admin.com</td>
+			<td>Password1@</td>
+			<td>Administrátor v skupine Travel Lovers</td>
+		</tr>
+		<tr>
+			<td>moderatorTravelLovers@moderator.com</td>
+			<td>Password1@</td>
+			<td>Moderátor v skupine Travel Lovers</td>
+		</tr>
+		<tr>
+			<td>linda.jones@example.com</td>
+			<td>Password1@</td>
+			<td>Bežný registrovaný uživateľ</td>
+		</tr>
+	</table>
+
+	<h3>Video</h3>
+	<a href="https://youtu.be/BKnTwmc1M3Q">https://youtu.be/BKnTwmc1M3Q</a>
+
+	<h2>Implementace</h2>
+	TODO
+	<p>Stru�n� dokumentace k implementaci, kter� popisuje, kter� ��sti projektu (nap�. PHP skripty) implementuj�
+		jednotliv� p��pady pou�it�.</p>
+
+	<h3>Databáze</h3>
+
+	<img src="DbSchemaDiagram.png" alt="Database Schema Diagram" width="800">
+
+	<h2>Instalace</h2>
+	Najskôr je potrebné si rozbehať a spustiť backend a následne frontend.
+
+	<h4>Databáza</h4>
+	Databáza beží na serveri a preto nie je potrebné ju nijako inicliazovať, ale pre prípad reštartovania existuje
+	skript v archíve BE DbSetup.sh, ktorý vymaže a inicializuje databázu.
+	<ul>
+		<li>cd BE</li>
+		<li>chmod +x DbSetup.sh</li>
+		<li>./DbSetup.sh</li>
+	</ul>
+
+	<h4>Backend</h4>
+	<ul>
+		<li>Požadovaná nainštalovaná verzia je .NET7</li>
+		<li>cd BE/IIS_SERVER/IIS_SERVER</li>
+		<li>Ďalej doporučujem nemeniť veci a iba skopírovať do terminálu.</li>
+		<li>dotnet user-secrets set "DB_ConnectionString"
+			"Server=antioznuk-martinkubicka22-d781.aivencloud.com;Port=15939;Database=defaultdb;Uid=avnadmin;Pwd=AVNS_4iCQ_2BI9PsIL6BZ2nu;"
+		</li>
+		<li>dotnet user-secrets set "jwt_issuer" "secretkeyissuer"</li>
+		<li>dotnet user-secrets set "jwt_audience" "http://localhost:5203/"</li>
+		<li>dotnet user-secrets set "jwt_secret" "iis-itu-super-secret-extra-long-key"</li>
+		<li>Pri následujúcom kroku je potrebné mať nastavený gmail účet (pre lokálne testovanie doporučujem sa s tým
+			netrápiť a zadať hocičo (v nasadenej verzii to funguje) - nepôjde forgot password)</li>
+		<li>dotnet user-secrets set "mail" "your gmail" </li>
+		<li>dotnet user-secrets set "mail_password" "your password"</li>
+		<li>dotnet user-secrets set "salt" "iis-itu-salt"</li>
+		<li>dotnet run</li>
+	</ul>
+
+	<h4>Frontend</h4>
+	<ul>
+		<li>Požadovaná nainštalovaná verzia je Nodejs > 16</li>
+		<li>cd FE (z hlavného adresára)</li>
+		<li>npm install</li>
+		<li>npm run dev</li>
+	</ul>
+
+	<h2>Známé problémy</h2>
+	<p>Všetky požiadavky zadania boli naimplementované.</p>
+
+</body>
+
+</html>
