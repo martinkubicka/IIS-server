@@ -122,76 +122,76 @@
     <h2>Implementace</h2>
 
     <p>
-      Pro serverovou část jsme použili framework .NET společně s MVC, MVC je
-      architektonický vzor, který je v .NET frameworku implementován v rámci
-      ASP.NET MVC (Model-View-Controller). Tento vzor odděluje aplikaci do tří
-      základních částí: Model (datová reprezentace a logika), View (uživatelské
-      rozhraní) a Controller (řídící logika).
+      Pre serverovú časť sme použili framework .NET spoločne s MVC, MVC je
+      architektonický vzor, ktorý je v .NET frameworku implementovaný v rámci
+      ASP.NET MVC (Model-View-Controller). Tento vzor oddeľuje aplikáciu do troch
+      základných častí: Model (dátová reprezentácia a logika), View (užívateľské
+      rozhranie) a Controller (riadiaca logika).
     </p>
 
-    <h3>Struktura projektu</h3>
+    <h3>Štruktúra projektu</h3>
     <ul>
-      <li>Enums: Obsahuje enumerace pro role uživatelů a role ve skupinách.</li>
-      <li>Group: Obsahuje kontrolery a modely související se skupinami.</li>
-      <li>Hubs: Obsahuje SignalR hub pro real-time komunikaci.</li>
-      <li>Login: Kontrolery a modely pro autentizaci a správu hesel.</li>
-      <li>Member: Kontrolery a modely pro správu členství v skupinách.</li>
-      <li>Post: Kontrolery a modely pro správu příspěvků.</li>
-      <li>Rating: Kontrolery a modely pro hodnocení příspěvků.</li>
-      <li>Thread: Kontrolery a modely pro správu diskusních vláken.</li>
-      <li>User: Kontrolery a modely pro správu uživatelských profilů.</li>
-      <li>Services: Obsahuje služby pro komunikaci s databází a další logiku.</li>
-      <li>Utils: Obsahuje užitečné třídy a atributy.</li>
+      <li>Enums: Obsahuje enumerácie pre roly užívateľov a roly v skupinách.</li>
+      <li>Group: Obsahuje kontrolérov a modely súvisiace so skupinami.</li>
+      <li>Hubs: Obsahuje SignalR hub pre real-time komunikáciu.</li>
+      <li>Login: Kontroléry a modely pre autentizáciu a správu hesiel.</li>
+      <li>Member: Kontroléry a modely pre správu členstva v skupinách.</li>
+      <li>Post: Kontroléry a modely pre správu príspevkov.</li>
+      <li>Rating: Kontroléry a modely na hodnotenie príspevkov.</li>
+      <li>Thread: Kontroléry a modely pre správu diskusných vlákien.</li>
+      <li>User: Kontrolery a modely pre správu užívateľských profilov.</li>
+      <li>Services: Obsahuje služby pre komunikáciu s databázou a ďalšiu logiku.</li>
+      <li>Utils: Obsahuje užitočné triedy a atribúty.</li>
   </ul>
-  
+ 
 
-    <h3>Kontroléry a Případy Použití</h3>
+    <h3>Kontroléry a prípady použitia</h3>
 
     <p>
-      V jednotlivých kontrolech jsou definovány samotné endpointy a jejich
-      zpracování.
+      V jednotlivých kontrolách sú definované samotné endpointy a ich
+      spracovanie.
     </p>
     <p>
-      Následující tabulka uvádí, které kontroléry implementují jednotlivé
-      případy použití:
+      Nasledujúca tabuľka uvádza, ktoré kontroléry implementujú jednotlivé
+      prípady použitia:
     </p>
 
     <table border="1">
       <tr>
-        <th>Případ Použití</th>
+        <th>Prípad Použitie</th>
         <th>Kontrolér</th>
       </tr>
       <tr>
-        <td>Přihlášení uživatele</td>
-        <td>LoginController.cs</td>
+        <td>Prihlásenie používateľa</td>
+        <td>LoginController.sk</td>
       </tr>
       <tr>
-        <td>Správa skupin</td>
+        <td>Správa skupín</td>
         <td>GroupController.cs</td>
       </tr>
       <tr>
-        <td>Správa členů skupin</td>
+        <td>Správa členov skupín</td>
         <td>MemberController.cs</td>
       </tr>
       <tr>
-        <td>Správa vláken</td>
-        <td>ThreadController.cs</td>
+        <td>Správa vlákien</td>
+        <td>ThreadController.sk</td>
       </tr>
       <tr>
-        <td>Přidávání, získávání a správa příspěvků</td>
-        <td>PostController.cs</td>
+        <td>Pridávanie, získavanie a správa príspevkov</td>
+        <td>PostController.sk</td>
       </tr>
       <tr>
-        <td>Přidávání, získávání a správa hodnocení</td>
-        <td>RatingController.cs</td>
+        <td>Pridávanie, získavanie a správa hodnotenia</td>
+        <td>RatingController.sk</td>
       </tr>
       <tr>
-        <td>Správa uživatelů</td>
+        <td>Správa užívateľov</td>
         <td>UserController.cs</td>
       </tr>
     </table>
     <br/>
-    <h4>Ukázka jednoduchého kontroleru</h4>
+    <h4>Ukážka jednoduchého kontroléra</h4>
     <code style="white-space: pre-wrap;">
     [HttpGet("getPost/{postId}")]
     public async Task<IActionResult> GetPost(Guid postId)
@@ -210,16 +210,16 @@
 
     <h2>MySQL Databáze</h2>
     <p>
-      Pro ukládání a získávání dat je v projektu používána MySQL databáze. Níže
-      jsou uvedeny klíčové služby spojené s databází:
+      Pre ukladanie a získavanie dát je v projekte používaná MySQL databáza. Nižšie
+      sú uvedené kľúčové služby spojené s databázou:
     </p>
     <ul>
       <li>
-        <strong>IMySQLService:</strong> Rozhraní pro komunikaci s MySQL
-        databází.
+        <strong>IMySQLService:</strong> Rozhranie pre komunikáciu s MySQL
+        databáz.
       </li>
       <li>
-        <strong>MySQLService:</strong> Implementace služby pro práci s databází.
+        <strong>MySQLService:</strong> Implementácia služby pre prácu s databázou.
       </li>
       <!-- ... (repeat for other services) -->
     </ul>
