@@ -89,7 +89,7 @@ namespace IIS_SERVER
                     builder =>
                     {
                         builder
-                            .WithOrigins("http://127.0.0.1:5173", "http://localhost:5203", "http://localhost:5173", "https://musical-haupia-37aecd.netlify.app", "https://prod--musical-haupia-37aecd.netlify.app")
+                            .WithOrigins("http://127.0.0.1:5173", "http://localhost:5203", "http://localhost:5173", "https://musical-haupia-37aecd.netlify.app", "https://prod--musical-haupia-37aecd.netlify.app", "https://prod--dazzling-bunny-e92364.netlify.app", "https://dazzling-bunny-e92364.netlify.app")
                             .AllowAnyMethod()
                             .AllowAnyHeader()
                             .AllowCredentials();
