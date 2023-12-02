@@ -22,8 +22,51 @@ jobs:
           dotnet-version: '7.x'
           include-prerelease: true
 
+      - name: Update appsettings.json
+        run: |
+              cd IIS_SERVER/IIS_SERVER
+              jq --arg jwtSecret "${{ secrets.JWT_SECRET_SECRET }}" \
+                '.jwt_secret = $jwtSecret' \
+                appsettings.json > appsettings.json.tmp
+              mv appsettings.json.tmp appsettings.json
+
+              jq --arg jwtSecret "${{ secrets.JWT_ISSUER_SECRET }}" \
+                '.jwt_issuer = $jwtSecret' \
+                appsettings.json > appsettings.json.tmp
+              mv appsettings.json.tmp appsettings.json
+
+              jq --arg jwtSecret "${{ secrets.JWT_AUDIENCE_SECRET }}" \
+                '.jwt_audience = $jwtSecret' \
+                appsettings.json > appsettings.json.tmp
+              mv appsettings.json.tmp appsettings.json
+
+              jq --arg jwtSecret "${{ secrets.DB_CONNECTION_STRING_SECRET }}" \
+                '.DB_ConnectionString = $jwtSecret' \
+                appsettings.json > appsettings.json.tmp
+              mv appsettings.json.tmp appsettings.json
+
+              jq --arg jwtSecret "${{ secrets.SALT_SECRET }}" \
+                '.salt = $jwtSecret' \
+                appsettings.json > appsettings.json.tmp
+              mv appsettings.json.tmp appsettings.json
+
+              jq --arg jwtSecret "${{ secrets.MAIL_SECRET }}" \
+                '.mail = $jwtSecret' \
+                appsettings.json > appsettings.json.tmp
+              mv appsettings.json.tmp appsettings.json
+
+              jq --arg jwtSecret "${{ secrets.MAIL_PASSWORD_SECRET }}" \
+                '.mail_password = $jwtSecret' \
+                appsettings.json > appsettings.json.tmp
+              mv appsettings.json.tmp appsettings.json
+
+              cat appsettings.json
+
       - name: Build with dotnet
-        run: dotnet build --configuration Release
+        run: |
+              cd IIS_SERVER
+              ls
+              dotnet build --configuration Release
 
       - name: dotnet publish
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
