@@ -1,3 +1,11 @@
+/**
+* @file MySQLService.cs
+* author { Martin Kubicka (xkubic45), Dominik Petrik (xpetri25), Matej Macek (xmacek27) }
+* @date 17.12.2023
+* @brief Main file for MySQL service
+*/
+
+
 using MySql.Data.MySqlClient;
 
 namespace IIS_SERVER.Services;

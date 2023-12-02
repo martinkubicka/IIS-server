@@ -1,3 +1,11 @@
+/**
+* @file PasswordValidationAttribute.cs
+* author { Martin Kubicka (xkubic45) }
+* @date 17.12.2023
+* @brief Validation of password attribute
+*/
+
+
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;

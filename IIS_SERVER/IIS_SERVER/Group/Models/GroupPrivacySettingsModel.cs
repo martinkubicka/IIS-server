@@ -1,3 +1,10 @@
+/**
+* @file GroupPrivacySettingsModel.cs
+* @author { Martin Kubicka (xkubic45) }
+* @date 17.12.2023
+* @brief Defintion of group privacy settings model
+*/
+
 namespace IIS_SERVER.Group.Models;
 
 public class GroupPrivacySettingsModel

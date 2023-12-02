@@ -1,3 +1,10 @@
+/**
+* @file RequestDataModel.cs
+* author { Martin Kubicka (xkubic45) }
+* @date 17.12.2023
+* @brief Definition of RequestDataModel
+*/
+
 using System.ComponentModel.DataAnnotations;
 using IIS_SERVER.Enums;
 using IIS_SERVER.Utils;

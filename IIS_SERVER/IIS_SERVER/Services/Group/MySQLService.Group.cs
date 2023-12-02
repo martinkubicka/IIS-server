@@ -1,3 +1,10 @@
+/**
+* @file MySQLService.Group.cs
+* author { Martin Kubicka (xkubic45) }
+* @date 17.12.2023
+* @brief Definition of service for group
+*/
+
 using IIS_SERVER.Group.Models;
 using MySql.Data.MySqlClient;
 using IIS_SERVER.Member.Models;

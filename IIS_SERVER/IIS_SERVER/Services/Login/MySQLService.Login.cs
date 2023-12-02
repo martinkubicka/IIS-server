@@ -1,3 +1,10 @@
+/**
+* @file MySQLService.Login.cs
+* author { Martin Kubicka (xkubic45) }
+* @date 17.12.2023
+* @brief Definition of service for login
+*/
+
 using IIS_SERVER.Login.Models;
 using IIS_SERVER.User.Models;
 using MySql.Data.MySqlClient;

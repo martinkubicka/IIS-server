@@ -1,3 +1,10 @@
+/**
+* @file ILoginController.cs
+* @author { Martin Kubicka (xkubic45) }
+* @date 17.12.2023
+* @brief Declaration of login controller
+*/
+
 using IIS_SERVER.Login.Models;
 using Microsoft.AspNetCore.Mvc;
 

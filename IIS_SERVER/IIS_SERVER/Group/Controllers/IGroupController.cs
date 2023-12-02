@@ -1,3 +1,10 @@
+/**
+* @file IGroupController.cs
+* @author { Martin Kubicka (xkubic45) }
+* @date 17.12.2023
+* @brief Declaration of group controller
+*/
+
 using IIS_SERVER.Group.Models;
 using IIS_SERVER.Member.Models;
 using Microsoft.AspNetCore.Mvc;

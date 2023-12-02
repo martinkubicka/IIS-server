@@ -1,3 +1,10 @@
+/**
+* @file IMySQLService.Group.cs
+* author { Martin Kubicka (xkubic45) }
+* @date 17.12.2023
+* @brief Declaration of service for group
+*/
+
 using IIS_SERVER.Group.Models;
 using IIS_SERVER.Member.Models;
 

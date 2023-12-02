@@ -1,3 +1,10 @@
+/**
+* @file Startup.cs
+* author { Martin Kubicka (xkubic45) }
+* @date 17.12.2023
+* @brief Main startup file where things are initialized
+*/
+
 using System.Text;
 using IIS_SERVER.Hubs;
 using IIS_SERVER.Services;

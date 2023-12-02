@@ -1,3 +1,10 @@
+/**
+* @file MemberController.cs
+* author { Martin Kubicka (xkubic45) }
+* @date 17.12.2023
+* @brief Declaration of controller for member endpoints
+*/
+
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Threading.Channels;

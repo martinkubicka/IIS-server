@@ -1,6 +1,12 @@
+/**
+* @file GroupListModel.cs
+* @author { Martin Kubicka (xkubic45) }
+* @date 17.12.2023
+* @brief Defintion of group list model
+*/
+
 using System.ComponentModel.DataAnnotations;
 using IIS_SERVER.Utils;
-
 
 namespace IIS_SERVER.Group.Models;
 

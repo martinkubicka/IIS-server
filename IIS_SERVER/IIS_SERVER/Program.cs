@@ -1,3 +1,11 @@
+/**
+* @file Program.cs
+* author { Martin Kubicka (xkubic45) }
+* @date 17.12.2023
+* @brief Main startup file where things are initialized
+*/
+
+
 using Serilog;
 using IIS_SERVER;
 

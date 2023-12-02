@@ -1,4 +1,12 @@
-﻿using IIS_SERVER.Thread.Models;
+﻿/**
+* @file IThreadController.cs
+* author { Martin Kubicka (xkubic45) }
+* @date 17.12.2023
+* @brief Declaration of thread controller
+*/
+
+
+using IIS_SERVER.Thread.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IIS_SERVER.Thread.Controllers

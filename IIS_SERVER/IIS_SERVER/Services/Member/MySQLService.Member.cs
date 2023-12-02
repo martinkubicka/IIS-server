@@ -1,3 +1,11 @@
+/**
+* @file MySQLService.Member.cs
+* author { Martin Kubicka (xkubic45) }
+* @date 17.12.2023
+* @brief Definition of service for member
+*/
+
+
 using IIS_SERVER.Member.Models;
 using IIS_SERVER.Enums;
 using IIS_SERVER.User.Models;

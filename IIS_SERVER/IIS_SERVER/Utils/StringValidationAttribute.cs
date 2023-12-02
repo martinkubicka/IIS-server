@@ -1,3 +1,11 @@
+/**
+* @file StringValidationAttribute.cs
+* author { Martin Kubicka (xkubic45) }
+* @date 17.12.2023
+* @brief Validation of string attribute
+*/
+
+
 using System.ComponentModel.DataAnnotations;
 
 namespace IIS_SERVER.Utils;

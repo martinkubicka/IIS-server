@@ -1,3 +1,10 @@
+/**
+* @file GroupEmailModel.cs
+* @author { Martin Kubicka (xkubic45) }
+* @date 17.12.2023
+* @brief Defintion of group email model
+*/
+
 using System.ComponentModel.DataAnnotations;
 namespace IIS_SERVER.Group.Models;
 

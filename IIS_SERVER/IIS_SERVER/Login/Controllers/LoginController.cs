@@ -1,3 +1,10 @@
+/**
+* @file LoginController.cs
+* @author { Martin Kubicka (xkubic45) }
+* @date 17.12.2023
+* @brief Definition of login controller
+*/
+
 using System.Configuration;
 using IIS_SERVER.Services;
 using Microsoft.AspNetCore.Authorization;

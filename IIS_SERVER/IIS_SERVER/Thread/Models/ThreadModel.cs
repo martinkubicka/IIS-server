@@ -1,3 +1,11 @@
+/**
+* @file ThreadModel.cs
+* author { Martin Kubicka (xkubic45) }
+* @date 17.12.2023
+* @brief Definition of thread model
+*/
+
+
 using System;
 using System.ComponentModel.DataAnnotations;
 

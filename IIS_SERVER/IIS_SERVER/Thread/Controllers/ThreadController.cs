@@ -1,4 +1,12 @@
-﻿using System.Security.Claims;
+﻿/**
+* @file ThreadController.cs
+* author { Martin Kubicka (xkubic45) }
+* @date 17.12.2023
+* @brief Definition of thread controller
+*/
+
+
+using System.Security.Claims;
 using IIS_SERVER.Enums;
 using IIS_SERVER.Services;
 using IIS_SERVER.Thread.Models;

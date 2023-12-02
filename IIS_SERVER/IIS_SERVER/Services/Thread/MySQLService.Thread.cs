@@ -1,3 +1,11 @@
+/**
+* @file MySQLService.Thread.cs
+* author { Martin Kubicka (xkubic45) }
+* @date 17.12.2023
+* @brief Definition of service for thread
+*/
+
+
 using IIS_SERVER.Thread.Models;
 using MySql.Data.MySqlClient;
 
