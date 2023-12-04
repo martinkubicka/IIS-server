@@ -1,3 +1,11 @@
+/**
+* @file UserController.cs
+* author { Matìj Macek (xmacek27)}
+* @date 17.12.2023
+* @brief Definition of User controller
+*/
+
+
 using IIS_SERVER.Services;
 using IIS_SERVER.User.Models;
 using Microsoft.AspNetCore.Mvc;

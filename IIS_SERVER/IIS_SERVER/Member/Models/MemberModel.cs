@@ -1,6 +1,6 @@
 /**
 * @file MemberModel.cs
-* author { Martin Kubicka (xkubic45) }
+* author { Martin Kubicka (xkubic45)  Matìj Macek (xmacek27)}
 * @date 17.12.2023
 * @brief Definition of member model
 */
