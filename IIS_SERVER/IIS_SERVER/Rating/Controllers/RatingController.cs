@@ -1,3 +1,10 @@
+/**
+* @file RatingController.cs
+* author { Dominik Petrik (xpetri25) }
+* @date 17.12.2023
+* @brief Definition of controller for rating endpoints
+*/
+
 using IIS_SERVER.Services;
 using IIS_SERVER.Rating.Models;
 using Microsoft.AspNetCore.Mvc;

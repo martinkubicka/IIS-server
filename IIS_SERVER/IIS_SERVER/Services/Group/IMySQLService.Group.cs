@@ -1,6 +1,6 @@
 /**
 * @file IMySQLService.Group.cs
-* author { Martin Kubicka (xkubic45) }
+* author { Dominik Petrik (xpetri25) Martin Kubicka (xkubic45) }
 * @date 17.12.2023
 * @brief Declaration of service for group
 */

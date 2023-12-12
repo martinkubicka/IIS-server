@@ -1,6 +1,6 @@
 /**
 * @file MySQLService.Group.cs
-* author { Martin Kubicka (xkubic45) }
+* author { Dominik Petrik (xpetri25) Martin Kubicka (xkubic45) }
 * @date 17.12.2023
 * @brief Definition of service for group
 */
@@ -112,7 +112,8 @@ public partial class MySQLService : IMySQLService
             NewConnection.Open();
             try
             {
-                string selectQuery = "SELECT G.* FROM `Groups` G INNER JOIN Member M ON G.Handle = M.Handle WHERE M.Email = (SELECT Email FROM Users WHERE Handle = @Handle)";
+                string selectQuery =
+                    "SELECT G.* FROM `Groups` G INNER JOIN Member M ON G.Handle = M.Handle WHERE M.Email = (SELECT Email FROM Users WHERE Handle = @Handle)";
 
                 using (MySqlCommand cmd = new MySqlCommand(selectQuery, NewConnection))
                 {

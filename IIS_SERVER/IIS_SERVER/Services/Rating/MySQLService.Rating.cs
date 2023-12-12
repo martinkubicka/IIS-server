@@ -1,3 +1,10 @@
+/**
+* @file MySQLService.Rating.cs
+* author { Dominik Petrik (xpetri25) }
+* @date 17.12.2023
+* @brief Definition of service for rating
+*/
+
 using IIS_SERVER.Rating.Models;
 using MySql.Data.MySqlClient;
 

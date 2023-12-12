@@ -1,3 +1,10 @@
+/**
+* @file PostModel.cs
+* author { Dominik Petrik (xpetri25) }
+* @date 17.12.2023
+* @brief Definition of post model
+*/
+
 using System.ComponentModel.DataAnnotations;
 using IIS_SERVER.Utils;
 

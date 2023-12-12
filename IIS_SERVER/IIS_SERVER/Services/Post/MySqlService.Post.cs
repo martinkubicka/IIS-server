@@ -1,3 +1,10 @@
+/**
+* @file MySQLService.Post.cs
+* author { Dominik Petrik (xpetri25) }
+* @date 17.12.2023
+* @brief Definition of service for post
+*/
+
 using IIS_SERVER.Post.Models;
 using IIS_SERVER.Enums;
 using System.Data;

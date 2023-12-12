@@ -1,6 +1,6 @@
 /**
 * @file GroupController.cs
-* @author { Martin Kubicka (xkubic45) }
+* @author { Dominik Petrik (xpetri25) Martin Kubicka (xkubic45) }
 * @date 17.12.2023
 * @brief Defintion of group controller
 */
@@ -35,11 +35,17 @@ public class GroupController : ControllerBase, IGroupController
             bool result = await MySqlService.AddGroup(model.Group, model.Member);
             if (result)
             {
-                return StatusCode(201, "Group successfully added to DB. Member successfully added to Group as Admin.");
+                return StatusCode(
+                    201,
+                    "Group successfully added to DB. Member successfully added to Group as Admin."
+                );
             }
             else
             {
-                return StatusCode(500, "Error: Failed to add the Group to the database or set member member as admin.");
+                return StatusCode(
+                    500,
+                    "Error: Failed to add the Group to the database or set member member as admin."
+                );
             }
         }
         catch (Exception ex)

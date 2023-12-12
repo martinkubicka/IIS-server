@@ -1,3 +1,10 @@
+/**
+* @file RatingModel.cs
+* author { Dominik Petrik (xpetri25) }
+* @date 17.12.2023
+* @brief Definition of rating model
+*/
+
 using System.ComponentModel.DataAnnotations;
 
 namespace IIS_SERVER.Rating.Models;

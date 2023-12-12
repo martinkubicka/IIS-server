@@ -1,3 +1,10 @@
+/**
+* @file IMySQLService.Post.cs
+* author { Dominik Petrik (xpetri25) }
+* @date 17.12.2023
+* @brief Declaration of service for post
+*/
+
 using IIS_SERVER.Post.Models;
 
 namespace IIS_SERVER.Services;

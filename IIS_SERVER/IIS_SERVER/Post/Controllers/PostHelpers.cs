@@ -1,9 +1,15 @@
+/**
+* @file PostHelpers.cs
+* author { Dominik Petrik (xpetri25) }
+* @date 17.12.2023
+* @brief Definition of helpers for post endpoints
+*/
+
 using IIS_SERVER.Enums;
 using IIS_SERVER.Group.Models;
 using IIS_SERVER.Post.Models;
 using IIS_SERVER.Services;
 using IIS_SERVER.Thread.Models;
-using IIS_SERVER.User.Models;
 
 namespace IIS_SERVER.Helpers
 {
