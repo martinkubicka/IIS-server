@@ -1,3 +1,11 @@
+/**
+* @file MySQLService.User.cs
+* author {  Matìj Macek (xmacek27)}
+* @date 17.12.2023
+* @brief Definition of service for User
+*/
+
+
 using IIS_SERVER.User.Models;
 using MySql.Data.MySqlClient;
 using IIS_SERVER.Enums;

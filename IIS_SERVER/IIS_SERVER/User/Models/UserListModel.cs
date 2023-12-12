@@ -1,3 +1,10 @@
+/**
+* @file UserListModel.cs
+* author { Matìj Macek (xmacek27)}
+* @date 17.12.2023
+* @brief Definition of UserListModel model
+*/
+
 using System.ComponentModel.DataAnnotations;
 using IIS_SERVER.Utils;
 using IIS_SERVER.Enums;

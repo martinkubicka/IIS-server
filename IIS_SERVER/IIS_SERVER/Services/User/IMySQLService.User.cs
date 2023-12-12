@@ -1,3 +1,11 @@
+/**
+* @file IMySQLService.User.cs
+* author {Matìj Macek (xmacek27)}
+* @date 17.12.2023
+* @brief Declaration of service for User
+*/
+
+
 using IIS_SERVER.Enums;
 using IIS_SERVER.User.Models;
 

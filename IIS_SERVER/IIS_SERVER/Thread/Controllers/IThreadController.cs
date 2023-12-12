@@ -1,6 +1,6 @@
 ﻿/**
 * @file IThreadController.cs
-* author { Martin Kubicka (xkubic45) }
+* author { Martin Kubicka (xkubic45) Matěj Macek (xmacek27)}
 * @date 17.12.2023
 * @brief Declaration of thread controller
 */

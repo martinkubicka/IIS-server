@@ -1,6 +1,6 @@
 ﻿/**
 * @file GroupMemberCompositeModel.cs
-* @author { Martin Kubicka (xkubic45) }
+* @author { Martin Kubicka (xkubic45)  Matěj Macek (xmacek27)}
 * @date 17.12.2023
 * @brief Defintion of group member composite model
 */
